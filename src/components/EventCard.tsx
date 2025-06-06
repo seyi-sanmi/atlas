@@ -1,48 +1,70 @@
 import React from 'react';
 import { Event } from '../data/events';
+import { ArrowRight } from 'lucide-react';
 
 interface EventCardProps {
   event: Event;
   onClick: () => void;
-  isSelected: boolean;
+  isSelected?: boolean;
+  showTime?: boolean;
 }
 
-export function EventCard({
-  event,
-  onClick,
-  isSelected
-}: EventCardProps) {
-  const {
-    title,
-    time,
-    organizer,
-    location
-  } = event;
-  
+export function EventCard({ event, onClick, isSelected = false, showTime = true }: EventCardProps) {
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long',
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatTime = (timeStr: string) => {
+    if (!timeStr) return '';
+    const [start] = timeStr.split(' - ');
+    return start;
+  };
+
   return (
-    <div 
-      onClick={onClick} 
-      className={`
-        group flex items-center py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50
-        cursor-pointer transition-colors
-        ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''}
-      `}
+    <article
+      className={`group grid grid-cols-[3.2rem_1fr] sm:grid-cols-[3.9rem_1fr] transition-all cursor-pointer scroll-mt-36 ${
+        isSelected ? '' : ''
+      }`}
+      onClick={onClick}
     >
-      <span className="w-16 text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
-        {time.split(' - ')[0]}
-      </span>
-      <div className="min-w-0 flex-1">
-        <h3 className="text-base mb-0.5 line-clamp-1">{title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          <span className="font-medium">{organizer}</span>
-          {location && (
-            <>
-              <span className="mx-1">•</span>
-              <span>{location}</span>
-            </>
-          )}
-        </p>
+      <div className="pb-2 sm:pr-4 sm:px-3 sm:pt-1">
+        {showTime && (
+          <p className="text-sm sm:text-base sm:text-right">
+            {formatTime(event.time)}
+          </p>
+        )}
       </div>
-    </div>
+      <div className={`w-full border-b transition-all pb-3 sm:pt-1 border-gray-200 dark:border-gray-600 ${
+        isSelected ? 'sm:pb-8 border-b-2' : 'sm:pb-2'
+      }`}>
+        <div
+          className={`hover:underline underline-offset-4 transition-colors ${
+            isSelected 
+              ? 'underline decoration-gray-400' 
+              : 'hover:decoration-gray-400'
+          }`}
+        >
+          <p className="cursor-pointer">
+            <ArrowRight className={`inline transition-all relative ${
+              isSelected ? 'w-5 h-5 mr-1' : 'w-0'
+            }`} />
+            {event.title}
+          </p>
+        </div>
+        
+        {/* Event meta info - only show if not selected to keep list clean */}
+        {!isSelected && (
+          <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p>{event.organizer}</p>
+            {event.location && <p>{event.location}</p>}
+          </div>
+        )}
+      </div>
+    </article>
   );
 }

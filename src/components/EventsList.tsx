@@ -1,126 +1,101 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { EventCard } from './EventCard';
+import React, { useMemo } from 'react';
 import { Event } from '../data/events';
-import { groupEventsByDate } from '../utils/dateUtils';
+import { EventCard } from './EventCard';
 
 interface EventsListProps {
   events: Event[];
   onEventSelect: (event: Event) => void;
-  selectedEventId?: string;
+  selectedEvent: Event | null;
+  loading?: boolean;
 }
 
-export function EventsList({
-  events,
-  onEventSelect,
-  selectedEventId
-}: EventsListProps) {
-  const groupedEvents = groupEventsByDate(events);
-  const [currentDate, setCurrentDate] = useState<{ dayName: string; fullDate: string } | null>(null);
-  const [showStickyHeader, setShowStickyHeader] = useState(false);
-  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const headerHeight = 73; // Main header height
-      const eventsTitleHeight = 72; // Events title section height (corrected)
-      const offset = headerHeight + eventsTitleHeight + 50; // Add some buffer
-      
-      // Show sticky header after scrolling past 200px
-      setShowStickyHeader(scrollY > 200);
-
-      // Find which section we're currently in based on scroll position
-      let currentSection = null;
-      
-      for (const [dateKey, group] of groupedEvents) {
-        const sectionElement = sectionRefs.current[dateKey];
-        if (sectionElement) {
-          const rect = sectionElement.getBoundingClientRect();
-          const elementTop = rect.top + scrollY;
-          const elementBottom = elementTop + rect.height;
-          
-          // Check if the current scroll position (with offset) is within this section
-          if (scrollY + offset >= elementTop && scrollY + offset < elementBottom) {
-            currentSection = {
-              dayName: group.dayName,
-              fullDate: group.fullDate
-            };
-            break;
-          }
-        }
-      }
-
-      // Update current date if we found a section and it's different
-      if (currentSection && 
-          (!currentDate || 
-           currentDate.dayName !== currentSection.dayName || 
-           currentDate.fullDate !== currentSection.fullDate)) {
-        setCurrentDate(currentSection);
-      }
-    };
-
-    // Add scroll listener
-    window.addEventListener('scroll', handleScroll);
+export function EventsList({ events, onEventSelect, selectedEvent, loading = false }: EventsListProps) {
+  // Group events by date
+  const groupedEvents = useMemo(() => {
+    const groups: { [date: string]: Event[] } = {};
     
-    // Initial call to set the date
-    handleScroll();
+    events.forEach(event => {
+      const date = new Date(event.date);
+      const dateKey = date.toDateString();
+      
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(event);
+    });
+    
+    // Sort groups by date and sort events within each group by time
+    return Object.entries(groups)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .map(([date, eventsInDate]) => ({
+        date,
+        events: eventsInDate.sort((a, b) => {
+          const timeA = a.time.split(' - ')[0];
+          const timeB = b.time.split(' - ')[0];
+          return timeA.localeCompare(timeB);
+        })
+      }));
+  }, [events]);
 
-    // Set initial date if we have events and no current date
-    if (groupedEvents.length > 0 && !currentDate) {
-      setCurrentDate({
-        dayName: groupedEvents[0][1].dayName,
-        fullDate: groupedEvents[0][1].fullDate
-      });
-    }
+  const formatDayDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateFormatted = date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    return { day, date: dateFormatted };
+  };
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [groupedEvents, currentDate]);
+  const shouldShowTime = (event: Event, index: number, events: Event[]) => {
+    if (index === 0) return true;
+    const previousEvent = events[index - 1];
+    return event.time !== previousEvent.time;
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full">
+        <div className="text-center my-12">
+          <span className="transition-all animate-pulse opacity-100">Loading</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative">
-      {/* Sticky Date Header - shows when scrolled past initial content */}
-      {currentDate && showStickyHeader && (
-        <div className="sticky top-[145px] z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 py-3 mb-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-medium">{currentDate.dayName}</h2>
-            <span className="text-gray-600 dark:text-gray-400">{currentDate.fullDate}</span>
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-12">
-        {groupedEvents.map(([dateKey, {
-          dayName,
-          fullDate,
-          events
-        }], index) => (
-          <div 
-            key={dateKey}
-            ref={el => sectionRefs.current[dateKey] = el}
-            data-date-key={dateKey}
-            className="scroll-mt-32"
-          >
-            {/* Visible date header */}
-            <div className="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">
-              <h2 className="text-xl font-medium">{dayName}</h2>
-              <span className="text-gray-600 dark:text-gray-400">{fullDate}</span>
-            </div>
-            
-            <div className="divide-y divide-gray-200 dark:divide-gray-800">
-              {events.map((event: Event) => (
-                <EventCard 
-                  key={event.id} 
-                  event={event} 
-                  onClick={() => onEventSelect(event)} 
-                  isSelected={event.id === selectedEventId} 
+    <div className="w-full">
+      <div className="relative grid grid-cols-1 gap-2 sm:gap-1">
+        {groupedEvents.map(({ date, events: dateEvents }, groupIndex) => {
+          const { day, date: formattedDate } = formatDayDate(date);
+          
+          return (
+            <React.Fragment key={date}>
+              {/* Sticky Date Header */}
+              <div className="bg-white dark:bg-gray-900 sticky top-14 pt-0 z-20 mt-6 border-b border-gray-200 dark:border-gray-600 flex justify-between">
+                <p className="py-2 sm:px-2 font-medium">{day}</p>
+                <p className="py-2 sm:px-2 text-gray-600 dark:text-gray-400">{formattedDate}</p>
+              </div>
+              
+              {/* Events for this date */}
+              {dateEvents.map((event, eventIndex) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onClick={() => onEventSelect(event)}
+                  isSelected={selectedEvent?.id === event.id}
+                  showTime={shouldShowTime(event, eventIndex, dateEvents)}
                 />
               ))}
-            </div>
-            {index < groupedEvents.length - 1 && <div className="mt-12 border-b border-gray-200 dark:border-gray-800" />}
-          </div>
-        ))}
+            </React.Fragment>
+          );
+        })}
+      </div>
+      
+      <div className="w-full text-center my-12">
+        <span className="text-gray-600 dark:text-gray-400">
+          {events.length === 0 ? 'No events found' : 'end'}
+        </span>
       </div>
     </div>
   );

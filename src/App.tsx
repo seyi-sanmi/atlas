@@ -13,6 +13,7 @@ import { getAllEvents as getSupabaseEvents, addEvent as addSupabaseEvent } from 
 import { getAllEvents as getMemoryEvents, addEvent as addMemoryEvent } from './data/eventStore';
 import { isSupabaseAvailable } from './lib/supabase';
 import { scrapeEvent } from './utils/eventScraperService';
+import { Banner } from './components/Banner';
 
 export function App() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -218,102 +219,33 @@ export function App() {
           onToggleDatabase={handleToggleDatabase}
           useSupabase={useSupabase}
           currentPage={currentPage}
+          onSearch={handleSearch}
+          searchQuery={searchQuery}
+          isSplitView={isSplitView}
+          onCloseSplitView={handleClose}
         />
         
         {currentPage === 'events' ? (
-          <main className="container mx-auto px-4 py-4 max-w-5xl">
-            <div className={`sticky top-[73px] bg-white dark:bg-gray-900 z-40 pb-4 mb-4 transition-all duration-300 ${isSplitView ? 'mr-[40%] lg:mr-[45%]' : ''}`}>
-              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-                <h2 className="text-2xl">
-                  {searchQuery ? `Search Results (${filteredEvents.length})` : 'Events'}
-                </h2>
-                
-                {/* Search and Filter Bar */}
-                <div className={`flex items-center gap-4 transition-all duration-300 ${isSplitView ? 'scale-90' : ''}`}>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search events..."
-                      onChange={(e) => handleSearch(e.target.value)}
-                      className={`${isSplitView ? 'w-[320px]' : 'w-[480px]'} pl-10 pr-4 py-2 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-transparent transition-all duration-300`}
-                    />
-                  </div>
-                  
-                  {/* Filter Dropdown */}
-                  <div className="relative filter-dropdown">
-                    <button
-                      onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                      className="flex items-center px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bg-transparent"
-                    >
-                      <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                      </svg>
-                      <span className="text-sm">Filter</span>
-                    </button>
-                    
-                    {showFilterDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                        <div className="p-4">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Filter by city</p>
-                          <div className="space-y-2">
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-3 rounded" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">London</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-3 rounded" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Manchester</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-3 rounded" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Bristol</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-3 rounded" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Birmingham</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-3 rounded" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Edinburgh</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-3 rounded" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Cambridge</span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+          <div className={`grid w-full min-h-[calc(100vh-3.5rem)] ${
+            isSplitView 
+              ? 'md:grid-cols-2 md:gap-0' 
+              : 'grid-cols-1'
+          }`}>
+            <div className={`pl-3 ${isSplitView ? 'hidden md:block pr-0' : 'pr-3'}`}>
+              {!isSplitView && <Banner onAddEvent={() => setShowSubmitModal(true)} />}
+              <EventsList 
+                events={filteredEvents} 
+                onEventSelect={handleEventSelect} 
+                selectedEvent={selectedEvent}
+                loading={isLoadingEvents}
+              />
             </div>
-            
-            {isLoadingEvents ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600 dark:text-gray-400">Loading events...</span>
-              </div>
-            ) : (
-              <div className={`flex transition-all duration-300 gap-6 relative ${isSplitView ? 'mr-[40%] lg:mr-[45%]' : ''}`}>
-                <div className="w-full">
-                  <EventsList 
-                    events={filteredEvents} 
-                    onEventSelect={handleEventSelect} 
-                    selectedEventId={selectedEvent?.id} 
-                  />
-                </div>
-                <div className={`fixed top-0 right-0 h-[calc(100vh-120px)] w-[40%] lg:w-[45%] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 transform transition-transform duration-300 overflow-hidden ${isSplitView ? 'translate-x-0' : 'translate-x-full'}`}>
-                  {selectedEvent && <EventDetails event={selectedEvent} onClose={handleClose} />}
-                </div>
-              </div>
-            )}
-          </main>
+            <div className={`sticky top-14 w-full bg-white dark:bg-gray-900 overflow-hidden h-[var(--body-height)] ${
+              !isSplitView ? 'hidden' : ''
+            } ${isSplitView ? 'pl-0 border-l border-gray-200 dark:border-gray-600' : ''}`}>
+              {selectedEvent && <EventDetails event={selectedEvent} onClose={handleClose} />}
+            </div>
+          </div>
         ) : currentPage === 'map' ? (
           <Map />
         ) : (
