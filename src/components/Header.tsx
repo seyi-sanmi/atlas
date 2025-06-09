@@ -30,22 +30,21 @@ export function Header({
   onCloseSplitView
 }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
-  const [logoError, setLogoError] = React.useState(false);
   
   return (
-    <div className="w-full h-header bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600 sticky top-0 z-40">
-      <div className="max-w-[75%] mx-auto">
-        <div className="py-2 sm:p-2 flex items-end w-full">
+    <div className="w-full h-header bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-600 sticky top-0 z-40">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-3 flex items-center justify-between w-full">
           {/* Left side - Logo/Title */}
           <div className="flex items-center">
-            {/* Hard-coded Renaissance Philanthropy Logo */}
-            <div className="h-8 w-auto mr-4">
+            {/* Renaissance Philanthropy Logo */}
+            <div className="h-8 w-auto mr-3">
               <svg 
                 id="Layer_1" 
                 data-name="Layer 1" 
                 xmlns="http://www.w3.org/2000/svg" 
                 viewBox="0 0 293.42 378.67"
-                className="h-8 w-auto"
+                className="h-7 w-auto"
               >
                 <defs>
                   <style>
@@ -53,7 +52,7 @@ export function Header({
                       fill-rule: evenodd;
                     }
                     .cls-1, .cls-2 {
-                      fill: #f87248;
+                      fill: ${theme === 'dark' ? '#FFFFFF' : '#f87248'};
                       stroke-width: 0px;
                     }`}
                   </style>
@@ -63,73 +62,74 @@ export function Header({
               </svg>
             </div>
 
-            {isSplitView ? (
+            {/* ATLAS Title */}
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                ATLAS
+              </h1>
+            </div>
+
+            {isSplitView && (
               <button
                 onClick={onCloseSplitView}
-                className="flex items-center gap-2 leading-none md:hidden"
+                className="flex items-center gap-2 ml-6 leading-none md:hidden"
               >
                 <ArrowLeft className="w-6 h-6" />
                 <span>back</span>
               </button>
-            ) : null}
+            )}
           </div>
           
-
+          {/* Center - Navigation */}
+          <nav className="flex items-center gap-8">
+            <button
+              onClick={onNavigateToEvents}
+              className={`font-medium transition-colors text-sm ${
+                currentPage === 'events' 
+                  ? 'text-gray-900 dark:text-white underline underline-offset-[6px] decoration-2' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Events
+            </button>
+            
+            <button
+              onClick={onNavigateToMap}
+              className={`font-medium transition-colors text-sm ${
+                currentPage === 'map' 
+                  ? 'text-gray-900 dark:text-white underline underline-offset-[6px] decoration-2' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Map
+            </button>
+            
+            <button
+              onClick={onNavigateToDatabase}
+              className={`font-medium transition-colors text-sm ${
+                currentPage === 'database' 
+                  ? 'text-gray-900 dark:text-white underline underline-offset-[6px] decoration-2' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Database
+            </button>
+            
+            <button 
+              onClick={onAddEvent}
+              className="font-medium transition-colors text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1"
+            >
+              <Plus className="w-4 h-4" />
+              Add Event
+            </button>
+          </nav>
           
           {/* Right side - Actions */}
-          <div className="flex items-center gap-3">
-            {/* Navigation - Mobile */}
-            <div className="flex items-center gap-4 md:hidden">
-              <button
-                onClick={onNavigateToEvents}
-                className={`text-sm ${currentPage === 'events' ? 'underline' : ''}`}
-              >
-                Events
-              </button>
-              <button
-                onClick={onNavigateToMap}
-                className={`text-sm ${currentPage === 'map' ? 'underline' : ''}`}
-              >
-                Map
-              </button>
-            </div>
-            
-            {/* Navigation - Desktop */}
-            <nav className="hidden md:flex items-center gap-6">
-              <button
-                onClick={onNavigateToEvents}
-                className={`font-medium transition-colors hover:underline ${
-                  currentPage === 'events' ? 'underline' : ''
-                }`}
-              >
-                Events
-              </button>
-              
-              <button
-                onClick={onNavigateToMap}
-                className={`font-medium transition-colors hover:underline ${
-                  currentPage === 'map' ? 'underline' : ''
-                }`}
-              >
-                Map
-              </button>
-              
-              <button
-                onClick={onNavigateToDatabase}
-                className={`font-medium transition-colors hover:underline ${
-                  currentPage === 'database' ? 'underline' : ''
-                }`}
-              >
-                Database
-              </button>
-            </nav>
-            
-
-            
+          <div className="flex items-center gap-1">
             {/* Database Toggle */}
             <button 
               onClick={onToggleDatabase}
-              className="p-1"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md transition-colors"
               title={useSupabase ? 'Using Supabase Database' : 'Using In-Memory Storage'}
             >
               {useSupabase ? <Database className="w-4 h-4" /> : <HardDrive className="w-4 h-4" />}
@@ -138,7 +138,7 @@ export function Header({
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme} 
-              className="p-1"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md transition-colors"
               aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
               {theme === 'light' ? <MoonIcon className="w-4 h-4" /> : <SunIcon className="w-4 h-4" />}

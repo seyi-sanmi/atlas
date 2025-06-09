@@ -233,7 +233,7 @@ export function App() {
   
   return (
     <ThemeProvider>
-      <div className="min-h-screen w-full transition-colors duration-200 text-gray-900 dark:text-gray-100">
+      <div className="min-h-screen w-full transition-colors duration-200 text-gray-900 dark:text-gray-100 bg-white dark:bg-slate-900">
         <Header 
           onAddEvent={() => setShowSubmitModal(true)}
           onNavigateToMap={handleNavigateToMap}
@@ -263,8 +263,6 @@ export function App() {
                   onEventSelect={handleEventSelect} 
                   selectedEvent={selectedEvent}
                   loading={isLoadingEvents}
-                  onSearch={handleSearch}
-                  searchQuery={searchQuery}
                 />
               </div>
               

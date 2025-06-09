@@ -27,9 +27,7 @@
   }
 
   body {
-    background: linear-gradient(270deg, #e0f2ff, #f0e7ff, #ffe5ec, #e0f2ff);
-    background-size: 800% 800%;
-    animation: gradientShift 18s ease infinite;
+    background-color: #f8f9fa; /* A slightly off-white for a softer look */
     color: var(--fg-color);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.5;
@@ -37,16 +35,12 @@
   }
   
   [data-theme="dark"] body {
-    background: linear-gradient(270deg, #1e293b, #281c3b, #3b1c2e, #1e293b);
-    background-size: 800% 800%;
-    animation: gradientShift 18s ease infinite;
+    background-color: #0f172a; /* Dark slate background for dark mode */
   }
 
   @media (prefers-color-scheme: dark) {
     body {
-      background: linear-gradient(270deg, #1e293b, #281c3b, #3b1c2e, #1e293b);
-      background-size: 800% 800%;
-      animation: gradientShift 18s ease infinite;
+      background-color: #0f172a; /* Dark slate background for dark mode */
     }
   }
 
@@ -57,12 +51,6 @@
   .h-header {
     height: var(--header-height);
   }
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* Custom scrollbar styling */

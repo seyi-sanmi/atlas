@@ -73,10 +73,10 @@ export function EventsList({ events, onEventSelect, selectedEvent, loading = fal
             <div key={date} className="relative">
               {/* Sticky Date Header */}
               <div 
-                className="sticky pt-0 z-20 mt-4 border-b border-gray-200/80 dark:border-gray-600/80 flex items-center justify-start backdrop-blur-sm bg-[#f0f5ff]/80 dark:bg-[#1e293b]/80" 
+                className="sticky pt-0 z-20 mt-4 flex items-center justify-start bg-slate-200 dark:bg-slate-800"
                 style={{ top: 'var(--header-height)' }}
               >
-                <p className="py-2 sm:px-2 font-medium">{formattedDate}</p>
+                <p className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200 text-sm">{formattedDate}</p>
               </div>
               
               {/* Events for this date */}
