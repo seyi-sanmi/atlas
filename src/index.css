@@ -5,7 +5,6 @@
 
 @layer base {
   :root {
-    --bg-color: #fff;
     --fg-color: #333;
     --fg2-color: #9d9d9d;
     --border-color: #e5e7eb;
@@ -14,7 +13,6 @@
   }
 
   [data-theme="dark"] {
-    --bg-color: #1a1a1a;
     --fg-color: #ffffff;
     --fg2-color: #9ca3af;
     --border-color: #374151;
@@ -22,7 +20,6 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg-color: #1a1a1a;
       --fg-color: #ffffff;
       --fg2-color: #9ca3af;
       --border-color: #374151;
@@ -30,16 +27,42 @@
   }
 
   body {
-    background-color: var(--bg-color);
+    background: linear-gradient(270deg, #e0f2ff, #f0e7ff, #ffe5ec, #e0f2ff);
+    background-size: 800% 800%;
+    animation: gradientShift 18s ease infinite;
     color: var(--fg-color);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.5;
     font-size: 16px;
   }
+  
+  [data-theme="dark"] body {
+    background: linear-gradient(270deg, #1e293b, #281c3b, #3b1c2e, #1e293b);
+    background-size: 800% 800%;
+    animation: gradientShift 18s ease infinite;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: linear-gradient(270deg, #1e293b, #281c3b, #3b1c2e, #1e293b);
+      background-size: 800% 800%;
+      animation: gradientShift 18s ease infinite;
+    }
+  }
 
   * {
     border-color: var(--border-color);
   }
+
+  .h-header {
+    height: var(--header-height);
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Custom scrollbar styling */
@@ -66,3 +89,61 @@
     width: 100% !important;
   }
 }
+
+/* Event hover underline animation */
+.event-hover-bg {
+  position: relative;
+  display: inline-block;
+}
+
+.event-hover-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  transition: width 0.3s ease-in-out;
+}
+
+.event-card:hover .event-hover-bg::after,
+.event-hover-bg.selected::after {
+  width: 100%;
+}
+
+/* Define CSS custom properties for each color variant */
+.event-bg-red::after { background: rgb(239 68 68); }
+.event-bg-blue::after { background: rgb(59 130 246); }
+.event-bg-green::after { background: rgb(34 197 94); }
+.event-bg-yellow::after { background: rgb(234 179 8); }
+.event-bg-purple::after { background: rgb(168 85 247); }
+.event-bg-pink::after { background: rgb(236 72 153); }
+.event-bg-indigo::after { background: rgb(99 102 241); }
+.event-bg-orange::after { background: rgb(249 115 22); }
+.event-bg-teal::after { background: rgb(20 184 166); }
+.event-bg-cyan::after { background: rgb(6 182 212); }
+
+/* Dark mode variants - same colors but slightly more muted */
+@media (prefers-color-scheme: dark) {
+  .event-bg-red::after { background: rgb(248 113 113); }
+  .event-bg-blue::after { background: rgb(96 165 250); }
+  .event-bg-green::after { background: rgb(74 222 128); }
+  .event-bg-yellow::after { background: rgb(250 204 21); }
+  .event-bg-purple::after { background: rgb(196 181 253); }
+  .event-bg-pink::after { background: rgb(244 114 182); }
+  .event-bg-indigo::after { background: rgb(129 140 248); }
+  .event-bg-orange::after { background: rgb(251 146 60); }
+  .event-bg-teal::after { background: rgb(45 212 191); }
+  .event-bg-cyan::after { background: rgb(34 211 238); }
+}
+
+[data-theme="dark"] .event-bg-red::after { background: rgb(248 113 113); }
+[data-theme="dark"] .event-bg-blue::after { background: rgb(96 165 250); }
+[data-theme="dark"] .event-bg-green::after { background: rgb(74 222 128); }
+[data-theme="dark"] .event-bg-yellow::after { background: rgb(250 204 21); }
+[data-theme="dark"] .event-bg-purple::after { background: rgb(196 181 253); }
+[data-theme="dark"] .event-bg-pink::after { background: rgb(244 114 182); }
+[data-theme="dark"] .event-bg-indigo::after { background: rgb(129 140 248); }
+[data-theme="dark"] .event-bg-orange::after { background: rgb(251 146 60); }
+[data-theme="dark"] .event-bg-teal::after { background: rgb(45 212 191); }
+[data-theme="dark"] .event-bg-cyan::after { background: rgb(34 211 238); }

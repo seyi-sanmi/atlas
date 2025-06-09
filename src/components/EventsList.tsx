@@ -39,12 +39,12 @@ export function EventsList({ events, onEventSelect, selectedEvent, loading = fal
 
   const formatDayDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-    const dateFormatted = date.toLocaleDateString('en-US', { 
+    const combinedFormat = date.toLocaleDateString('en-US', { 
+      weekday: 'long',
       month: 'short', 
-      day: 'numeric' 
+      day: '2-digit' 
     });
-    return { day, date: dateFormatted };
+    return combinedFormat;
   };
 
   const shouldShowTime = (event: Event, index: number, events: Event[]) => {
@@ -65,16 +65,18 @@ export function EventsList({ events, onEventSelect, selectedEvent, loading = fal
 
   return (
     <div className="w-full">
-      <div className="relative grid grid-cols-1 gap-2 sm:gap-1">
-        {groupedEvents.map(({ date, events: dateEvents }, groupIndex) => {
-          const { day, date: formattedDate } = formatDayDate(date);
+      <div className="relative grid grid-cols-1 gap-1 sm:gap-0.5">
+        {groupedEvents.map(({ date, events: dateEvents }) => {
+          const formattedDate = formatDayDate(date);
           
           return (
-            <React.Fragment key={date}>
+            <div key={date} className="relative">
               {/* Sticky Date Header */}
-              <div className="bg-white dark:bg-gray-900 sticky top-14 pt-0 z-20 mt-6 border-b border-gray-200 dark:border-gray-600 flex justify-between">
-                <p className="py-2 sm:px-2 font-medium">{day}</p>
-                <p className="py-2 sm:px-2 text-gray-600 dark:text-gray-400">{formattedDate}</p>
+              <div 
+                className="sticky pt-0 z-20 mt-4 border-b border-gray-200/80 dark:border-gray-600/80 flex items-center justify-start backdrop-blur-sm bg-[#f0f5ff]/80 dark:bg-[#1e293b]/80" 
+                style={{ top: 'var(--header-height)' }}
+              >
+                <p className="py-2 sm:px-2 font-medium">{formattedDate}</p>
               </div>
               
               {/* Events for this date */}
@@ -87,15 +89,9 @@ export function EventsList({ events, onEventSelect, selectedEvent, loading = fal
                   showTime={shouldShowTime(event, eventIndex, dateEvents)}
                 />
               ))}
-            </React.Fragment>
+            </div>
           );
         })}
-      </div>
-      
-      <div className="w-full text-center my-12">
-        <span className="text-gray-600 dark:text-gray-400">
-          {events.length === 0 ? 'No events found' : 'end'}
-        </span>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ export function Database() {
       <div className="w-full relative">
         {/* Loading Animation */}
         {isLoading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-gray-900 z-10 rounded-lg border border-gray-300 dark:border-gray-600">
+          <div className="absolute inset-0 flex flex-col items-center justify-center backdrop-blur-sm bg-white/70 dark:bg-gray-900/70 z-10 rounded-lg border border-gray-300 dark:border-gray-600">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
             <p className="text-gray-600 dark:text-gray-400 text-lg">Loading database...</p>
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">This may take a few moments</p>

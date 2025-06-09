@@ -25,31 +25,57 @@ export function EventCard({ event, onClick, isSelected = false, showTime = true 
     return start;
   };
 
+  // Generate a random background color class for each event based on event ID
+  const getRandomColorClass = (id: string) => {
+    const colors = [
+      'event-bg-red',
+      'event-bg-blue',
+      'event-bg-green',
+      'event-bg-yellow',
+      'event-bg-purple',
+      'event-bg-pink',
+      'event-bg-indigo',
+      'event-bg-orange',
+      'event-bg-teal',
+      'event-bg-cyan'
+    ];
+    
+    // Use event ID to get consistent color for each event
+    const hash = id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const colorClass = getRandomColorClass(event.id);
+
   return (
     <article
-      className={`group grid grid-cols-[3.2rem_1fr] sm:grid-cols-[3.9rem_1fr] transition-all cursor-pointer scroll-mt-36 ${
+      className={`event-card group grid grid-cols-[3.2rem_1fr] sm:grid-cols-[3.9rem_1fr] transition-all cursor-pointer scroll-mt-36 ${
         isSelected ? '' : ''
       }`}
       onClick={onClick}
     >
-      <div className="pb-2 sm:pr-4 sm:px-3 sm:pt-1">
+      <div className="pb-1 sm:pr-4 sm:px-3 sm:pt-0.5">
         {showTime && (
-          <p className="text-sm sm:text-base sm:text-right">
+          <p className="text-sm sm:text-base sm:text-right text-gray-600 dark:text-gray-400">
             {formatTime(event.time)}
           </p>
         )}
       </div>
-      <div className={`w-full border-b transition-all pb-3 sm:pt-1 border-gray-200 dark:border-gray-600 ${
-        isSelected ? 'sm:pb-8 border-b-2' : 'sm:pb-2'
+      <div className={`w-full border-b transition-all pb-1 sm:pt-0.5 border-gray-200 dark:border-gray-600 ${
+        isSelected ? 'sm:pb-4 border-b-2' : 'sm:pb-1'
       }`}>
         <div
-          className={`hover:underline underline-offset-4 transition-colors ${
+          className={`relative overflow-hidden transition-colors ${
             isSelected 
               ? 'underline decoration-gray-400' 
-              : 'hover:decoration-gray-400'
+              : ''
           }`}
         >
-          <p className="cursor-pointer">
+          <p className={`cursor-pointer event-hover-bg text-gray-600 dark:text-gray-400 ${colorClass} ${isSelected ? 'selected' : ''}`}>
             <ArrowRight className={`inline transition-all relative ${
               isSelected ? 'w-5 h-5 mr-1' : 'w-0'
             }`} />
@@ -59,7 +85,7 @@ export function EventCard({ event, onClick, isSelected = false, showTime = true 
         
         {/* Event meta info - only show if not selected to keep list clean */}
         {!isSelected && (
-          <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
             <p>{event.organizer}</p>
             {event.location && <p>{event.location}</p>}
           </div>

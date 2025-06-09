@@ -14,10 +14,14 @@ import { getAllEvents as getMemoryEvents, addEvent as addMemoryEvent } from './d
 import { isSupabaseAvailable } from './lib/supabase';
 import { scrapeEvent } from './utils/eventScraperService';
 import { Banner } from './components/Banner';
+import { useMediaQuery } from './hooks/useMediaQuery';
+import { EventDetailsModal } from './components/EventDetailsModal';
 
 export function App() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isSplitView, setIsSplitView] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const isSmallScreen = useMediaQuery('(max-width: 799px)');
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,13 +83,19 @@ export function App() {
   
   const handleEventSelect = (event: Event) => {
     setSelectedEvent(event);
-    setIsSplitView(true);
+    if (isSmallScreen) {
+      setIsEventModalOpen(true);
+    } else {
+      setIsSplitView(true);
+    }
   };
   
   const handleClose = () => {
+    if (isSmallScreen) {
+      setIsEventModalOpen(false);
+    }
     setIsSplitView(false);
-    // Wait for transition to complete before clearing selection
-    setTimeout(() => setSelectedEvent(null), 300);
+    setTimeout(() => setSelectedEvent(null), 300); // Delay to allow animations
   };
 
   const handleExtract = async (url: string) => {
@@ -207,10 +217,23 @@ export function App() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showFilterDropdown]);
+
+  useEffect(() => {
+    // If screen size changes from large to small, close split view and open modal if an event is selected
+    if (isSmallScreen && isSplitView && selectedEvent) {
+      setIsSplitView(false);
+      setIsEventModalOpen(true);
+    }
+    // If screen size changes from small to large, close modal and open split view if an event is selected
+    if (!isSmallScreen && isEventModalOpen && selectedEvent) {
+      setIsEventModalOpen(false);
+      setIsSplitView(true);
+    }
+  }, [isSmallScreen, isSplitView, isEventModalOpen, selectedEvent]);
   
   return (
     <ThemeProvider>
-      <div className="min-h-screen w-full transition-colors duration-200 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <div className="min-h-screen w-full transition-colors duration-200 text-gray-900 dark:text-gray-100">
         <Header 
           onAddEvent={() => setShowSubmitModal(true)}
           onNavigateToMap={handleNavigateToMap}
@@ -225,32 +248,39 @@ export function App() {
           onCloseSplitView={handleClose}
         />
         
-        {currentPage === 'events' ? (
-          <div className={`grid w-full min-h-[calc(100vh-3.5rem)] ${
-            isSplitView 
-              ? 'md:grid-cols-2 md:gap-0' 
-              : 'grid-cols-1'
-          }`}>
-            <div className={`pl-3 ${isSplitView ? 'hidden md:block pr-0' : 'pr-3'}`}>
-              {!isSplitView && <Banner onAddEvent={() => setShowSubmitModal(true)} />}
-              <EventsList 
-                events={filteredEvents} 
-                onEventSelect={handleEventSelect} 
-                selectedEvent={selectedEvent}
-                loading={isLoadingEvents}
-              />
+        <div className="w-full max-w-[60%] mx-auto">
+          {currentPage === 'events' ? (
+            <div className={`grid w-full min-h-[calc(100vh-3.5rem)] ${
+              isSplitView && !isSmallScreen
+                ? 'grid-cols-[60%_40%] gap-0' 
+                : 'grid-cols-1'
+            }`}>
+              {/* Events List */}
+              <div className={`pl-3 ${isSplitView && !isSmallScreen ? 'pr-0' : 'pr-3'}`}>
+                {(!isSplitView || isSmallScreen) && <Banner onAddEvent={() => setShowSubmitModal(true)} />}
+                <EventsList 
+                  events={filteredEvents} 
+                  onEventSelect={handleEventSelect} 
+                  selectedEvent={selectedEvent}
+                  loading={isLoadingEvents}
+                  onSearch={handleSearch}
+                  searchQuery={searchQuery}
+                />
+              </div>
+              
+              {/* Event Details Panel - Right side in split view */}
+              {isSplitView && !isSmallScreen && (
+                <div className={`sticky top-14 w-full overflow-hidden h-[var(--body-height)] pl-3 border-l border-gray-200 dark:border-gray-600`}>
+                  {selectedEvent && <EventDetails event={selectedEvent} onClose={handleClose} />}
+                </div>
+              )}
             </div>
-            <div className={`sticky top-14 w-full bg-white dark:bg-gray-900 overflow-hidden h-[var(--body-height)] ${
-              !isSplitView ? 'hidden' : ''
-            } ${isSplitView ? 'pl-0 border-l border-gray-200 dark:border-gray-600' : ''}`}>
-              {selectedEvent && <EventDetails event={selectedEvent} onClose={handleClose} />}
-            </div>
-          </div>
-        ) : currentPage === 'map' ? (
-          <Map />
-        ) : (
-          <Database />
-        )}
+          ) : currentPage === 'map' ? (
+            <Map />
+          ) : (
+            <Database />
+          )}
+        </div>
 
         {/* Submit Event Modal */}
         {showSubmitModal && (
@@ -271,6 +301,11 @@ export function App() {
             onSave={handleSaveEvent}
             eventData={scrapedEvent}
           />
+        )}
+
+        {/* Event Details Modal for small screens */}
+        {isEventModalOpen && selectedEvent && (
+          <EventDetailsModal event={selectedEvent} onClose={handleClose} />
         )}
 
         <Footer />

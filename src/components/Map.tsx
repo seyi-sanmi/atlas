@@ -2,7 +2,7 @@ import React from 'react';
 
 export function Map() {
   return (
-    <div className="min-h-screen w-full transition-colors duration-200 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen w-full transition-colors duration-200 text-gray-900 dark:text-gray-100">
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Event Map</h1>
@@ -11,7 +11,7 @@ export function Map() {
           </p>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-transparent rounded-lg shadow-lg overflow-hidden">
           <iframe 
             style={{ border: '1px solid rgba(0, 0, 0, 0.1)' }}
             width="100%" 

@@ -5,11 +5,13 @@ import { Event } from '../data/events';
 interface EventDetailsProps {
   event: Event;
   onClose: () => void;
+  isModal?: boolean;
 }
 
 export function EventDetails({
   event,
-  onClose
+  onClose,
+  isModal = false
 }: EventDetailsProps) {
   const {
     title,
@@ -38,17 +40,19 @@ export function EventDetails({
   };
   
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="sticky top-[73px] bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center z-40">
-        <h2 className="text-xl font-bold">Event Details</h2>
-        <button 
-          onClick={onClose} 
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors group" 
-          aria-label="Close details"
-        >
-          <XIcon className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300" />
-        </button>
-      </div>
+    <div className={`h-full ${isModal ? '' : 'overflow-y-auto'}`}>
+      {!isModal && (
+        <div className="sticky top-[73px] bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center z-40">
+          <h2 className="text-xl font-bold">Event Details</h2>
+          <button 
+            onClick={onClose} 
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors group" 
+            aria-label="Close details"
+          >
+            <XIcon className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300" />
+          </button>
+        </div>
+      )}
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">{title}</h1>
         <div className="space-y-4 mb-8">
