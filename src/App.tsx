@@ -16,6 +16,7 @@ import { scrapeEvent } from './utils/eventScraperService';
 import { Banner } from './components/Banner';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { EventDetailsModal } from './components/EventDetailsModal';
+import { EventFilters } from './components/EventFilters';
 
 export function App() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -248,7 +249,7 @@ export function App() {
           onCloseSplitView={handleClose}
         />
         
-        <div className="w-full max-w-[60%] mx-auto">
+        <div className="w-full max-w-[90%] mx-auto">
           {currentPage === 'events' ? (
             <div className={`grid w-full min-h-[calc(100vh-3.5rem)] ${
               isSplitView && !isSmallScreen
@@ -258,13 +259,18 @@ export function App() {
               {/* Events List */}
               <div className={`pl-3 ${isSplitView && !isSmallScreen ? 'pr-0' : 'pr-3'}`}>
                 {(!isSplitView || isSmallScreen) && <Banner onAddEvent={() => setShowSubmitModal(true)} />}
+                <EventFilters 
+                  searchQuery={searchQuery}
+                  onSearchChange={handleSearch}
+                  locations={[]} // We'll implement location filtering later
+                  selectedLocations={[]}
+                  onLocationChange={() => {}} // We'll implement this later
+                />
                 <EventsList 
                   events={filteredEvents} 
                   onEventSelect={handleEventSelect} 
                   selectedEvent={selectedEvent}
                   loading={isLoadingEvents}
-                  onSearch={handleSearch}
-                  searchQuery={searchQuery}
                 />
               </div>
               

@@ -10,88 +10,56 @@ interface EventsListProps {
 }
 
 export function EventsList({ events, onEventSelect, selectedEvent, loading = false }: EventsListProps) {
-  // Group events by date
-  const groupedEvents = useMemo(() => {
-    const groups: { [date: string]: Event[] } = {};
-    
-    events.forEach(event => {
-      const date = new Date(event.date);
-      const dateKey = date.toDateString();
+  // Sort events by date and time
+  const sortedEvents = useMemo(() => {
+    return events.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
       
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateA.getTime() - dateB.getTime();
       }
-      groups[dateKey].push(event);
+      
+      // If same date, sort by time
+      const timeA = a.time.split(' - ')[0];
+      const timeB = b.time.split(' - ')[0];
+      return timeA.localeCompare(timeB);
     });
-    
-    // Sort groups by date and sort events within each group by time
-    return Object.entries(groups)
-      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-      .map(([date, eventsInDate]) => ({
-        date,
-        events: eventsInDate.sort((a, b) => {
-          const timeA = a.time.split(' - ')[0];
-          const timeB = b.time.split(' - ')[0];
-          return timeA.localeCompare(timeB);
-        })
-      }));
   }, [events]);
-
-  const formatDayDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const combinedFormat = date.toLocaleDateString('en-US', { 
-      weekday: 'long',
-      month: 'short', 
-      day: '2-digit' 
-    });
-    return combinedFormat;
-  };
-
-  const shouldShowTime = (event: Event, index: number, events: Event[]) => {
-    if (index === 0) return true;
-    const previousEvent = events[index - 1];
-    return event.time !== previousEvent.time;
-  };
 
   if (loading) {
     return (
       <div className="w-full">
         <div className="text-center my-12">
-          <span className="transition-all animate-pulse opacity-100">Loading</span>
+          <span className="transition-all animate-pulse opacity-100">Loading events...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (sortedEvents.length === 0) {
+    return (
+      <div className="w-full">
+        <div className="text-center my-12">
+          <p className="text-gray-500 dark:text-gray-400">No events found matching your criteria.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className="relative grid grid-cols-1 gap-1 sm:gap-0.5">
-        {groupedEvents.map(({ date, events: dateEvents }) => {
-          const formattedDate = formatDayDate(date);
-          
-          return (
-            <div key={date} className="relative">
-              {/* Sticky Date Header */}
-              <div 
-                className="sticky pt-0 z-20 mt-4 border-b border-gray-200/80 dark:border-gray-600/80 flex items-center justify-start backdrop-blur-sm bg-[#f0f5ff]/80 dark:bg-[#1e293b]/80" 
-                style={{ top: 'var(--header-height)' }}
-              >
-                <p className="py-2 sm:px-2 font-medium">{formattedDate}</p>
-              </div>
-              
-              {/* Events for this date */}
-              {dateEvents.map((event, eventIndex) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  onClick={() => onEventSelect(event)}
-                  isSelected={selectedEvent?.id === event.id}
-                  showTime={shouldShowTime(event, eventIndex, dateEvents)}
-                />
-              ))}
-            </div>
-          );
-        })}
+    <div className="w-full px-4 py-6">
+      {/* Grid layout for cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {sortedEvents.map((event) => (
+          <EventCard
+            key={event.id}
+            event={event}
+            onClick={() => onEventSelect(event)}
+            isSelected={selectedEvent?.id === event.id}
+            showTime={true}
+          />
+        ))}
       </div>
     </div>
   );
