@@ -1,6 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-any event associated with scraping [luma_scraper.py](mdc:luma_scraper.py) [LumaScraper.js](mdc:LumaScraper.js) [scrape_event.py](mdc:scrape_event.py)
