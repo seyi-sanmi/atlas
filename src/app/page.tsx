@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
 import { EventsList } from "./components/event/list";
-import { events, type Event } from "./lib/event-data";
+import { Event } from "@/lib/supabase";
+import { getAllEvents, searchAndFilterEvents } from "@/lib/events";
 import { useState, useEffect, useRef } from "react";
 import { Footer } from "./components/event/footer";
 import { Header } from "./components/event/header";
@@ -47,77 +48,111 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [image, setImage] = useState(cities[0].image);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Preload next image
   useEffect(() => {
-    setImage(cities[cityIdx].image);
+    const newImage = cities[cityIdx].image;
+    if (newImage !== image) {
+      setImageLoaded(false);
+      const img = new window.Image();
+      img.onload = () => {
+        setImage(newImage);
+        setImageLoaded(true);
+      };
+      img.src = newImage;
+    } else {
+      setImageLoaded(true);
+    }
+  }, [cityIdx, cities, image]);
 
+  useEffect(() => {
     const currentCity = cities[cityIdx].name;
-    let speed = 1200; // default
-
-    if (!isDeleting && displayText.length < currentCity.length) {
-      setDisplayText(currentCity.slice(0, displayText.length + 1));
-      speed = 12000; // slower typing
-    } else if (!isDeleting && displayText.length === currentCity.length) {
-      speed = 3500; // longer pause at full city
-      typingTimeout.current = setTimeout(() => setIsDeleting(true), speed);
-      return;
-    } else if (isDeleting && displayText.length > 0) {
-      setDisplayText(currentCity.slice(0, displayText.length - 1));
-      speed = 8000; // slower erasing
-    } else if (isDeleting && displayText.length === 0) {
-      setIsDeleting(false);
-      setCityIdx((prev) => (prev + 1) % cities.length);
-      speed = 2000; // pause before next city
-    }
-
-    typingTimeout.current = setTimeout(() => {}, speed);
-
-    return () => {
-      if (typingTimeout.current) clearTimeout(typingTimeout.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayText, isDeleting, cityIdx]);
-
-  useEffect(() => {
-    if (!isDeleting && displayText.length < cities[cityIdx].name.length) {
-      typingTimeout.current = setTimeout(() => {
-        setDisplayText(cities[cityIdx].name.slice(0, displayText.length + 1));
-      }, 12000); // slower typing
-    } else if (isDeleting && displayText.length > 0) {
-      typingTimeout.current = setTimeout(() => {
-        setDisplayText(cities[cityIdx].name.slice(0, displayText.length - 1));
-      }, 8000); // slower erasing
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayText, isDeleting]);
-
-  useEffect(() => {
-    if (!isDeleting && displayText === cities[cityIdx].name) {
-      typingTimeout.current = setTimeout(() => setIsDeleting(true), 3500);
-    }
-    if (isDeleting && displayText === "") {
-      typingTimeout.current = setTimeout(() => {
+    
+    const typeNextChar = () => {
+      if (!isDeleting && displayText.length < currentCity.length) {
+        // Typing forward
+        setDisplayText(currentCity.slice(0, displayText.length + 1));
+        typingTimeout.current = setTimeout(typeNextChar, 120); // Smooth typing speed
+      } else if (!isDeleting && displayText.length === currentCity.length) {
+        // Finished typing, pause before deleting
+        typingTimeout.current = setTimeout(() => setIsDeleting(true), 2500);
+      } else if (isDeleting && displayText.length > 0) {
+        // Deleting
+        setDisplayText(currentCity.slice(0, displayText.length - 1));
+        typingTimeout.current = setTimeout(typeNextChar, 80); // Slightly faster deleting
+      } else if (isDeleting && displayText.length === 0) {
+        // Finished deleting, move to next city
         setIsDeleting(false);
         setCityIdx((prev) => (prev + 1) % cities.length);
-      }, 2000);
-    }
+        typingTimeout.current = setTimeout(typeNextChar, 500); // Short pause before next city
+      }
+    };
+
+    typingTimeout.current = setTimeout(typeNextChar, 100);
+
     return () => {
       if (typingTimeout.current) clearTimeout(typingTimeout.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayText, isDeleting]);
+  }, [displayText, isDeleting, cityIdx, cities]);
 
-  return { displayText, image };
+  return { displayText, image, imageLoaded };
 }
 
 export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [events, setEvents] = useState<Event[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Typewriter effect for city and background image
-  const { displayText: cityText, image: cityImage } = useTypewriterCity(cities);
+  const { displayText: cityText, image: cityImage, imageLoaded } = useTypewriterCity(cities);
+
+  // Load events on mount
+  useEffect(() => {
+    const loadEvents = async () => {
+      setIsLoadingEvents(true);
+      try {
+        const eventsData = await getAllEvents();
+        setEvents(eventsData);
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      } finally {
+        setIsLoadingEvents(false);
+      }
+    };
+
+    loadEvents();
+  }, []);
+
+  // Handle search and filtering
+  useEffect(() => {
+    const searchAndFilter = async () => {
+      setIsLoadingEvents(true);
+      try {
+        const filteredEvents = await searchAndFilterEvents({
+          query: searchQuery,
+          location: selectedLocation,
+          category: selectedCategory,
+          date: selectedDate,
+        });
+        setEvents(filteredEvents);
+      } catch (error) {
+        console.error('Failed to search events:', error);
+      } finally {
+        setIsLoadingEvents(false);
+      }
+    };
+
+    // Debounce search
+    const timeoutId = setTimeout(searchAndFilter, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, selectedLocation, selectedCategory, selectedDate]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -158,7 +193,9 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div
-            className="w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-700"
+            className={`w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out ${
+              imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+            }`}
             style={{
               backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
             }}
@@ -248,7 +285,18 @@ export default function Home() {
           </div>
 
           <div className="hidden lg:block lg:w-1/3 mt-20">
-            <EventFilter />
+            <div className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto">
+              <EventFilter 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                selectedLocation={selectedLocation}
+                onLocationChange={setSelectedLocation}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+              />
+            </div>
           </div>
         </div>
       </main>
