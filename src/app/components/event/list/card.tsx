@@ -223,120 +223,114 @@ export function EventCard({
         </div>
       </SheetTrigger>
       
-      <SheetContent className="w-full sm:max-w-2xl">
-        <SheetHeader>
-          <SheetTitle className="text-2xl font-display text-left">
-            {event.title}
-          </SheetTitle>
-          <SheetDescription className="text-left">
-            {event.description}
-          </SheetDescription>
-        </SheetHeader>
-        
-        <div className="mt-6 space-y-6">
-          {/* Event Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-[#AE3813]" />
-                <div>
-                  <p className="font-medium">Date & Time</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(event.date).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{event.time}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-[#AE3813]" />
-                <div>
-                  <p className="font-medium">Location</p>
-                  <p className="text-sm text-muted-foreground">{event.location}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#AE3813]" />
-                <div>
-                  <p className="font-medium">Organizer</p>
-                  <p className="text-sm text-muted-foreground">{event.organizer}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              {event.categories && event.categories.length > 0 && (
-                <div>
-                  <p className="font-medium mb-2">Categories</p>
-                  <div className="flex flex-wrap gap-2">
-                    {event.categories.map((category, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-[#AE3813]/10 text-[#AE3813] rounded-md text-xs"
+      <SheetContent className="w-full sm:max-w-sm">
+        <div className="flex flex-col h-full">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <SheetHeader>
+              <SheetTitle>
+                {event.title}
+              </SheetTitle>
+              <div>
+                <div className="flex flex-col gap-4 mt-2">
+                  {/* Event Image */}
+                  <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
+                    <div className="rounded-lg overflow-hidden h-full">
+                      <div 
+                        className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
+                        style={{
+                          backgroundImage: `url("${generateLightHeroPattern(event, eventIndex)}")`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center center",
+                          backgroundRepeat: "no-repeat"
+                        }}
                       >
-                        {category}
-                      </span>
-                    ))}
+                        <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-4xl sm:text-5xl font-bold text-white font-display tracking-tight">
+                              {new Date(date).getDate()}
+                            </div>
+                            <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                              {new Date(date).toLocaleDateString("en-US", { month: "short" })}
+                            </div>
+                            <div className="text-sm text-white/60 font-medium">
+                              {new Date(date).getFullYear()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1E1E25] via-transparent to-transparent opacity-60"></div>
+                    </div>
                   </div>
+
+                  {/* Event Details Grid */}
+                  <div className="grid gap-3">
+                    {/* Time */}
+                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
+                        <Clock className="w-4 h-4 text-[#D45E3C]" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">Time</span>
+                        <span className="font-sans text-sm text-white/90">{event.time}</span>
+                      </div>
+                    </div>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
+                        <MapPin className="w-4 h-4 text-[#D45E3C]" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">Location</span>
+                        <span className="font-sans text-sm text-white/90">{event.location}</span>
+                      </div>
+                    </div>
+
+                    {/* Organizer */}
+                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
+                        <Users className="w-4 h-4 text-[#D45E3C]" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">Organizer</span>
+                        <span className="font-sans text-sm text-white/90">{event.organizer}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* About Section */}
+                  {event.description && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">About this Event</h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
+                        {event.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-              
-              {event.presented_by && (
-                <div>
-                  <p className="font-medium">Presented by</p>
-                  <p className="text-sm text-muted-foreground">{event.presented_by}</p>
-                </div>
-              )}
-              
-              {event.is_featured && (
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span className="text-sm font-medium">Featured Event</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Links */}
-          {event.links && event.links.length > 0 && (
-            <div>
-              <p className="font-medium mb-3">Links</p>
-              <div className="space-y-2">
-                {event.links.map((link, index) => (
-                  <a
-                    key={index}
-                    href={link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-[#AE3813] hover:underline text-sm"
-                  >
-                    {link}
-                  </a>
-                ))}
               </div>
-            </div>
-          )}
-          
-          {/* Primary Event URL */}
-          {event.url && (
-            <div>
-              <a
-                href={event.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#AE3813] text-white px-4 py-2 rounded-md hover:bg-[#AE3813]/90 transition-colors"
-              >
-                View Event
-                <ArrowRightIcon className="w-4 h-4" />
-              </a>
-            </div>
-          )}
+            </SheetHeader>
+          </div>
+
+          {/* Fixed Footer */}
+          <SheetFooter>
+            {event.url && (
+              <SheetClose asChild>
+                <button
+                  className="sm:px-4 px-4 pr-1 py-3 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] text-white font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center justify-between gap-2"
+                  onClick={() => window.open(event.url, '_blank')}
+                >
+                  <span>View Event</span>
+                  <ArrowRightIcon className="w-6 h-6 text-white" />
+                </button>
+              </SheetClose>
+            )}
+          </SheetFooter>
         </div>
       </SheetContent>
     </Sheet>
