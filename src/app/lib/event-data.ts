@@ -16,22 +16,9 @@ export interface Event {
 export const events: Event[] = [
   {
     id: "1",
-    title: "London Tech Meetup",
-    date: "2025-06-15",
-    time: "18:30 - 21:00",
-    location: "Old Street, London",
-    description:
-      "Join us for an evening of tech talks, networking, and refreshments. We'll have speakers from leading tech companies discussing the latest trends in AI and machine learning.",
-    categories: ["Tech", "Networking"],
-    organizer: "London Tech Community",
-    image_url:
-      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80", // Tech meetup
-  },
-  {
-    id: "2",
     title: "Summer Art Exhibition",
     date: "2025-06-15",
-    time: "10:00 - 18:00",
+    time: "18:30 - 21:00",
     location: "Tate Modern, London",
     description:
       "Explore contemporary art from emerging artists across London. This exhibition features paintings, sculptures, and digital art installations that explore themes of urban life.",
@@ -39,6 +26,20 @@ export const events: Event[] = [
     organizer: "Tate Modern",
     image_url:
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80", // Art gallery
+  },
+  {
+    id: "2",
+    title: "London Tech Meetup",
+
+    date: "2025-06-15",
+    time: "10:00 - 18:00",
+    location: "Old Street, London",
+    description:
+      "Join us for an evening of tech talks, networking, and refreshments. We'll have speakers from leading tech companies discussing the latest trends in AI and machine learning.",
+    categories: ["Tech", "Networking"],
+    organizer: "London Tech Community",
+    image_url:
+      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80", // Tech meetup
   },
   {
     id: "3",

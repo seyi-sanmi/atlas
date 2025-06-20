@@ -2,19 +2,127 @@
 import Image from "next/image";
 import { EventsList } from "./components/event/list";
 import { events, type Event } from "./lib/event-data";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Footer } from "./components/event/footer";
 import { Header } from "./components/event/header";
+import EventFilter from "./components/event/list/filter";
+
+// Add city data: name and Unsplash image
+const cities = [
+  {
+    name: "London",
+    image:
+      "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=70&fm=jpg&auto=compress&sat=50",
+  },
+  {
+    name: "Birmingham",
+    image:
+      "https://images.unsplash.com/photo-1610818647551-866cce9f06d5?ixlib=rb-4.1.0&auto=format&fit=crop&w=1200&q=70&fm=jpg&auto=compress&sat=50",
+  },
+  {
+    name: "Edinburgh",
+    image:
+      "https://images.unsplash.com/photo-1506377585622-bedcbb027afc?ixlib=rb-4.1.0&auto=format&fit=crop&w=1200&q=70&fm=jpg&auto=compress&sat=50",
+  },
+  {
+    name: "Manchester",
+    image:
+      "https://images.unsplash.com/photo-1588934375041-0478480ae4c2?ixlib=rb-4.1.0&auto=format&fit=crop&w=1200&q=70&fm=jpg&auto=compress&sat=50",
+  },
+  {
+    name: "Bristol",
+    image:
+      "https://images.unsplash.com/photo-1597079013069-bd1681f7454f?ixlib=rb-4.1.0&auto=format&fit=crop&w=1200&q=70&fm=jpg&auto=compress&sat=50",
+  },
+
+  {
+    name: "Liverpool",
+    image:
+      "https://images.unsplash.com/photo-1557925179-a524ea601317?ixlib=rb-4.1.0&auto=format&fit=crop&w=1200&q=70&fm=jpg&auto=compress&sat=50",
+  },
+];
+
+function useTypewriterCity(cities: { name: string; image: string }[]) {
+  const [cityIdx, setCityIdx] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [image, setImage] = useState(cities[0].image);
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setImage(cities[cityIdx].image);
+
+    const currentCity = cities[cityIdx].name;
+    let speed = 1200; // default
+
+    if (!isDeleting && displayText.length < currentCity.length) {
+      setDisplayText(currentCity.slice(0, displayText.length + 1));
+      speed = 12000; // slower typing
+    } else if (!isDeleting && displayText.length === currentCity.length) {
+      speed = 3500; // longer pause at full city
+      typingTimeout.current = setTimeout(() => setIsDeleting(true), speed);
+      return;
+    } else if (isDeleting && displayText.length > 0) {
+      setDisplayText(currentCity.slice(0, displayText.length - 1));
+      speed = 8000; // slower erasing
+    } else if (isDeleting && displayText.length === 0) {
+      setIsDeleting(false);
+      setCityIdx((prev) => (prev + 1) % cities.length);
+      speed = 2000; // pause before next city
+    }
+
+    typingTimeout.current = setTimeout(() => {}, speed);
+
+    return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayText, isDeleting, cityIdx]);
+
+  useEffect(() => {
+    if (!isDeleting && displayText.length < cities[cityIdx].name.length) {
+      typingTimeout.current = setTimeout(() => {
+        setDisplayText(cities[cityIdx].name.slice(0, displayText.length + 1));
+      }, 12000); // slower typing
+    } else if (isDeleting && displayText.length > 0) {
+      typingTimeout.current = setTimeout(() => {
+        setDisplayText(cities[cityIdx].name.slice(0, displayText.length - 1));
+      }, 8000); // slower erasing
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayText, isDeleting]);
+
+  useEffect(() => {
+    if (!isDeleting && displayText === cities[cityIdx].name) {
+      typingTimeout.current = setTimeout(() => setIsDeleting(true), 3500);
+    }
+    if (isDeleting && displayText === "") {
+      typingTimeout.current = setTimeout(() => {
+        setIsDeleting(false);
+        setCityIdx((prev) => (prev + 1) % cities.length);
+      }, 2000);
+    }
+    return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayText, isDeleting]);
+
+  return { displayText, image };
+}
 
 export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Typewriter effect for city and background image
+  const { displayText: cityText, image: cityImage } = useTypewriterCity(cities);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 3000);
     return () => clearInterval(timer);
   }, []);
 
@@ -50,10 +158,9 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div
-            className="w-full h-full bg-cover bg-center bg-no-repeat"
+            className="w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-700"
             style={{
-              backgroundImage:
-                "linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
+              backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
             }}
           />
 
@@ -67,7 +174,11 @@ export default function Home() {
             What's Happening
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AE3813] to-[#D45E3C]">
-              in London
+              {/* Typewriter effect for city */}
+              <span className="inline-block min-w-[8ch]">
+                in {cityText}
+                <span className="border-r-2 border-[#D45E3C] animate-pulse ml-1" />
+              </span>
             </span>
           </h1>
 
@@ -124,8 +235,8 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="relative -mt-40 z-20">
-        <div className="container mx-auto px-2 sm:px-4 max-w-4xl">
-          <div className=" min-h-screen">
+        <div className="container mx-auto px-2 sm:px-4 max-w-6xl sm:flex">
+          <div className=" min-h-screen lg:w-2/3">
             <div className="p-2 sm:p-8">
               <EventsList
                 events={events}
@@ -134,6 +245,10 @@ export default function Home() {
                 loading={isLoadingEvents}
               />
             </div>
+          </div>
+
+          <div className="hidden lg:block lg:w-1/3 mt-20">
+            <EventFilter />
           </div>
         </div>
       </main>
