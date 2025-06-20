@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { EventCard } from "./card";
-import { Event } from "@/app/lib/event-data";
+import { Event } from "@/lib/supabase";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface EventsListProps {
@@ -20,7 +20,7 @@ export function EventsList({
     new Set()
   );
 
-  // Group events by date
+  // Group events by date and calculate global indices for color diversity
   const groupedEvents = useMemo(() => {
     const groups: { [date: string]: Event[] } = {};
 
@@ -35,7 +35,7 @@ export function EventsList({
     });
 
     // Sort groups by date and sort events within each group by time
-    return Object.entries(groups)
+    const sortedGroups = Object.entries(groups)
       .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
       .map(([date, eventsInDate]) => ({
         date,
@@ -45,6 +45,16 @@ export function EventsList({
           return timeA.localeCompare(timeB);
         }),
       }));
+
+    // Calculate global indices for each event to ensure color diversity
+    let globalEventIndex = 0;
+    return sortedGroups.map(({ date, events: dateEvents }) => ({
+      date,
+      events: dateEvents.map((event) => ({
+        ...event,
+        globalIndex: globalEventIndex++,
+      })),
+    }));
   }, [events]);
 
   const formatDayDate = (dateStr: string) => {
@@ -169,33 +179,8 @@ export function EventsList({
                 </svg>
               </div>
             </div>
-            {/* Date Header */}
-            {/* <div
-              className={`bg-white/10 backdrop-blur-md rounded-xl ${
-                isCollapsed ? "" : "rounded-b-none"
-              } px-6 py-3 border border-white/20 w-fit mx-auto`}
-            >
-              <h2 className="flex items-center gap-3 text-sm text-balance sm:text-base font-normal text-white tracking-wide">
-                {formattedDate}
-                <div className="w-1 h-1 bg-white/60 rounded-full" />
-                <span className="text-sm sm:text-base shrink-0 font-light text-white/60">
-                  {dateEvents.length} event{dateEvents.length !== 1 ? "s" : ""}
-                </span>
-                <button
-                  onClick={() => toggleSection(date)}
-                  className="cursor-pointer p-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-200"
-                  aria-label={isCollapsed ? "Expand events" : "Collapse events"}
-                >
-                  {isCollapsed ? (
-                    <ChevronDown className="w-4 h-4 text-white/60" />
-                  ) : (
-                    <ChevronUp className="w-4 h-4 text-white/60" />
-                  )}
-                </button>
-              </h2>
-            </div> */}
 
-            {/* Events Masonry Grid */}
+            {/* Events Grid */}
             {!isCollapsed && (
               <div className="grid grid-cols-1 gap-0">
                 {dateEvents.map((event, eventIndex) => (
@@ -211,6 +196,7 @@ export function EventsList({
                     }
                     isFirstInGroup={eventIndex === 0}
                     isLastInGroup={eventIndex === dateEvents.length - 1}
+                    eventIndex={(event as any).globalIndex}
                   />
                 ))}
               </div>
