@@ -7,6 +7,8 @@ import { useState, useEffect, useRef } from "react";
 import { Footer } from "./components/event/footer";
 import { Header } from "./components/event/header";
 import EventFilter from "./components/event/list/filter";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { SlidersHorizontal } from "lucide-react";
 
 // Add city data: name and Unsplash image
 const cities = [
@@ -332,6 +334,34 @@ export default function Home() {
       </main>
 
       <Footer />
+
+      {/* Mobile Floating Filter Button */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-50">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#D45E3C] hover:to-[#AE3813] text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 backdrop-blur-sm border border-white/10">
+              <SlidersHorizontal className="w-6 h-6" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[85vh] bg-[#131318] border-t border-gray-800">
+            <SheetHeader className="p-6 pb-4 border-b border-gray-800">
+              <SheetTitle className="text-xl font-semibold text-white">Filter Events</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto p-6">
+              <EventFilter 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                selectedLocation={selectedLocation}
+                onLocationChange={setSelectedLocation}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 }
