@@ -169,3 +169,38 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom typewriter cursor animation for better mobile support */
+@keyframes typewriter-cursor {
+  0%, 50% { 
+    opacity: 1; 
+  }
+  51%, 100% { 
+    opacity: 0; 
+  }
+}
+
+.typewriter-cursor {
+  animation: typewriter-cursor 1s infinite;
+  display: inline-block;
+  width: 2px;
+  background-color: #D45E3C;
+  margin-left: 2px;
+  /* Ensure animation works on mobile */
+  -webkit-animation: typewriter-cursor 1s infinite;
+  will-change: opacity;
+}
+
+@media (min-width: 640px) {
+  .typewriter-cursor {
+    width: 3px;
+  }
+}
+
+/* Ensure text is visible on mobile even if JS fails */
+@media (max-width: 639px) {
+  .typewriter-cursor {
+    animation-duration: 0.8s;
+    -webkit-animation-duration: 0.8s;
+  }
+}

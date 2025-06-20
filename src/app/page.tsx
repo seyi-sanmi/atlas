@@ -45,11 +45,25 @@ const cities = [
 
 function useTypewriterCity(cities: { name: string; image: string }[]) {
   const [cityIdx, setCityIdx] = useState(0);
-  const [displayText, setDisplayText] = useState("");
+  const [displayText, setDisplayText] = useState(cities[0]?.name?.charAt(0) || "L"); // Start with first character
   const [isDeleting, setIsDeleting] = useState(false);
   const [image, setImage] = useState(cities[0].image);
   const [imageLoaded, setImageLoaded] = useState(false);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect mobile for optimized timing
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Preload next image
   useEffect(() => {
@@ -58,6 +72,11 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
       setImageLoaded(false);
       const img = new window.Image();
       img.onload = () => {
+        setImage(newImage);
+        setImageLoaded(true);
+      };
+      img.onerror = () => {
+        // Fallback for image loading errors
         setImage(newImage);
         setImageLoaded(true);
       };
@@ -70,32 +89,44 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
   useEffect(() => {
     const currentCity = cities[cityIdx].name;
     
+    // Optimize timing for mobile devices
+    const typingSpeed = isMobile ? 80 : 100;
+    const deletingSpeed = isMobile ? 50 : 60;
+    const pauseAfterTyping = isMobile ? 1500 : 2000;
+    const pauseBeforeNext = isMobile ? 200 : 300;
+    
     const typeNextChar = () => {
       if (!isDeleting && displayText.length < currentCity.length) {
-        // Typing forward
-        setDisplayText(currentCity.slice(0, displayText.length + 1));
-        typingTimeout.current = setTimeout(typeNextChar, 120); // Smooth typing speed
+        // Typing forward - optimized for mobile
+        const newText = currentCity.slice(0, displayText.length + 1);
+        setDisplayText(newText);
+        console.log('Typewriter: typing', newText);
+        typingTimeout.current = setTimeout(typeNextChar, typingSpeed);
       } else if (!isDeleting && displayText.length === currentCity.length) {
         // Finished typing, pause before deleting
-        typingTimeout.current = setTimeout(() => setIsDeleting(true), 2500);
+        console.log('Typewriter: finished typing', displayText);
+        typingTimeout.current = setTimeout(() => setIsDeleting(true), pauseAfterTyping);
       } else if (isDeleting && displayText.length > 0) {
         // Deleting
-        setDisplayText(currentCity.slice(0, displayText.length - 1));
-        typingTimeout.current = setTimeout(typeNextChar, 80); // Slightly faster deleting
+        const newText = currentCity.slice(0, displayText.length - 1);
+        setDisplayText(newText);
+        console.log('Typewriter: deleting', newText);
+        typingTimeout.current = setTimeout(typeNextChar, deletingSpeed);
       } else if (isDeleting && displayText.length === 0) {
         // Finished deleting, move to next city
+        console.log('Typewriter: moving to next city');
         setIsDeleting(false);
         setCityIdx((prev) => (prev + 1) % cities.length);
-        typingTimeout.current = setTimeout(typeNextChar, 500); // Short pause before next city
+        typingTimeout.current = setTimeout(typeNextChar, pauseBeforeNext);
       }
     };
 
-    typingTimeout.current = setTimeout(typeNextChar, 100);
+    typingTimeout.current = setTimeout(typeNextChar, 50);
 
     return () => {
       if (typingTimeout.current) clearTimeout(typingTimeout.current);
     };
-  }, [displayText, isDeleting, cityIdx, cities]);
+  }, [displayText, isDeleting, cityIdx, cities, isMobile]);
 
   return { displayText, image, imageLoaded };
 }
@@ -112,6 +143,9 @@ export default function Home() {
 
   // Typewriter effect for city and background image
   const { displayText: cityText, image: cityImage, imageLoaded } = useTypewriterCity(cities);
+
+  // Fallback city name for mobile/slow connections
+  const currentCityName = cityText || cities[0]?.name || "London";
 
   // Load events on mount
   useEffect(() => {
@@ -189,7 +223,7 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative h-[70vh] w-full overflow-hidden">
+      <section className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div
@@ -206,20 +240,21 @@ export default function Home() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:mt-8">
-          <h1 className="text-5xl tracking-normal md:text-5xl font-medium font-display mb-6 text-white drop-shadow-2xl">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 py-8 sm:mt-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-white drop-shadow-2xl">
             What's Happening
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AE3813] to-[#D45E3C]">
               {/* Typewriter effect for city */}
-              <span className="inline-block min-w-[8ch]">
-                in {cityText}
-                <span className="border-r-2 border-[#D45E3C] animate-pulse ml-1" />
+              <span className="inline-block min-w-[6ch] sm:min-w-[8ch] relative">
+                in {currentCityName}
+                {/* Only show cursor if we have typewriter text */}
+                {cityText && <span className="typewriter-cursor h-[0.8em] align-text-bottom" />}
               </span>
             </span>
           </h1>
 
-          <div className="flex items-center gap-8 mx-auto mb-20">
+          <div className="flex items-center gap-4 sm:gap-8 mx-auto mb-12 sm:mb-20">
             {/* Renaissance Philanthropy Logo */}
             <a
               href="https://www.renphil.org"
@@ -230,12 +265,12 @@ export default function Home() {
               <img
                 src="/images/renaissance-philanthropy-light.png"
                 alt="Renaissance Philanthropy"
-                className="h-12 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:block hidden"
+                className="h-8 sm:h-12 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:block hidden"
               />
               <img
                 src="/images/renaissance-philanthropy-dark.png"
                 alt="Renaissance Philanthropy"
-                className="h-12 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:hidden block"
+                className="h-8 sm:h-12 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:hidden block"
               />
             </a>
 
@@ -249,12 +284,12 @@ export default function Home() {
               <img
                 src="/images/powered-by-aria-light.png"
                 alt="Powered by ARIA"
-                className="h-10 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:block hidden"
+                className="h-6 sm:h-10 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:block hidden"
               />
               <img
                 src="/images/powered-by-aria-dark.png"
                 alt="Powered by ARIA"
-                className="h-10 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:hidden block"
+                className="h-6 sm:h-10 w-auto opacity-80 group-hover:opacity-100 transition-opacity dark:hidden block"
               />
             </a>
           </div>

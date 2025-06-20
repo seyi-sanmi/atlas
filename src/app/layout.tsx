@@ -43,6 +43,7 @@ const Paragon = localFont({
 export const metadata: Metadata = {
   title: "ATLAS",
   description: "See What's Happening in London",
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
