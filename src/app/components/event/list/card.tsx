@@ -8,17 +8,16 @@ import {
   ArrowRightCircle,
   ArrowRightIcon,
 } from "lucide-react";
-// Temporarily disabled Sheet imports to fix compilation
-// import {
-//   Sheet,
-//   SheetClose,
-//   SheetContent,
-//   SheetDescription,
-//   SheetFooter,
-//   SheetHeader,
-//   SheetTitle,
-//   SheetTrigger,
-// } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface EventCardProps {
   event: Event;
@@ -125,13 +124,15 @@ export function EventCard({
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className={`group relative bg-[#1E1E25] ${getRoundingClasses()} border border-[#565558] transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
-      tabIndex={0}
-      role="button"
-      aria-label={`View details for ${event.title}`}
-    >
+    <Sheet>
+      <SheetTrigger asChild>
+        <div
+          onClick={handleClick}
+          className={`group relative bg-[#1E1E25] ${getRoundingClasses()} border border-[#565558] transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
+          tabIndex={0}
+          role="button"
+          aria-label={`View details for ${event.title}`}
+        >
       {/* Hero Image Side - Always show with DiceBear patterns */}
       <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
         <div className="rounded-lg overflow-hidden h-full">
@@ -209,20 +210,135 @@ export function EventCard({
 
         {/* View Details Link */}
         <div className="transition-opacity duration-300 pt-0">
-          <a
-            href="#"
-            className="font-sans text-sm bg-gradient-to-r from-white/20 to-white/40 group-hover:from-[#AE3813] group-hover:to-[#D45E3C] bg-clip-text text-transparent hover:underline hover:decoration-2 hover:underline-offset-2 transition-all duration-150 hover:animate-underline-sweep"
-            onClick={(e) => e.preventDefault()}
-          >
-            View Details
-          </a>
+          <div className="font-sans text-sm bg-gradient-to-r from-white/20 to-white/40 group-hover:from-[#AE3813] group-hover:to-[#D45E3C] bg-clip-text text-transparent hover:underline hover:decoration-2 hover:underline-offset-2 transition-all duration-150 hover:animate-underline-sweep cursor-pointer">
+            View Details →
+          </div>
         </div>
       </div>
 
-      {/* Ripple Effect Overlay */}
-      {isClicked && (
-        <div className="absolute inset-0 bg-gradient-to-r from-[#AE3813]/20 to-[#D45E3C]/20 animate-ripple-fade pointer-events-none" />
-      )}
-    </div>
+          {/* Ripple Effect Overlay */}
+          {isClicked && (
+            <div className="absolute inset-0 bg-gradient-to-r from-[#AE3813]/20 to-[#D45E3C]/20 animate-ripple-fade pointer-events-none" />
+          )}
+        </div>
+      </SheetTrigger>
+      
+      <SheetContent className="w-full sm:max-w-2xl">
+        <SheetHeader>
+          <SheetTitle className="text-2xl font-display text-left">
+            {event.title}
+          </SheetTitle>
+          <SheetDescription className="text-left">
+            {event.description}
+          </SheetDescription>
+        </SheetHeader>
+        
+        <div className="mt-6 space-y-6">
+          {/* Event Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-[#AE3813]" />
+                <div>
+                  <p className="font-medium">Date & Time</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(event.date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{event.time}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-[#AE3813]" />
+                <div>
+                  <p className="font-medium">Location</p>
+                  <p className="text-sm text-muted-foreground">{event.location}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-[#AE3813]" />
+                <div>
+                  <p className="font-medium">Organizer</p>
+                  <p className="text-sm text-muted-foreground">{event.organizer}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {event.categories && event.categories.length > 0 && (
+                <div>
+                  <p className="font-medium mb-2">Categories</p>
+                  <div className="flex flex-wrap gap-2">
+                    {event.categories.map((category, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-[#AE3813]/10 text-[#AE3813] rounded-md text-xs"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {event.presented_by && (
+                <div>
+                  <p className="font-medium">Presented by</p>
+                  <p className="text-sm text-muted-foreground">{event.presented_by}</p>
+                </div>
+              )}
+              
+              {event.is_featured && (
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  <span className="text-sm font-medium">Featured Event</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Links */}
+          {event.links && event.links.length > 0 && (
+            <div>
+              <p className="font-medium mb-3">Links</p>
+              <div className="space-y-2">
+                {event.links.map((link, index) => (
+                  <a
+                    key={index}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-[#AE3813] hover:underline text-sm"
+                  >
+                    {link}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Primary Event URL */}
+          {event.url && (
+            <div>
+              <a
+                href={event.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#AE3813] text-white px-4 py-2 rounded-md hover:bg-[#AE3813]/90 transition-colors"
+              >
+                View Event
+                <ArrowRightIcon className="w-4 h-4" />
+              </a>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
