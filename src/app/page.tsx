@@ -45,15 +45,14 @@ const cities = [
 
 function useTypewriterCity(cities: { name: string; image: string }[]) {
   const [cityIdx, setCityIdx] = useState(0);
-  const [displayText, setDisplayText] = useState(cities[0]?.name?.charAt(0) || "L"); // Start with first character
+  const [displayText, setDisplayText] = useState(""); // Start empty for smooth animation
   const [isDeleting, setIsDeleting] = useState(false);
-  const [image, setImage] = useState(cities[0].image);
+  const [image, setImage] = useState(cities[0]?.image || "");
   const [imageLoaded, setImageLoaded] = useState(false);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile for optimized timing
-  const [isMobile, setIsMobile] = useState(false);
-  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -67,8 +66,8 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
 
   // Preload next image
   useEffect(() => {
-    const newImage = cities[cityIdx].image;
-    if (newImage !== image) {
+    const newImage = cities[cityIdx]?.image;
+    if (newImage && newImage !== image) {
       setImageLoaded(false);
       const img = new window.Image();
       img.onload = () => {
@@ -76,55 +75,54 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
         setImageLoaded(true);
       };
       img.onerror = () => {
-        // Fallback for image loading errors
         setImage(newImage);
         setImageLoaded(true);
       };
       img.src = newImage;
-    } else {
+    } else if (newImage) {
       setImageLoaded(true);
     }
   }, [cityIdx, cities, image]);
 
+  // Main typewriter effect
   useEffect(() => {
-    const currentCity = cities[cityIdx].name;
+    if (!cities.length) return;
     
-    // Optimize timing for mobile devices
-    const typingSpeed = isMobile ? 80 : 100;
-    const deletingSpeed = isMobile ? 50 : 60;
-    const pauseAfterTyping = isMobile ? 1500 : 2000;
-    const pauseBeforeNext = isMobile ? 200 : 300;
+    const currentCity = cities[cityIdx]?.name || "";
     
-    const typeNextChar = () => {
+         // Slower, more relaxed timing
+     const typingSpeed = isMobile ? 150 : 180;
+     const deletingSpeed = isMobile ? 80 : 100;
+     const pauseAfterTyping = isMobile ? 3000 : 3500;
+     const pauseBeforeNext = isMobile ? 500 : 800;
+    
+    const animate = () => {
       if (!isDeleting && displayText.length < currentCity.length) {
-        // Typing forward - optimized for mobile
-        const newText = currentCity.slice(0, displayText.length + 1);
-        setDisplayText(newText);
-        console.log('Typewriter: typing', newText);
-        typingTimeout.current = setTimeout(typeNextChar, typingSpeed);
+        // Typing forward
+        setDisplayText(currentCity.slice(0, displayText.length + 1));
+        typingTimeout.current = setTimeout(animate, typingSpeed);
       } else if (!isDeleting && displayText.length === currentCity.length) {
         // Finished typing, pause before deleting
-        console.log('Typewriter: finished typing', displayText);
         typingTimeout.current = setTimeout(() => setIsDeleting(true), pauseAfterTyping);
       } else if (isDeleting && displayText.length > 0) {
         // Deleting
-        const newText = currentCity.slice(0, displayText.length - 1);
-        setDisplayText(newText);
-        console.log('Typewriter: deleting', newText);
-        typingTimeout.current = setTimeout(typeNextChar, deletingSpeed);
+        setDisplayText(currentCity.slice(0, displayText.length - 1));
+        typingTimeout.current = setTimeout(animate, deletingSpeed);
       } else if (isDeleting && displayText.length === 0) {
         // Finished deleting, move to next city
-        console.log('Typewriter: moving to next city');
         setIsDeleting(false);
         setCityIdx((prev) => (prev + 1) % cities.length);
-        typingTimeout.current = setTimeout(typeNextChar, pauseBeforeNext);
+        typingTimeout.current = setTimeout(animate, pauseBeforeNext);
       }
     };
 
-    typingTimeout.current = setTimeout(typeNextChar, 50);
+    // Start animation with a small delay
+    typingTimeout.current = setTimeout(animate, 100);
 
     return () => {
-      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      if (typingTimeout.current) {
+        clearTimeout(typingTimeout.current);
+      }
     };
   }, [displayText, isDeleting, cityIdx, cities, isMobile]);
 
@@ -144,8 +142,8 @@ export default function Home() {
   // Typewriter effect for city and background image
   const { displayText: cityText, image: cityImage, imageLoaded } = useTypewriterCity(cities);
 
-  // Fallback city name for mobile/slow connections
-  const currentCityName = cityText || cities[0]?.name || "London";
+  // Use only the typewriter text, no fallback during animation
+  const currentCityName = cityText;
 
   // Load events on mount
   useEffect(() => {
@@ -227,7 +225,7 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div
-            className={`w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out ${
+            className={`w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-2000 ease-in-out ${
               imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
             }`}
             style={{
@@ -244,13 +242,10 @@ export default function Home() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-white drop-shadow-2xl">
             What's Happening
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AE3813] to-[#D45E3C]">
-              {/* Typewriter effect for city */}
-              <span className="inline-block min-w-[6ch] sm:min-w-[8ch] relative">
-                in {currentCityName}
-                {/* Only show cursor if we have typewriter text */}
-                {cityText && <span className="typewriter-cursor h-[0.8em] align-text-bottom" />}
-              </span>
+            {/* Typewriter effect for city */}
+            <span className="inline-block min-w-[6ch] sm:min-w-[8ch] relative text-transparent bg-clip-text bg-gradient-to-r from-[#AE3813] to-[#D45E3C]">
+              in {currentCityName}
+              <span className="typewriter-cursor h-[0.8em] align-text-bottom" />
             </span>
           </h1>
 
