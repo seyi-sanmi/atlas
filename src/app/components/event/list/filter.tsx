@@ -326,7 +326,7 @@ export default function EventFilter({
                   key={location}
                   onClick={() => toggleLocation(location)}
                   className={`cursor-pointer px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                    (location === "All Locations" && !selectedLocation) || 
+                    (location === "All Locations" && (!selectedLocation || selectedLocation === "")) || 
                     (location !== "All Locations" && selectedLocation === location)
                       ? "bg-white text-black"
                       : "bg-white/10 text-gray-300 hover:bg-white/30"

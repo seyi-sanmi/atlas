@@ -181,16 +181,11 @@ export default function Home() {
 
   // Handle search and filtering
   useEffect(() => {
-    // Skip search on initial load when all filters are empty
-    if (!searchQuery && !selectedLocation && !selectedCategory && !selectedDate) {
-      return;
-    }
-
     const searchAndFilter = async () => {
-      // Only show loading after 100ms delay to prevent flash for fast queries
+      // Only show loading after 50ms delay to prevent flash for fast queries
       const loadingTimeout = setTimeout(() => {
         setIsLoadingEvents(true);
-      }, 100);
+      }, 50);
       
       try {
         const filteredEvents = await searchAndFilterEvents({
@@ -211,8 +206,9 @@ export default function Home() {
       }
     };
 
-    // Debounce search
-    const timeoutId = setTimeout(searchAndFilter, 300);
+    // Debounce only for search queries, make filters instant
+    const debounceTime = searchQuery ? 150 : 0;
+    const timeoutId = setTimeout(searchAndFilter, debounceTime);
     return () => clearTimeout(timeoutId);
   }, [searchQuery, selectedLocation, selectedCategory, selectedDate]);
 
