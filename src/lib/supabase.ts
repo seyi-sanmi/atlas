@@ -12,6 +12,7 @@ export interface Event {
   date: string // Format: "2025-06-15" for proper date sorting
   time: string
   location: string
+  city: string // City for location-based filtering
   description: string
   categories: string[]
   organizer: string

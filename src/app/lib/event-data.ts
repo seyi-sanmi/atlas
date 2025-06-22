@@ -4,6 +4,7 @@ export interface Event {
   date: string; // Format: "2025-06-15" for proper date sorting
   time: string;
   location: string;
+  city: string; // City for location-based filtering
   description: string;
   categories: string[];
   organizer: string;
@@ -20,10 +21,12 @@ export const events: Event[] = [
     date: "2025-06-15",
     time: "18:30 - 21:00",
     location: "Tate Modern, London",
+    city: "London",
     description:
       "Explore contemporary art from emerging artists across London. This exhibition features paintings, sculptures, and digital art installations that explore themes of urban life.",
     categories: ["Art", "Exhibition"],
     organizer: "Tate Modern",
+    url: "https://www.tate.org.uk/visit/tate-modern",
     image_url:
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80", // Art gallery
   },
@@ -34,10 +37,12 @@ export const events: Event[] = [
     date: "2025-06-15",
     time: "10:00 - 18:00",
     location: "Old Street, London",
+    city: "London",
     description:
       "Join us for an evening of tech talks, networking, and refreshments. We'll have speakers from leading tech companies discussing the latest trends in AI and machine learning.",
     categories: ["Tech", "Networking"],
     organizer: "London Tech Community",
+    url: "https://www.meetup.com/london-tech-meetup",
     image_url:
       "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80", // Tech meetup
   },
@@ -47,6 +52,7 @@ export const events: Event[] = [
     date: "2025-06-20",
     time: "09:00 - 17:00",
     location: "Canary Wharf, London",
+    city: "London",
     description:
       "A full-day workshop on understanding financial markets, investment strategies, and economic trends. Perfect for finance professionals and enthusiasts alike.",
     categories: ["Finance", "Workshop"],
@@ -61,6 +67,7 @@ export const events: Event[] = [
     // Fixed multi-day event date
     time: "Various times",
     location: "South Bank, London",
+    city: "London",
     description:
       "The annual jazz festival returns with performances from world-renowned jazz musicians and local talent. Enjoy four days of music across multiple venues (June 22-25).",
     categories: ["Music", "Festival"],
@@ -74,6 +81,7 @@ export const events: Event[] = [
     date: "2025-06-27",
     time: "19:00 - 21:00",
     location: "Shoreditch, London",
+    city: "London",
     description:
       "Join industry experts for a discussion on sustainable fashion practices, ethical sourcing, and the future of eco-friendly clothing production.",
     categories: ["Fashion", "Sustainability"],
@@ -87,6 +95,7 @@ export const events: Event[] = [
     date: "2025-07-01",
     time: "11:00 - 14:00",
     location: "Borough Market",
+    city: "London",
     description:
       "Discover the best of London's food scene with a guided tour through one of the city's oldest and most famous food markets. Includes tastings from various vendors.",
     categories: ["Food", "Tour"],
@@ -101,6 +110,7 @@ export const events: Event[] = [
     // Fixed multi-day event date
     time: "09:00 - 17:00",
     location: "King's Cross, London",
+    city: "London",
     description:
       "An intensive 5-day bootcamp covering front-end and back-end web development. Learn HTML, CSS, JavaScript, and modern frameworks from industry professionals (July 3-7).",
     categories: ["Tech", "Education"],
@@ -114,6 +124,7 @@ export const events: Event[] = [
     date: "2025-07-09",
     time: "14:00 - 17:00",
     location: "South Bank, London",
+    city: "London",
     description:
       "Capture London's iconic skyline and hidden corners on this guided photography walk. Suitable for all skill levels, bring your own camera or smartphone.",
     categories: ["Photography", "Outdoors"],
@@ -127,10 +138,12 @@ export const events: Event[] = [
     date: "2025-07-12",
     time: "18:00 - 21:00",
     location: "Liverpool Street",
+    city: "London",
     description:
       "Watch London's most promising startups pitch their ideas to investors and industry experts. Networking opportunities and refreshments provided.",
     categories: ["Business", "Networking"],
     organizer: "London Startups",
+    url: "https://www.eventbrite.com/e/startup-pitch-night-tickets",
     image_url:
       "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
   },

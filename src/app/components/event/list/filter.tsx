@@ -53,6 +53,7 @@ export default function EventFilter({
 
   // Static event types
   const staticEventTypes = [
+    "All Types",
     "Hackathon",
     "Workshop", 
     "Conference",
@@ -60,19 +61,19 @@ export default function EventFilter({
     "Webinar",
   ];
 
-  // Load dynamic filter options (locations only)
+  // Load dynamic filter options (cities only)
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
         setIsLoadingFilters(true);
-        const uniqueLocations = await getUniqueLocations();
+        const uniqueCities = await getUniqueLocations();
         
-        setLocations(["All Locations", ...uniqueLocations]);
+        setLocations(["All Locations", ...uniqueCities]);
         setEventTypes(staticEventTypes);
       } catch (error) {
         console.error('Failed to load filter options:', error);
         // Fallback to static data if API fails
-        setLocations(["All Locations", "London", "Remote"]);
+        setLocations(["All Locations", "London", "Glasgow", "Online"]);
         setEventTypes(staticEventTypes);
       } finally {
         setIsLoadingFilters(false);
@@ -81,6 +82,24 @@ export default function EventFilter({
 
     loadFilterOptions();
   }, [refreshTrigger]);
+
+  // Sync local state with parent props for locations
+  useEffect(() => {
+    if (selectedLocation && selectedLocation !== "All Locations") {
+      setSelectedLocations([selectedLocation]);
+    } else {
+      setSelectedLocations([]);
+    }
+  }, [selectedLocation]);
+
+  // Sync local state with parent props for event types
+  useEffect(() => {
+    if (selectedCategory && selectedCategory !== "All Types") {
+      setSelectedEventTypes([selectedCategory]);
+    } else {
+      setSelectedEventTypes([]);
+    }
+  }, [selectedCategory]);
 
   const toggleLocation = (location: string) => {
     if (location === "All Locations") {
@@ -93,7 +112,10 @@ export default function EventFilter({
   };
 
   const toggleEventType = (eventType: string) => {
-    if (selectedEventTypes.includes(eventType)) {
+    if (eventType === "All Types") {
+      setSelectedEventTypes([]);
+      onCategoryChange("");
+    } else if (selectedEventTypes.includes(eventType)) {
       setSelectedEventTypes([]);
       onCategoryChange("");
     } else {
@@ -311,14 +333,14 @@ export default function EventFilter({
           )}
         </div>
 
-        {/* Locations */}
+        {/* Cities */}
         <div className="space-y-3 pt-3">
-          <h3 className="text-lg font-medium font-display">Locations</h3>
+          <h3 className="text-lg font-medium font-display">Cities</h3>
           <div className="flex flex-wrap gap-2">
             {isLoadingFilters ? (
               <div className="flex items-center gap-2 text-white/60">
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
-                <span className="text-sm">Loading locations...</span>
+                <span className="text-sm">Loading cities...</span>
               </div>
             ) : (
               locations.map((location) => (
@@ -348,7 +370,8 @@ export default function EventFilter({
                 key={eventType}
                 onClick={() => toggleEventType(eventType)}
                 className={`cursor-pointer px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === eventType
+                  (eventType === "All Types" && (!selectedCategory || selectedCategory === "")) ||
+                  (eventType !== "All Types" && selectedCategory === eventType)
                     ? "bg-white text-black"
                     : "bg-white/10 text-gray-300 hover:bg-white/20"
                 }`}

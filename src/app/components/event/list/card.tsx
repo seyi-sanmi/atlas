@@ -319,17 +319,25 @@ export function EventCard({
 
           {/* Fixed Footer */}
           <SheetFooter>
-            {event.url && (
-              <SheetClose asChild>
-                <button
-                  className="sm:px-4 px-4 pr-1 py-3 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] text-white font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center justify-between gap-2"
-                  onClick={() => window.open(event.url, '_blank')}
-                >
-                  <span>View Event</span>
-                  <ArrowRightIcon className="w-6 h-6 text-white" />
-                </button>
-              </SheetClose>
-            )}
+            <button
+              className={`sm:px-4 px-4 pr-1 py-3 text-white font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
+                event.url 
+                  ? 'bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer' 
+                  : 'bg-gray-600 cursor-not-allowed opacity-50'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (event.url) {
+                  window.open(event.url, '_blank', 'noopener,noreferrer');
+                }
+              }}
+              disabled={!event.url}
+              title={event.url ? 'Open event page' : 'No event URL available'}
+            >
+              <span>{event.url ? 'View Event' : 'No URL Available'}</span>
+              <ArrowRightIcon className="w-6 h-6 text-white" />
+            </button>
           </SheetFooter>
         </div>
       </SheetContent>
