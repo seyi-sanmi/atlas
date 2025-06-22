@@ -8,6 +8,7 @@ import { Header } from "./event/header";
 import EventFilter from "./event/list/filter";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SlidersHorizontal } from "lucide-react";
+import { SearchModal } from "@/components/SearchModal";
 
 interface ClientHomePageProps {
   initialEvents: Event[];
@@ -109,6 +110,7 @@ export function ClientHomePage({ initialEvents, cities }: ClientHomePageProps) {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   
   // Simple cache to avoid repeated queries
   const [cachedEvents, setCachedEvents] = useState<Event[]>(initialEvents);
@@ -166,6 +168,19 @@ export function ClientHomePage({ initialEvents, cities }: ClientHomePageProps) {
     return () => clearInterval(timer);
   }, []);
 
+  // Command+K search modal listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchModalOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleEventSelect = (event: Event) => {
     console.log("Selected event:", event);
     setSelectedEvent(event);
@@ -210,6 +225,16 @@ export function ClientHomePage({ initialEvents, cities }: ClientHomePageProps) {
   return (
     <>
       <Header onEventImported={handleEventImported} />
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        events={events}
+        onEventSelect={handleEventSelect}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
       {/* Hero Section */}
       <section className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">

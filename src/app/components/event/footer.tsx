@@ -11,7 +11,7 @@ export function Footer() {
             Stay Updated
           </h3>
           <p className="text-white/60 mb-6 max-w-md mx-auto text-balance">
-            Get notified about the latest events and opportunities in London
+            Get notified about the latest science events and opportunities in the UK
           </p>
           <div className="flex max-w-md mx-auto">
             <input
@@ -94,8 +94,11 @@ export function Footer() {
         {/* Copyright */}
         <div className="text-center mt-8 pt-8 border-t border-white/20">
           <p className="text-white/40 text-sm">
-            © 2024 ATLAS. Powered by Renaissance Philanthropy & ARIA.
+          © 2025 Alliance of Talent Leaders Across Science. 
           </p>
+          <p className="text-white/30 text-sm">
+          <i> Powered by Renaissance Philanthropy & ARIA. </i>
+           </p>
         </div>
       </div>
     </footer>
