@@ -140,6 +140,10 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  
+  // Simple cache to avoid repeated queries
+  const [cachedEvents, setCachedEvents] = useState<Event[] | null>(null);
+  const [lastCacheTime, setLastCacheTime] = useState<number>(0);
 
   // Typewriter effect for city and background image
   const { displayText: cityText, image: cityImage, imageLoaded } = useTypewriterCity(cities);
@@ -150,10 +154,21 @@ export default function Home() {
   // Load events on mount
   useEffect(() => {
     const loadEvents = async () => {
+      // Use cache if it's less than 5 minutes old
+      const now = Date.now();
+      if (cachedEvents && (now - lastCacheTime) < 5 * 60 * 1000) {
+        setEvents(cachedEvents);
+        return;
+      }
+      
+      const startTime = Date.now();
       setIsLoadingEvents(true);
+      
       try {
         const eventsData = await getAllEvents();
         setEvents(eventsData);
+        setCachedEvents(eventsData);
+        setLastCacheTime(now);
       } catch (error) {
         console.error('Failed to load events:', error);
       } finally {
@@ -162,12 +177,21 @@ export default function Home() {
     };
 
     loadEvents();
-  }, []);
+  }, []); // Empty dependency array - only run once on mount
 
   // Handle search and filtering
   useEffect(() => {
+    // Skip search on initial load when all filters are empty
+    if (!searchQuery && !selectedLocation && !selectedCategory && !selectedDate) {
+      return;
+    }
+
     const searchAndFilter = async () => {
-      setIsLoadingEvents(true);
+      // Only show loading after 100ms delay to prevent flash for fast queries
+      const loadingTimeout = setTimeout(() => {
+        setIsLoadingEvents(true);
+      }, 100);
+      
       try {
         const filteredEvents = await searchAndFilterEvents({
           query: searchQuery,
@@ -176,8 +200,12 @@ export default function Home() {
           date: selectedDate,
         });
         setEvents(filteredEvents);
+        
+        // Clear loading timeout if query was fast
+        clearTimeout(loadingTimeout);
       } catch (error) {
         console.error('Failed to search events:', error);
+        clearTimeout(loadingTimeout);
       } finally {
         setIsLoadingEvents(false);
       }
