@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import {
   Calendar,
@@ -8,8 +9,12 @@ import {
   Search,
   Plus,
   Download,
+  Users,
+  Briefcase,
 } from "lucide-react";
 import { ImportEventModal } from "@/components/ImportEventModal";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   onEventImported?: () => void; // Callback to refresh events list
@@ -17,7 +22,7 @@ interface HeaderProps {
 
 export function Header({ onEventImported }: HeaderProps) {
   const [showImportModal, setShowImportModal] = useState(false);
-  const currentPage: "events" | "map" | "database" = "events";
+  const pathname = usePathname();
 
   return (
     <header className="fixed top-0 w-full z-50 bg-[#131318]/80 backdrop-blur-xl border-b border-white/20">
@@ -62,26 +67,70 @@ export function Header({ onEventImported }: HeaderProps) {
           </div>
 
           {/* Navigation Icons */}
-          <nav className="flex items-center gap-4 pl-4">
-            <button
-              className={`font-sans flex sm:space-x-2 transition-colors text-sm bg-white/10 backdrop-blur-md rounded-full ${
-                currentPage === "events"
-                  ? "text-white px-2 sm:px-3 py-2"
-                  : "text-white/60 hover:bg-[#AE3813]/20 px-3 py-2 rounded-sm hover:text-[#D45E3C]"
+          <nav className="flex items-center gap-2 pl-4">
+            <Link
+              href={"/"}
+              className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 rounded-full ${
+                pathname === "/"
+                  ? "text-white bg-white/10 backdrop-blur-md rounded-full"
+                  : "text-white/60 "
               }`}
             >
               <Calendar className="w-5 h-5" />
 
               <span className="hidden sm:inline-block">Events</span>
-            </button>
+            </Link>
 
-            <button
-              className={`font-sans flex space-x-2 transition-colors text-sm text-white/60 px-0.5 py-1`}
+            <Link
+              href={"/communities"}
+              className={`font-sans flex space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
+                pathname.startsWith("/communities")
+                  ? "text-white bg-white/10 backdrop-blur-md rounded-full"
+                  : "text-white/60"
+              }`}
             >
-              <MapPin className="w-5 h-5 text-white/50" />
-
-              <span className="text-white/60 hidden sm:inline-block">Map</span>
-            </button>
+              <Users
+                className={`w-5 h-5 ${
+                  pathname.startsWith("/communities")
+                    ? "text-white"
+                    : "text-white/50"
+                }`}
+              />
+              <span
+                className={`${
+                  pathname.startsWith("/communities")
+                    ? "text-white"
+                    : "text-white/60"
+                } hidden sm:inline-block`}
+              >
+                Communities
+              </span>
+            </Link>
+            <Link
+              href={"/funding"}
+              className={`font-sans flex space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
+                pathname.startsWith("/funding")
+                  ? "text-white bg-white/10 backdrop-blur-md rounded-full"
+                  : "text-white/60"
+              }`}
+            >
+              <Briefcase
+                className={`w-5 h-5 ${
+                  pathname.startsWith("/funding")
+                    ? "text-white"
+                    : "text-white/50"
+                }`}
+              />
+              <span
+                className={`${
+                  pathname.startsWith("/funding")
+                    ? "text-white"
+                    : "text-white/60"
+                } hidden sm:inline-block`}
+              >
+                Funding
+              </span>
+            </Link>
           </nav>
 
           {/* Right Actions */}
@@ -90,7 +139,7 @@ export function Header({ onEventImported }: HeaderProps) {
               <Search className="w-5 h-5" />
             </button>
 
-            <button 
+            <button
               onClick={() => setShowImportModal(true)}
               className="sm:px-4 px-3 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] text-white font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
             >
