@@ -324,6 +324,20 @@ function ClientCommunitiesPage() {
       {/* Main Content */}
       <main className="relative -mt-40 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl sm:flex">
+          <div className="hidden lg:block lg:w-1/3 mt-20">
+            <div className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto">
+              <CommunitiesFilter
+                searchQuery={""}
+                onSearchChange={() => {}}
+                selectedLocation={""}
+                onLocationChange={() => {}}
+                selectedCategory={""}
+                onCategoryChange={() => {}}
+                selectedDate={null}
+                onDateChange={() => {}}
+              />
+            </div>
+          </div>
           <div className=" min-h-screen lg:w-2/3">
             <div className="p-2 sm:p-8">
               <div className="w-full space-y-12">
@@ -459,21 +473,6 @@ function ClientCommunitiesPage() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          <div className="hidden lg:block lg:w-1/3 mt-20">
-            <div className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto">
-              <CommunitiesFilter
-                searchQuery={""}
-                onSearchChange={() => {}}
-                selectedLocation={""}
-                onLocationChange={() => {}}
-                selectedCategory={""}
-                onCategoryChange={() => {}}
-                selectedDate={null}
-                onDateChange={() => {}}
-              />
             </div>
           </div>
         </div>

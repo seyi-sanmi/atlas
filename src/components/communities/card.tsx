@@ -252,7 +252,7 @@ export function CommunityCard({
         </div>
       </SheetTrigger>
 
-      <SheetContent className="w-full sm:max-w-sm">
+      <SheetContent className="w-full sm:max-w-xl">
         <div className="flex flex-col h-full">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-4">
