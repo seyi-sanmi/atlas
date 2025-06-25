@@ -237,14 +237,14 @@ function ClientFundingPage() {
       <Header />
 
       {/* Hero Section */}
-      <PartnersHero 
-        title="Funding Opportunities" 
-        showBackground={false} 
+      <PartnersHero
+        title="Funding Opportunities"
+        showBackground={false}
         height="h-[45vh] sm:h-[52.5vh]"
       />
 
       {/* Main Content */}
-      <main className="relative -mt-40 z-20">
+      <main className="relative -mt-28 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl">
           <div className=" min-h-screen w-full">
             <NewFundingFilter

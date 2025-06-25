@@ -17,7 +17,7 @@ import PartnersHero from "../hero/partners";
 // Randomized research areas list - stable across renders
 const RESEARCH_AREAS = [
   "Biotechnology & Synthetic Biology",
-  "Genetics & Genomics", 
+  "Genetics & Genomics",
   "Healthcare & Medicine",
   "Longevity & Aging",
   "Biosecurity & Biodefense",
@@ -47,8 +47,10 @@ const RESEARCH_AREAS = [
   "Biology",
   "Mathematics",
   "Photonics",
-  "Computer Vision"
-].sort(() => Math.random() - 0.5).map(name => ({ name }));
+  "Computer Vision",
+]
+  .sort(() => Math.random() - 0.5)
+  .map((name) => ({ name }));
 
 // Interface for the CommunityCard component (legacy format)
 interface LegacyCommunity {
@@ -250,15 +252,15 @@ function ClientCommunitiesPage({
       <Header />
 
       {/* Hero Section */}
-      <PartnersHero 
-        title="Science Communities" 
-        showBackground={false} 
+      <PartnersHero
+        title="Science Communities"
+        showBackground={false}
         height="h-[45vh] sm:h-[52.5vh]"
         typewriterItems={RESEARCH_AREAS}
       />
 
       {/* Main Content */}
-      <main className="relative -mt-60 z-20">
+      <main className="relative -mt-48 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl ">
           <div className="hidden lg:block  mt-20">
             <div className="sticky top-20">
