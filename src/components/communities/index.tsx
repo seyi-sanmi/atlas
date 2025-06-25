@@ -38,6 +38,11 @@ interface LegacyCommunity {
   secondaryContactLinkedIn: string | null;
 }
 
+// Props interface for the component
+interface ClientCommunitiesPageProps {
+  initialCommunities?: Community[];
+}
+
 // Function to map Supabase Community to Legacy Community format
 const mapSupabaseCommunityToLegacy = (community: Community): LegacyCommunity => {
   return {
@@ -80,14 +85,14 @@ const mapSupabaseCommunityToLegacy = (community: Community): LegacyCommunity => 
   };
 };
 
-function ClientCommunitiesPage() {
+function ClientCommunitiesPage({ initialCommunities = [] }: ClientCommunitiesPageProps) {
   const [selectedCommunity, setSelectedCommunity] = useState<LegacyCommunity | null>(
     null
   );
   const [isLoadingCommunities, setIsLoadingCommunities] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [loading, setLoading] = useState(true);
-  const [communities, setCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(initialCommunities.length === 0);
+  const [communities, setCommunities] = useState<Community[]>(initialCommunities);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -99,22 +104,24 @@ function ClientCommunitiesPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch communities on component mount
+  // Fetch communities on component mount only if we don't have initial data
   useEffect(() => {
-    const fetchCommunities = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllCommunities();
-        setCommunities(data);
-      } catch (error) {
-        console.error('Error fetching communities:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (initialCommunities.length === 0) {
+      const fetchCommunities = async () => {
+        try {
+          setLoading(true);
+          const data = await getAllCommunities();
+          setCommunities(data);
+        } catch (error) {
+          console.error('Error fetching communities:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchCommunities();
-  }, []);
+      fetchCommunities();
+    }
+  }, [initialCommunities.length]);
 
   // Fetch filtered communities when search/filter changes
   useEffect(() => {
@@ -137,8 +144,12 @@ function ClientCommunitiesPage() {
     // Only apply filters if any are set, otherwise use the default fetch
     if (searchQuery || selectedLocation || selectedCategory) {
       fetchFilteredCommunities();
+    } else if (initialCommunities.length > 0) {
+      // Reset to initial communities when filters are cleared
+      setCommunities(initialCommunities);
+      setLoading(false);
     }
-  }, [searchQuery, selectedLocation, selectedCategory]);
+  }, [searchQuery, selectedLocation, selectedCategory, initialCommunities]);
 
   const handleCommunitySelect = (community: LegacyCommunity) => {
     console.log("Selected community:", community);
