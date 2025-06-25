@@ -1,20 +1,25 @@
 import puppeteer from 'puppeteer';
 
-// Serverless-friendly imports
+// Serverless-friendly imports - use dynamic imports in production
 let chromium: any;
 let puppeteerCore: any;
 
 // Dynamically import serverless dependencies in production
 const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
 
-if (isProduction) {
-  try {
-    chromium = require('@sparticuz/chromium');
-    puppeteerCore = require('puppeteer-core');
-    console.log('📦 Using serverless Puppeteer packages');
-  } catch (error) {
-    console.log('⚠️ Serverless packages not available, falling back to regular puppeteer');
+async function loadServerlessPackages() {
+  if (isProduction && !chromium) {
+    try {
+      chromium = await import('@sparticuz/chromium');
+      puppeteerCore = await import('puppeteer-core');
+      console.log('📦 Using serverless Puppeteer packages');
+      return true;
+    } catch (error) {
+      console.log('⚠️ Serverless packages not available, falling back to regular puppeteer');
+      return false;
+    }
   }
+  return false;
 }
 
 export interface LumaEventData {
@@ -58,6 +63,9 @@ export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventDat
   let browser;
   
   try {
+    // Load serverless packages if in production
+    const hasServerlessPackages = await loadServerlessPackages();
+    
     // Enhanced browser configuration for serverless environments
     const isVercel = process.env.VERCEL || process.env.VERCEL_ENV;
     const isDevelopment = process.env.NODE_ENV === 'development';
@@ -66,7 +74,8 @@ export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventDat
       isVercel: !!isVercel,
       isDevelopment,
       platform: process.platform,
-      nodeEnv: process.env.NODE_ENV
+      nodeEnv: process.env.NODE_ENV,
+      hasServerlessPackages
     });
 
     // Enhanced args for serverless/production environments
@@ -89,42 +98,39 @@ export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventDat
     if (isVercel) {
       browserArgs.push(
         '--single-process',
-        '--no-sandbox',
         '--disable-web-security',
         '--disable-features=VizDisplayCompositor'
       );
     }
 
-    const browserConfig = {
-      headless: true,
-      args: browserArgs,
-      ...(isVercel ? {
-        executablePath: '/usr/bin/chromium-browser',
-        // Fallback for different Vercel configurations
-        ...(process.env.CHROME_EXECUTABLE_PATH && {
-          executablePath: process.env.CHROME_EXECUTABLE_PATH
-        })
-      } : {})
-    };
-
-    console.log('🚀 Browser config:', {
-      headless: browserConfig.headless,
-      argsCount: browserConfig.args.length,
-      executablePath: browserConfig.executablePath || 'default'
-    });
-
     // Launch browser with optimized settings
-    if (isProduction && chromium && puppeteerCore) {
+    if (isProduction && hasServerlessPackages && chromium && puppeteerCore) {
       // Use serverless-friendly version
       console.log('🌐 Using serverless chromium...');
-      browser = await puppeteerCore.launch({
-        ...browserConfig,
-        executablePath: await chromium.executablePath(),
-        args: [...browserConfig.args, ...chromium.args]
+      
+      const executablePath = await chromium.default.executablePath();
+      console.log('🔧 Chromium executable path:', executablePath);
+      
+      browser = await puppeteerCore.default.launch({
+        headless: true,
+        args: [...browserArgs, ...chromium.default.args],
+        executablePath: executablePath
       });
     } else {
-      // Use regular puppeteer for development
+      // Use regular puppeteer for development or when serverless packages unavailable
       console.log('💻 Using regular puppeteer...');
+      
+      const browserConfig = {
+        headless: true,
+        args: browserArgs
+      };
+
+      console.log('🚀 Browser config:', {
+        headless: browserConfig.headless,
+        argsCount: browserConfig.args.length,
+        executablePath: 'default'
+      });
+
       browser = await puppeteer.launch(browserConfig);
     }
 
