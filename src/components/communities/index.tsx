@@ -14,6 +14,42 @@ import {
 } from "@/lib/communities";
 import PartnersHero from "../hero/partners";
 
+// Randomized research areas list - stable across renders
+const RESEARCH_AREAS = [
+  "Biotechnology & Synthetic Biology",
+  "Genetics & Genomics", 
+  "Healthcare & Medicine",
+  "Longevity & Aging",
+  "Biosecurity & Biodefense",
+  "Neuroscience",
+  "Materials Science & Engineering",
+  "Quantum Computing",
+  "Robotics & AI",
+  "Nanotechnology",
+  "Space & Astronomy",
+  "Neurotechnology",
+  "Climate & Atmospheric Science",
+  "Renewable Energy",
+  "Ocean & Marine Science",
+  "Conservation Biology",
+  "Agriculture & Food Systems",
+  "Environmental Health",
+  "Artificial Intelligence",
+  "Machine Learning",
+  "Bioinformatics",
+  "Chemoinformatics",
+  "High-Performance Computing",
+  "Data Analytics",
+  "Natural Language Processing",
+  "Biochemistry",
+  "Chemistry",
+  "Physics",
+  "Biology",
+  "Mathematics",
+  "Photonics",
+  "Computer Vision"
+].sort(() => Math.random() - 0.5).map(name => ({ name }));
+
 // Interface for the CommunityCard component (legacy format)
 interface LegacyCommunity {
   name: string;
@@ -213,7 +249,12 @@ function ClientCommunitiesPage({
       <Header />
 
       {/* Hero Section */}
-      <PartnersHero />
+      <PartnersHero 
+        title="Science Communities" 
+        showBackground={false} 
+        height="h-[45vh] sm:h-[52.5vh]"
+        typewriterItems={RESEARCH_AREAS}
+      />
 
       {/* Main Content */}
       <main className="relative -mt-40 z-20">

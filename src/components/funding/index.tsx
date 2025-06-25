@@ -236,7 +236,11 @@ function ClientFundingPage() {
       <Header />
 
       {/* Hero Section */}
-      <PartnersHero />
+      <PartnersHero 
+        title="Funding Opportunities" 
+        showBackground={false} 
+        height="h-[45vh] sm:h-[52.5vh]"
+      />
 
       {/* Main Content */}
       <main className="relative -mt-40 z-20">
