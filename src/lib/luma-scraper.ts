@@ -133,20 +133,23 @@ function parseJsonLdData(jsonLd: any, eventUrl: string): ScrapedEventData {
   const startDate = new Date(jsonLd.startDate);
   const endDate = jsonLd.endDate ? new Date(jsonLd.endDate) : null;
 
-  // Extract time range
+  // Extract time range - preserve original timezone
   let timeString = 'TBD';
   if (jsonLd.startDate) {
+    // Parse the time in the event's original timezone
     const startTime = startDate.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
+      timeZone: 'Europe/London' // Use UK timezone for UK events
     });
     
     if (endDate) {
       const endTime = endDate.toLocaleTimeString('en-US', { 
         hour: 'numeric', 
         minute: '2-digit',
-        hour12: true 
+        hour12: true,
+        timeZone: 'Europe/London' // Use UK timezone for UK events
       });
       timeString = `${startTime} - ${endTime}`;
     } else {
