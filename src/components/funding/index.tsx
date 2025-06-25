@@ -324,7 +324,7 @@ function ClientFundingPage() {
                                 ></path>
                               </g>
                             </svg>
-                            <div className="max-w-56 min-w-42 truncate">
+                            <div className="max-w-52 min-w-42 truncate">
                               {focusArea}
                             </div>
                             <div className="w-1 h-1 bg-white/60 rounded-full" />
@@ -412,7 +412,7 @@ function ClientFundingPage() {
                       </div>
 
                       {/* Funding Grid */}
-                      <div className="divide-x divide-y divide-white/30 grid grid-cols-1 lg:grid-cols-2 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
+                      <div className="divide-x divide-y divide-white/30 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
                         {areaFunding.map((funding, fundingIndex) => (
                           <EventCard
                             key={funding.name}

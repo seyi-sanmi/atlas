@@ -324,7 +324,7 @@ function ClientCommunitiesPage({
                                   ></path>
                                 </g>
                               </svg>
-                              <div className="max-w-56 min-w-42 truncate">
+                              <div className="max-w-52 min-w-42 truncate">
                                 {type}
                               </div>
                               <div className="w-1 h-1 bg-white/60 rounded-full" />
@@ -413,7 +413,7 @@ function ClientCommunitiesPage({
 
                         {/* Communities Grid */}
                         {!isCollapsed && (
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
+                          <div className="divide-x divide-y divide-white/30 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
                             {communities.map((community, communityIndex) => (
                               <CommunityCard
                                 key={community.name}
