@@ -169,7 +169,7 @@ export function CommunityCard({
           aria-label={`View details for ${community.name}`}
         >
           {/* Hero Image Side - Always show with DiceBear patterns */}
-          {/* <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
+          <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
             <div className="rounded-lg overflow-hidden h-full">
               <div
                 className={`w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
@@ -187,10 +187,8 @@ export function CommunityCard({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-               
                 <div className="absolute inset-0 bg-black/40 rounded-lg" />
 
-               
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-base sm:text-lg text-pretty font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
@@ -206,13 +204,13 @@ export function CommunityCard({
                 </div>
               </div>
             </div>
-          </div> */}
+          </div>
 
           {/* Content Side */}
           <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-2 flex flex-col justify-between min-w-0">
-            <h3 className="font-display font-medium text-lg sm:text-2xl text-[#F5F5F7] tracking-tight leading-tight line-clamp-2">
+            {/* <h3 className="font-display font-medium text-lg sm:text-2xl text-[#F5F5F7] tracking-tight leading-tight line-clamp-2">
               {community.name}
-            </h3>
+            </h3> */}
 
             {/* Meta Col */}
             <div className="flex flex-col gap-2 text-sm text-white/60">
@@ -256,7 +254,7 @@ export function CommunityCard({
         </div>
       </SheetTrigger>
 
-      <SheetContent className="w-full sm:max-w-xl">
+      <SheetContent className="w-full sm:max-w-lg">
         <div className="flex flex-col h-full">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-4">

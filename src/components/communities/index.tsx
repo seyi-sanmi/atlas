@@ -12,6 +12,7 @@ import {
   getAllCommunities,
   searchAndFilterCommunities,
 } from "@/lib/communities";
+import PartnersHero from "../hero/partners";
 
 // Interface for the CommunityCard component (legacy format)
 interface LegacyCommunity {
@@ -212,7 +213,7 @@ function ClientCommunitiesPage({
       <Header />
 
       {/* Hero Section */}
-      <Hero />
+      <PartnersHero />
 
       {/* Main Content */}
       <main className="relative -mt-40 z-20">
@@ -413,7 +414,7 @@ function ClientCommunitiesPage({
 
                         {/* Communities Grid */}
                         {!isCollapsed && (
-                          <div className="divide-x divide-y divide-white/30 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
+                          <div className="divide-x divide-y divide-white/30 grid grid-cols-1 lg:grid-cols-2 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
                             {communities.map((community, communityIndex) => (
                               <CommunityCard
                                 key={community.name}

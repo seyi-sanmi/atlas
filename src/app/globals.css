@@ -64,7 +64,7 @@
   translate: -1px 0;
   width: auto;
   height: 45px;
-  padding: 12px;
+  padding: 12px 4px;
   /* background: #ffffff; */
   /* border: 1px solid #eaeaea; */
   border-bottom: none;
@@ -95,9 +95,100 @@
   z-index: -1;
   height: calc(100% + 1px);
 
-  left: -54px;
+  left: -50px;
   transform: rotateY(180deg);
 }
+
+/*  */
+
+.fade-edge-lg {
+  --mask: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 1) 0,
+      rgba(0, 0, 0, 1) 60%,
+      rgba(0, 0, 0, 0) 95%,
+      rgba(0, 0, 0, 0) 0
+    )
+    100% 50% / 100% 100% repeat-x;
+
+  -webkit-mask: var(--mask);
+  mask: var(--mask);
+}
+.fade-edge-sm {
+  --mask: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 1) 0,
+      rgba(0, 0, 0, 1) 80%,
+      rgba(0, 0, 0, 0) 95%,
+      rgba(0, 0, 0, 0) 0
+    )
+    100% 50% / 100% 100% repeat-x;
+
+  -webkit-mask: var(--mask);
+  mask: var(--mask);
+}
+
+.mask-fade {
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1) 10%,
+    rgba(0, 0, 0, 1) 90%,
+    rgba(0, 0, 0, 0)
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1) 10%,
+    rgba(0, 0, 0, 1) 90%,
+    rgba(0, 0, 0, 0)
+  );
+}
+
+/* Parallax scroll animations - global keyframes for seamless loop */
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scrollRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.parallax-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.parallax-track {
+  display: inline-flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.parallax-track:hover {
+  animation-play-state: paused;
+}
+
+/*  */
+
+@media (max-width: 640px) {
+  .carousel-track {
+    gap: 1rem;
+    animation-duration: 15s;
+  }
+}
+
+/*  */
 
 @media (max-width: 639px) {
   .atlas-right-overlay-notch-tail {

@@ -6,6 +6,7 @@ import { Header } from "../event/header";
 import Hero from "../hero";
 import { EventCard } from "./card";
 import FundingFilter from "./filter";
+import PartnersHero from "../hero/partners";
 
 export interface FundingOpportunity {
   name: string;
@@ -235,7 +236,7 @@ function ClientFundingPage() {
       <Header />
 
       {/* Hero Section */}
-      <Hero />
+      <PartnersHero />
 
       {/* Main Content */}
       <main className="relative -mt-40 z-20">
