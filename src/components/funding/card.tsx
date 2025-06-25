@@ -6,9 +6,10 @@ import {
   Star,
   ArrowRightCircle,
   ArrowRightIcon,
-  Globe,
+  DollarSign,
+  CalendarDays,
   Building,
-  Mail,
+  Target,
 } from "lucide-react";
 import {
   Sheet,
@@ -21,40 +22,26 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-interface Community {
+interface FundingOpportunity {
   name: string;
-  communityType: string;
-  geographicLocations: string;
-  academicAssociation: string | null;
-  websiteUrl: string;
-  researchAreas: string;
-  contact: string;
-  communityLinkedIn: string | null;
-  size: string;
-  contactEmail: string;
-  contactLinkedIn: string | null;
-  purpose: string;
-  selectionProcessForMembers: string;
-  memberLocations: string;
-  communityTarget: string;
-  memberCommunication: string;
-  meetingFrequency: string;
-  meetingLocation: string;
-  leadershipChangeFrequency: string;
-  communityInterestAreas: string;
-  communityInformation: string;
-  secondaryCommunityContact: string;
-  secondaryContactEmail: string;
-  secondaryContactLinkedIn: string | null;
+  description: string;
+  funder: string;
+  deadline: string;
+  amount: number;
+  focusArea: string;
+  eligibility: string;
+  applicationLink: string;
 }
 
-interface CommunityCardProps {
-  community: Community;
+interface EventCardProps {
+  funding: FundingOpportunity;
   onClick: () => void;
   isSelected?: boolean;
+  showAmount?: boolean;
   isLastInGroup?: boolean;
   isFirstInGroup?: boolean;
-  communityIndex?: number;
+  focusArea: string; // Focus area for the funding
+  fundingIndex?: number; // Index position to prevent consecutive colors
 }
 
 // Light color palette for hero cards - BRIGHT RAINBOW & VIBRANT
@@ -93,15 +80,11 @@ const lightColors = [
 
 // Generate hero pattern with light colors, avoiding consecutive duplicates
 const generateLightHeroPattern = (
-  community: Community,
-  communityIndex: number = 0
+  funding: FundingOpportunity,
+  fundingIndex: number = 0
 ) => {
-  // Create a hash from community properties for consistent selection
-  const hash = (
-    community.name +
-    community.communityType +
-    (community.websiteUrl || "")
-  )
+  // Create a hash from funding properties for consistent selection
+  const hash = (funding.name + funding.deadline + funding.funder)
     .split("")
     .reduce((acc, char) => {
       return char.charCodeAt(0) + ((acc << 5) - acc);
@@ -109,25 +92,26 @@ const generateLightHeroPattern = (
 
   // Use hash to select base color, but offset by index to avoid consecutive duplicates
   const baseColorIndex = Math.abs(hash) % lightColors.length;
-  const offsetColorIndex =
-    (baseColorIndex + communityIndex) % lightColors.length;
+  const offsetColorIndex = (baseColorIndex + fundingIndex) % lightColors.length;
 
   const selectedColor = lightColors[offsetColorIndex];
-  const seed = `${community.name}-${community.communityType}-light`;
+  const seed = `${funding.name}-${funding.deadline}-light`;
 
   return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(
     seed
   )}&backgroundColor=${selectedColor}&scale=120`;
 };
 
-export function CommunityCard({
-  community,
+export function EventCard({
+  focusArea,
+  funding,
   onClick,
   isSelected = false,
+  showAmount = true,
   isLastInGroup = false,
   isFirstInGroup = false,
-  communityIndex = 0,
-}: CommunityCardProps) {
+  fundingIndex = 0,
+}: EventCardProps) {
   const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = () => {
@@ -148,14 +132,33 @@ export function CommunityCard({
     }
   };
 
-  // Generate community type initials for display
-  const getTypeInitials = (type: string) => {
-    return type
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 3);
+  const getImageRoundingClasses = () => {
+    if (isFirstInGroup && isLastInGroup) {
+      return "rounded-l-lg";
+    } else if (isFirstInGroup) {
+      return "rounded-tl-lg";
+    } else if (isLastInGroup) {
+      return "rounded-bl-lg";
+    } else {
+      return "";
+    }
+  };
+
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "GBP",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getDaysUntilDeadline = (deadline: string) => {
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    const diffTime = deadlineDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   return (
@@ -166,7 +169,7 @@ export function CommunityCard({
           className={`group relative bg-[#1E1E25] ${getRoundingClasses()} border border-[#565558] transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
           tabIndex={0}
           role="button"
-          aria-label={`View details for ${community.name}`}
+          aria-label={`View details for ${funding.name}`}
         >
           {/* Hero Image Side - Always show with DiceBear patterns */}
           <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
@@ -179,8 +182,8 @@ export function CommunityCard({
                 } ${isClicked ? "animate-ripple" : ""}`}
                 style={{
                   backgroundImage: `url("${generateLightHeroPattern(
-                    community,
-                    communityIndex
+                    funding,
+                    fundingIndex
                   )}")`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -190,17 +193,18 @@ export function CommunityCard({
                 {/* Dark overlay for better text readability */}
                 <div className="absolute inset-0 bg-black/40 rounded-lg" />
 
-                {/* Community type overlay */}
+                {/* Focus Area overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-lg sm:text-xl text-pretty font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
-                      {community.name}
+                  <div className="text-center px-4">
+                    <div className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight mb-1">
+                      {focusArea.split(" ")[0]}
                     </div>
-                    <div className="text-xs mx-auto text-white/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
-                      {community.size}
+                    <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                      {focusArea.split(" ").slice(1).join(" ")}
                     </div>
-                    <div className="text-xs text-white/60 font-medium">
-                      Members
+                    <div className="text-sm text-white/60 font-medium mt-2">
+                      {/* {formatAmount(funding.amount)} */}
+                      {funding.amount.toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -209,32 +213,52 @@ export function CommunityCard({
           </div>
 
           {/* Content Side */}
-          <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-2 flex flex-col justify-between min-w-0">
-            {/* Meta Col */}
-            <div className="flex flex-col gap-2 text-sm text-white/60">
+          <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-4 flex flex-col justify-between min-w-0">
+            {/* Title */}
+            <h3 className="font-display font-medium text-lg sm:text-2xl text-[#F5F5F7] tracking-tight leading-tight line-clamp-2">
+              {funding.name}
+            </h3>
+
+            {/* Meta Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-white/60">
+              {showAmount && (
+                <div className="flex items-center gap-1.5">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="font-sans font-medium">
+                    {/* {formatAmount(funding.amount)} */}
+                    {funding.amount.toLocaleString()}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5">
-                <Building className="w-4 h-4" />
-                <span className="font-sans">{community.communityType}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4" />
+                <CalendarDays className="w-4 h-4" />
                 <span className="font-sans truncate">
-                  {community.geographicLocations}
+                  {getDaysUntilDeadline(funding.deadline)} days left
                 </span>
               </div>
             </div>
 
             {/* Description Preview */}
-            <p className="font-sans text-sm text-white/60 leading-relaxed line-clamp-2 transition-all duration-300">
-              {community.purpose}
-            </p>
+            {funding.description && (
+              <p className="font-sans text-sm text-white/60 leading-relaxed line-clamp-2 transition-all duration-300">
+                {funding.description}
+              </p>
+            )}
 
-            {/* Contact */}
-            <div className="flex items-center gap-2 text-white/60">
-              <Users className="w-4 h-4" />
-              <span className="font-sans text-sm truncate">
-                {community.contact}
-              </span>
+            {/* Focus Area & Funder */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-white/60">
+                <Target className="w-4 h-4" />
+                <span className="font-sans text-sm truncate">
+                  {funding.focusArea}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-white/60">
+                <Building className="w-4 h-4" />
+                <span className="font-sans text-sm truncate">
+                  {funding.funder}
+                </span>
+              </div>
             </div>
 
             {/* View Details Link */}
@@ -252,23 +276,23 @@ export function CommunityCard({
         </div>
       </SheetTrigger>
 
-      <SheetContent className="w-full sm:max-w-xl">
+      <SheetContent className="w-full sm:max-w-sm">
         <div className="flex flex-col h-full">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-4">
             <SheetHeader>
-              <SheetTitle>{community.name}</SheetTitle>
+              <SheetTitle>{funding.name}</SheetTitle>
               <div>
                 <div className="flex flex-col gap-4 mt-2">
-                  {/* Community Image */}
-                  {/* <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
+                  {/* Funding Image */}
+                  <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
                     <div className="rounded-lg overflow-hidden h-full">
                       <div
                         className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
                         style={{
                           backgroundImage: `url("${generateLightHeroPattern(
-                            community,
-                            communityIndex
+                            funding,
+                            fundingIndex
                           )}")`,
                           backgroundSize: "cover",
                           backgroundPosition: "center center",
@@ -277,94 +301,114 @@ export function CommunityCard({
                       >
                         <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-lg sm:text-xl font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
-                              {community.name}
+                          <div className="text-center px-4">
+                            <div className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight mb-1">
+                              {focusArea.split(" ")[0]}
                             </div>
-                            <div className="text-xs text-white/80 font-medium uppercase tracking-wider mt-1">
-                              {community.size}
+                            <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                              {focusArea.split(" ").slice(1).join(" ")}
                             </div>
-                            <div className="text-xs text-white/60 font-medium">
-                              Members
+                            <div className="text-sm text-white/60 font-medium mt-2">
+                              {formatAmount(funding.amount)}
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div> */}
+                  </div>
 
-                  {/* Community Details Grid */}
+                  {/* Funding Details Grid */}
                   <div className="grid gap-3">
-                    {/* Meeting Info */}
+                    {/* Amount */}
                     <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                        <Clock className="w-4 h-4 text-[#D45E3C]" />
+                        <DollarSign className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
-                          Meeting Frequency
+                          Amount
                         </span>
-                        <span className="font-sans text-sm text-white/90">
-                          {community.meetingFrequency}
+                        <span className="font-sans text-sm text-white/90 font-semibold">
+                          {formatAmount(funding.amount)}
                         </span>
                       </div>
                     </div>
 
-                    {/* Location */}
+                    {/* Deadline */}
                     <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                        <MapPin className="w-4 h-4 text-[#D45E3C]" />
+                        <CalendarDays className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
-                          Location
+                          Deadline
                         </span>
                         <span className="font-sans text-sm text-white/90">
-                          {community.geographicLocations}
+                          {new Date(funding.deadline).toLocaleDateString(
+                            "en-GB"
+                          )}{" "}
+                          ({getDaysUntilDeadline(funding.deadline)} days)
                         </span>
                       </div>
                     </div>
 
-                    {/* Contact */}
+                    {/* Focus Area */}
                     <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                        <Users className="w-4 h-4 text-[#D45E3C]" />
+                        <Target className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
-                          Contact
+                          Focus Area
                         </span>
                         <span className="font-sans text-sm text-white/90">
-                          {community.contact}
+                          {funding.focusArea}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Funder */}
+                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
+                        <Building className="w-4 h-4 text-[#D45E3C]" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                          Funder
+                        </span>
+                        <span className="font-sans text-sm text-white/90">
+                          {funding.funder}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   {/* About Section */}
-                  <div className="mt-2 rounded-lg">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                      <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
-                        About this Community
-                      </h4>
-                    </div>
-                    <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
-                      {community.purpose}
-                    </p>
-                  </div>
-
-                  {/* Research Areas */}
-                  {community.researchAreas && (
+                  {funding.description && (
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
                         <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
-                          Research Areas
+                          About this Funding
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
-                        {community.researchAreas}
+                      <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
+                        {funding.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Eligibility Section */}
+                  {funding.eligibility && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                          Eligibility
+                        </h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
+                        {funding.eligibility}
                       </p>
                     </div>
                   )}
@@ -377,30 +421,30 @@ export function CommunityCard({
           <SheetFooter>
             <button
               className={`sm:px-4 px-4 pr-1 py-3 text-white font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
-                community.websiteUrl
+                funding.applicationLink
                   ? "bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
               }`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (community.websiteUrl) {
+                if (funding.applicationLink) {
                   window.open(
-                    community.websiteUrl,
+                    funding.applicationLink,
                     "_blank",
                     "noopener,noreferrer"
                   );
                 }
               }}
-              disabled={!community.websiteUrl}
+              disabled={!funding.applicationLink}
               title={
-                community.websiteUrl
-                  ? "Open community website"
-                  : "No website URL available"
+                funding.applicationLink
+                  ? "Open application page"
+                  : "No application URL available"
               }
             >
               <span>
-                {community.websiteUrl ? "Visit Website" : "No URL Available"}
+                {funding.applicationLink ? "Apply Now" : "No URL Available"}
               </span>
               <ArrowRightIcon className="w-6 h-6 text-white" />
             </button>
@@ -410,3 +454,4 @@ export function CommunityCard({
     </Sheet>
   );
 }
+export default EventCard;

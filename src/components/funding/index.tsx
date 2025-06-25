@@ -1,167 +1,121 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import EventFilter from "../event/list/filter";
+import React, { useEffect, useMemo, useState } from "react";
+
 import { EventsList } from "../event/list";
 import { Header } from "../event/header";
-import { EventCard } from "../event/list/card";
 import Hero from "../hero";
+import { EventCard } from "./card";
+import FundingFilter from "./filter";
 
-export interface Event {
-  id: string;
-  title: string;
-  date: string; // Format: "2025-06-15" for proper date sorting
-  time: string;
-  location: string;
-  city: string; // City for location-based filtering
+export interface FundingOpportunity {
+  name: string;
   description: string;
-  categories: string[];
-  organizer: string;
-  presented_by?: string;
-  isFeatured?: boolean;
-  url?: string; // Optional URL to the original event page
-  image_url?: string; // Optional URL to the event image
-  links?: string[]; // Optional array of links extracted from the event page
+  funder: string;
+  deadline: string; // ISO date string
+  amount: number;
+  focusArea: string;
+  eligibility: string;
+  applicationLink: string;
 }
-export const events: Event[] = [
-  {
-    id: "1",
-    title: "Summer Art Exhibition",
-    date: "2025-06-15",
-    time: "18:30 - 21:00",
-    location: "Tate Modern, London",
-    city: "London",
-    description:
-      "Explore contemporary art from emerging artists across London. This exhibition features paintings, sculptures, and digital art installations that explore themes of urban life.",
-    categories: ["Art", "Exhibition"],
-    organizer: "Tate Modern",
-    url: "https://www.tate.org.uk/visit/tate-modern",
-    image_url:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80", // Art gallery
-  },
-  {
-    id: "2",
-    title: "London Tech Meetup",
 
-    date: "2025-06-15",
-    time: "10:00 - 18:00",
-    location: "Old Street, London",
-    city: "London",
+const fundingOpportunities: FundingOpportunity[] = [
+  {
+    name: "Tech for Good Grant",
     description:
-      "Join us for an evening of tech talks, networking, and refreshments. We'll have speakers from leading tech companies discussing the latest trends in AI and machine learning.",
-    categories: ["Tech", "Networking"],
-    organizer: "London Tech Community",
-    url: "https://www.meetup.com/london-tech-meetup",
-    image_url:
-      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80", // Tech meetup
+      "Supports the development and scaling of innovative technology solutions designed to address pressing social challenges.",
+    funder: "Innovate UK & The Social Tech Trust",
+    deadline: "2025-10-31T23:59:00Z",
+    amount: 100000,
+    focusArea: "Technology & Social Impact",
+    eligibility:
+      "UK-registered startups and SMEs with a clear social mission and a functioning prototype.",
+    applicationLink: "https://example.com/apply/tech-for-good",
   },
   {
-    id: "3",
-    title: "Financial Markets Workshop",
-    date: "2025-06-20",
-    time: "09:00 - 17:00",
-    location: "Canary Wharf, London",
-    city: "London",
+    name: "Early-Career Scientist Catalyst Fund",
     description:
-      "A full-day workshop on understanding financial markets, investment strategies, and economic trends. Perfect for finance professionals and enthusiasts alike.",
-    categories: ["Finance", "Workshop"],
-    organizer: "London Business School",
-    image_url:
-      "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80", // Finance/Canary Wharf
+      "Seed funding for post-doctoral researchers in the physical sciences to launch novel, high-risk, high-reward research projects.",
+    funder: "The Royal Society",
+    deadline: "2026-01-31T23:59:00Z",
+    amount: 20000,
+    focusArea: "Scientific Research",
+    eligibility:
+      "Researchers within 5 years of their PhD award, affiliated with a UK university or recognised research institution.",
+    applicationLink: "https://example.com/apply/scientist-catalyst",
   },
   {
-    id: "4",
-    title: "London Jazz Festival",
-    date: "2025-06-22",
-    // Fixed multi-day event date
-    time: "Various times",
-    location: "South Bank, London",
-    city: "London",
+    name: "Medical Research Breakthrough Grant",
     description:
-      "The annual jazz festival returns with performances from world-renowned jazz musicians and local talent. Enjoy four days of music across multiple venues (June 22-25).",
-    categories: ["Music", "Festival"],
-    organizer: "London Music Arts",
-    image_url:
-      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80", // Jazz music
+      "Funding for laboratory-based research projects with the potential for significant breakthroughs in medical science.",
+    funder: "The Wellcome Trust",
+    deadline: "2026-02-28T23:59:00Z",
+    amount: 120000,
+    focusArea: "Scientific Research",
+    eligibility:
+      "Established researchers with a PhD and a host institution in the UK.",
+    applicationLink: "https://example.com/apply/medical-breakthrough",
   },
   {
-    id: "5",
-    title: "Sustainable Fashion Panel",
-    date: "2025-06-27",
-    time: "19:00 - 21:00",
-    location: "Shoreditch, London",
-    city: "London",
+    name: "Heritage Restoration Initiative",
     description:
-      "Join industry experts for a discussion on sustainable fashion practices, ethical sourcing, and the future of eco-friendly clothing production.",
-    categories: ["Fashion", "Sustainability"],
-    organizer: "Fashion Forward UK",
-    image_url:
-      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80", // Sustainable fashion
+      "Capital grants for the urgent repair and restoration of listed historical buildings and structures of significant local or national importance.",
+    funder: "National Heritage Fund",
+    deadline: "2025-11-20T23:59:00Z",
+    amount: 250000,
+    focusArea: "Heritage & Conservation",
+    eligibility:
+      "Owners of Grade I or Grade II* listed buildings, or registered building preservation trusts.",
+    applicationLink: "https://example.com/apply/heritage-restoration",
   },
   {
-    id: "6",
-    title: "London Food Market Tour",
-    date: "2025-07-01",
-    time: "11:00 - 14:00",
-    location: "Borough Market",
-    city: "London",
+    name: "Future Leaders in STEM Scholarship",
     description:
-      "Discover the best of London's food scene with a guided tour through one of the city's oldest and most famous food markets. Includes tastings from various vendors.",
-    categories: ["Food", "Tour"],
-    organizer: "London Food Guides",
-    image_url:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80", // Food market
+      "Scholarships for underrepresented students pursuing higher education in Science, Technology, Engineering, and Mathematics.",
+    funder: "The STEM Forward Foundation",
+    deadline: "2025-11-22T23:59:00Z",
+    amount: 5000,
+    focusArea: "Education & STEM",
+    eligibility:
+      "Final year A-Level students from households with an income below £30,000, holding an offer from a UK university for a STEM subject.",
+    applicationLink: "https://example.com/apply/stem-leaders",
   },
   {
-    id: "7",
-    title: "Web Development Bootcamp",
-    date: "2025-07-03",
-    // Fixed multi-day event date
-    time: "09:00 - 17:00",
-    location: "King's Cross, London",
-    city: "London",
+    name: "STEM for All Ages",
     description:
-      "An intensive 5-day bootcamp covering front-end and back-end web development. Learn HTML, CSS, JavaScript, and modern frameworks from industry professionals (July 3-7).",
-    categories: ["Tech", "Education"],
-    organizer: "Code Academy London",
-    image_url:
-      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80", // Coding bootcamp
+      "Grants for community projects that make STEM subjects accessible and engaging for people of all ages, outside of formal education.",
+    funder: "The Newton Society",
+    deadline: "2025-11-25T23:59:00Z",
+    amount: 45000,
+    focusArea: "Education & STEM",
+    eligibility: "Museums, libraries, and registered charities in the UK.",
+    applicationLink: "https://example.com/apply/stem-for-all",
   },
   {
-    id: "8",
-    title: "Urban Photography Walk",
-    date: "2025-07-09",
-    time: "14:00 - 17:00",
-    location: "South Bank, London",
-    city: "London",
+    name: "Primary School Coding Clubs",
     description:
-      "Capture London's iconic skyline and hidden corners on this guided photography walk. Suitable for all skill levels, bring your own camera or smartphone.",
-    categories: ["Photography", "Outdoors"],
-    organizer: "London Photography Club",
-    image_url:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80", // Urban photography
-  },
-  {
-    id: "9",
-    title: "Startup Pitch Night",
-    date: "2025-07-12",
-    time: "18:00 - 21:00",
-    location: "Liverpool Street",
-    city: "London",
-    description:
-      "Watch London's most promising startups pitch their ideas to investors and industry experts. Networking opportunities and refreshments provided.",
-    categories: ["Business", "Networking"],
-    organizer: "London Startups",
-    url: "https://www.eventbrite.com/e/startup-pitch-night-tickets",
-    image_url:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
+      "Funding to establish and run coding and robotics clubs for primary school children (ages 7-11).",
+    funder: "The Raspberry Pi Foundation",
+    deadline: "2025-11-15T23:59:00Z",
+    amount: 15000,
+    focusArea: "Education & STEM",
+    eligibility: "UK primary schools and parent-teacher associations.",
+    applicationLink: "https://example.com/apply/primary-coding",
   },
 ];
 
 function ClientFundingPage() {
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [selectedFunding, setSelectedFunding] =
+    useState<FundingOpportunity | null>(null);
+  const [isLoadingFunding, setIsLoadingFunding] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loading, setLoading] = useState(false);
+
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFunder, setSelectedFunder] = useState("");
+  const [selectedFocusArea, setSelectedFocusArea] = useState("");
+  const [selectedAmountRange, setSelectedAmountRange] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Typewriter effect for city and background image
 
@@ -172,63 +126,109 @@ function ClientFundingPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleEventSelect = (event: Event) => {
-    console.log("Selected event:", event);
-    setSelectedEvent(event);
+  const handleFundingSelect = (funding: FundingOpportunity) => {
+    console.log("Selected funding:", funding);
+    setSelectedFunding(funding);
   };
 
-  const formatDateTime = (date: Date) => {};
+  // Filter funding opportunities based on selected filters
+  const filteredFunding = useMemo(() => {
+    let filtered = fundingOpportunities;
 
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
-    new Set()
-  );
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (funding) =>
+          funding.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          funding.description
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          funding.funder.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          funding.focusArea.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  // Group events by date and calculate global indices for color diversity
-  const groupedEvents = useMemo(() => {
-    const groups: { [date: string]: Event[] } = {};
+    // Funder filter
+    if (selectedFunder) {
+      filtered = filtered.filter(
+        (funding) => funding.funder === selectedFunder
+      );
+    }
 
-    events.forEach((event) => {
-      const date = new Date(event.date);
-      const dateKey = date.toDateString();
+    // Focus area filter
+    if (selectedFocusArea) {
+      filtered = filtered.filter(
+        (funding) => funding.focusArea === selectedFocusArea
+      );
+    }
 
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
+    // Amount range filter
+    if (selectedAmountRange && selectedAmountRange !== "All Amounts") {
+      filtered = filtered.filter((funding) => {
+        const amount = funding.amount;
+        switch (selectedAmountRange) {
+          case "Under £10,000":
+            return amount < 10000;
+          case "£10,000 - £50,000":
+            return amount >= 10000 && amount <= 50000;
+          case "£50,000 - £100,000":
+            return amount >= 50000 && amount <= 100000;
+          case "Over £100,000":
+            return amount > 100000;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Date filter (deadline)
+    if (selectedDate) {
+      filtered = filtered.filter((funding) => {
+        const deadline = new Date(funding.deadline);
+        return deadline.toDateString() === selectedDate.toDateString();
+      });
+    }
+
+    return filtered;
+  }, [
+    searchQuery,
+    selectedFunder,
+    selectedFocusArea,
+    selectedAmountRange,
+    selectedDate,
+  ]);
+
+  // Group filtered funding opportunities by focusArea
+  const groupedFunding = useMemo(() => {
+    const groups: { [focusArea: string]: FundingOpportunity[] } = {};
+
+    filteredFunding.forEach((funding) => {
+      const focusArea = funding.focusArea;
+
+      if (!groups[focusArea]) {
+        groups[focusArea] = [];
       }
-      groups[dateKey].push(event);
+      groups[focusArea].push(funding);
     });
 
-    // Sort groups by date and sort events within each group by time
+    // Sort groups alphabetically by focusArea and sort funding within each group by amount (highest first)
     const sortedGroups = Object.entries(groups)
-      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-      .map(([date, eventsInDate]) => ({
-        date,
-        events: eventsInDate.sort((a, b) => {
-          const timeA = a.time.split(" - ")[0];
-          const timeB = b.time.split(" - ")[0];
-          return timeA.localeCompare(timeB);
-        }),
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([focusArea, fundingInArea]) => ({
+        focusArea,
+        funding: fundingInArea.sort((a, b) => b.amount - a.amount),
       }));
 
-    // Calculate global indices for each event to ensure color diversity
-    let globalEventIndex = 0;
-    return sortedGroups.map(({ date, events: dateEvents }) => ({
-      date,
-      events: dateEvents.map((event) => ({
-        ...event,
-        globalIndex: globalEventIndex++,
+    // Calculate global indices for each funding opportunity to ensure color diversity
+    let globalFundingIndex = 0;
+    return sortedGroups.map(({ focusArea, funding: areaFunding }) => ({
+      focusArea,
+      funding: areaFunding.map((funding) => ({
+        ...funding,
+        globalIndex: globalFundingIndex++,
       })),
     }));
-  }, [events]);
-
-  const formatDayDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "2-digit",
-      // year: "numeric",
-    });
-  };
+  }, [filteredFunding]);
 
   return (
     <div className="min-h-screen w-full bg-[#131318] text-gray-100 font-sans">
@@ -243,20 +243,22 @@ function ClientFundingPage() {
           <div className=" min-h-screen lg:w-2/3">
             <div className="p-2 sm:p-8">
               <div className="w-full space-y-12">
-                {groupedEvents.map(({ date, events: dateEvents }) => {
-                  const formattedDate = formatDayDate(date);
-                  const isCollapsed = collapsedSections.has(date);
-
+                {groupedFunding.map(({ focusArea, funding: areaFunding }) => {
                   return (
-                    <section key={date} className="">
+                    <section key={focusArea} className="">
                       <div className="data-atlas-overlay-nav">
                         <div className="atlas-overlay-notch bg-[#1E1E25] border-t border-b border-[#565558] border-l">
                           <h2 className="flex items-center gap-3 text-[12px] text-balance sm:text-base font-normal text-white tracking-wide pl-1">
-                            {formattedDate}
+                            <div className="max-w-56 min-w-42 truncat">
+                              {focusArea}
+                            </div>
                             <div className="w-1 h-1 bg-white/60 rounded-full" />
                             <span className="text-[12px] sm:text-base shrink-0 font-light text-white/60">
-                              {dateEvents.length} event
-                              {dateEvents.length !== 1 ? "s" : ""}
+                              {areaFunding.length}
+                              {/* funding
+                              {areaFunding.length !== 1
+                                ? " opportunities"
+                                : " opportunity"} */}
                             </span>
                           </h2>
 
@@ -338,40 +340,40 @@ function ClientFundingPage() {
                         </div>
                       </div>
 
-                      {/* Events Grid */}
-                      {!isCollapsed && (
-                        <div className="grid grid-cols-1 gap-0">
-                          {dateEvents.map((event, eventIndex) => (
-                            <EventCard
-                              key={event.id}
-                              date={date}
-                              event={event}
-                              onClick={() => handleEventSelect(event)}
-                              isSelected={selectedEvent?.id === event.id}
-                              showTime={
-                                eventIndex === 0 ||
-                                event.time !== dateEvents[eventIndex - 1]?.time
-                              }
-                              isFirstInGroup={eventIndex === 0}
-                              isLastInGroup={
-                                eventIndex === dateEvents.length - 1
-                              }
-                              eventIndex={(event as any).globalIndex}
-                            />
-                          ))}
-                        </div>
-                      )}
+                      {/* Funding Grid */}
+                      <div className="grid grid-cols-1 gap-0">
+                        {areaFunding.map((funding, fundingIndex) => (
+                          <EventCard
+                            key={funding.name}
+                            focusArea={focusArea}
+                            funding={funding}
+                            onClick={() => handleFundingSelect(funding)}
+                            isSelected={selectedFunding?.name === funding.name}
+                            showAmount={
+                              fundingIndex === 0 ||
+                              funding.amount !==
+                                areaFunding[fundingIndex - 1]?.amount
+                            }
+                            isFirstInGroup={fundingIndex === 0}
+                            isLastInGroup={
+                              fundingIndex === areaFunding.length - 1
+                            }
+                            fundingIndex={(funding as any).globalIndex}
+                          />
+                        ))}
+                      </div>
                     </section>
                   );
                 })}
 
-                {groupedEvents.length === 0 && !loading && (
+                {groupedFunding.length === 0 && !loading && (
                   <div className="text-center py-16">
                     <div className="text-white/60 text-lg font-medium mb-2">
-                      No events found
+                      No funding opportunities found
                     </div>
                     <div className="text-white/40 text-sm">
-                      Check back later for new events
+                      Try adjusting your filters or check back later for new
+                      opportunities
                     </div>
                   </div>
                 )}
@@ -380,7 +382,19 @@ function ClientFundingPage() {
           </div>
 
           <div className="hidden lg:block lg:w-1/3 mt-20">
-            {/* <EventFilter  /> */}
+            <FundingFilter
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedFunder={selectedFunder}
+              onFunderChange={setSelectedFunder}
+              selectedFocusArea={selectedFocusArea}
+              onFocusAreaChange={setSelectedFocusArea}
+              selectedAmountRange={selectedAmountRange}
+              onAmountRangeChange={setSelectedAmountRange}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              fundingOpportunities={fundingOpportunities}
+            />
           </div>
         </div>
       </main>
