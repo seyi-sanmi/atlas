@@ -169,9 +169,8 @@ export default function CommunitiesFilter({
     <div className=" text-white">
       <div className="max-w-6xl mx-auto space-y-4 font-sans">
         {/* Main Filter Row */}
-        <div className="flex gap-4 items-center justify-center mx-auto">
+        <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
           {/* Search with Button */}
-
           <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-white/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
             <Search size={18} />
             <span>Search</span>
@@ -201,7 +200,7 @@ export default function CommunitiesFilter({
               </svg>
             </button>
             {openDropdown === "locations" && (
-              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg min-w-[200px] max-h-60 overflow-y-auto">
+              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg min-w-[220px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-white/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
@@ -256,7 +255,7 @@ export default function CommunitiesFilter({
               </svg>
             </button>
             {openDropdown === "types" && (
-              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[220px] max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[260px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-white/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>

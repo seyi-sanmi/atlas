@@ -83,7 +83,7 @@ export function Header({ onEventImported }: HeaderProps) {
 
             <Link
               href={"/communities"}
-              className={`font-sans flex space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
+              className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
                 pathname.startsWith("/communities")
                   ? "text-white bg-white/10 backdrop-blur-md rounded-full"
                   : "text-white/60"
@@ -108,7 +108,7 @@ export function Header({ onEventImported }: HeaderProps) {
             </Link>
             <Link
               href={"/funding"}
-              className={`font-sans flex space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
+              className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
                 pathname.startsWith("/funding")
                   ? "text-white bg-white/10 backdrop-blur-md rounded-full"
                   : "text-white/60"

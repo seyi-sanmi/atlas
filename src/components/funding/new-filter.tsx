@@ -170,7 +170,7 @@ export default function NewFundingFilter({
     <div className=" text-white">
       <div className="max-w-6xl mx-auto space-y-4 font-sans">
         {/* Main Filter Row */}
-        <div className="flex gap-4 items-center justify-center mx-auto">
+        <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
           {/* Search with Button */}
           <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-white/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
             <Search size={18} />

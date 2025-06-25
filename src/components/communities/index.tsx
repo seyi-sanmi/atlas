@@ -262,19 +262,17 @@ function ClientCommunitiesPage({
       {/* Main Content */}
       <main className="relative -mt-48 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl ">
-          <div className="hidden lg:block  mt-20">
-            <div className="sticky top-20">
-              <CommunitiesFilter
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                selectedLocation={selectedLocation}
-                onLocationChange={setSelectedLocation}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                selectedDate={null}
-                onDateChange={() => {}}
-              />
-            </div>
+          <div className=" mt-20">
+            <CommunitiesFilter
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedLocation={selectedLocation}
+              onLocationChange={setSelectedLocation}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              selectedDate={null}
+              onDateChange={() => {}}
+            />
           </div>
           <div className=" min-h-screen w-full">
             <div className="p-2 sm:p-8 sm:pt-4">
