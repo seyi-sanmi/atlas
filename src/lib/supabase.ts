@@ -25,6 +25,7 @@ export interface Community {
   leadership_change_frequency: string | null;
   community_interest_areas: string[] | null;
   community_information: string | null;
+  starred_on_website?: boolean;
 }
 
 // Database types based on your event structure
@@ -40,6 +41,7 @@ export interface Event {
   organizer: string
   presented_by?: string
   is_featured?: boolean
+  is_starred?: boolean
   url?: string // Optional URL to the original event page
   image_url?: string // Optional URL to the event image
   links?: string[] // Optional array of links extracted from the event page
