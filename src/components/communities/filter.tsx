@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getUniqueCommunityTypes, getUniqueCommunityLocations } from "@/lib/communities";
 
 interface CommunitiesFilterProps {
   searchQuery: string;
@@ -13,21 +14,6 @@ interface CommunitiesFilterProps {
   onDateChange: (date: Date | null) => void;
   refreshTrigger?: number;
 }
-
-// Import communities data (in a real app, this would be passed as props or fetched)
-const atlasCommunitiesImport = [
-  {
-    name: "BioTech Founders Syndicate",
-    communityType: "Founder & Investor Network",
-    geographicLocations: "Boston, MA & San Francisco, CA",
-    academicAssociation: "MIT & Stanford Alumni Association",
-    websiteUrl: "https://biotechfounders.co",
-    researchAreas:
-      "Gene Editing (CRISPR), Synthetic Biology, Personalized Medicine",
-    // ...existing community data...
-  },
-  // ...other communities would be here...
-];
 
 export default function CommunitiesFilter({
   searchQuery,
@@ -71,48 +57,24 @@ export default function CommunitiesFilter({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Extract unique values from communities data
+  // Load filter options from Supabase
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
         setIsLoadingFilters(true);
 
-        // Extract unique locations
-        const uniqueLocations = new Set<string>();
-        atlasCommunitiesImport.forEach((community) => {
-          // Split geographic locations by common separators and clean up
-          const locations = community.geographicLocations
-            .split(/[,&]/)
-            .map((loc) => loc.trim())
-            .filter((loc) => loc.length > 0);
-          locations.forEach((loc) => uniqueLocations.add(loc));
-        });
-
-        // Extract unique community types
-        const uniqueCommunityTypes = new Set<string>();
-        atlasCommunitiesImport.forEach((community) => {
-          uniqueCommunityTypes.add(community.communityType);
-        });
-
-        // Extract unique research areas
-        const uniqueResearchAreas = new Set<string>();
-        atlasCommunitiesImport.forEach((community) => {
-          const areas = community.researchAreas
-            .split(/[,]/)
-            .map((area) => area.trim())
-            .filter((area) => area.length > 0);
-          areas.forEach((area) => uniqueResearchAreas.add(area));
-        });
-
-        setLocations(["All Locations", ...Array.from(uniqueLocations).sort()]);
-        setCommunityTypes([
-          "All Types",
-          ...Array.from(uniqueCommunityTypes).sort(),
+        // Fetch unique community types and locations from Supabase
+        const [uniqueCommunityTypes, uniqueLocations] = await Promise.all([
+          getUniqueCommunityTypes(),
+          getUniqueCommunityLocations()
         ]);
-        setResearchAreas([
-          "All Areas",
-          ...Array.from(uniqueResearchAreas).sort(),
-        ]);
+
+        setLocations(["All Locations", ...uniqueLocations.sort()]);
+        setCommunityTypes(["All Types", ...uniqueCommunityTypes.sort()]);
+        
+        // For research areas, we'll use a basic set for now since we don't have a specific function
+        // You could add a getUniqueResearchAreas function to the communities library if needed
+        setResearchAreas(["All Areas", "Biotechnology", "AI", "Climate Tech", "Quantum Computing", "Sustainable Materials"]);
       } catch (error) {
         console.error("Failed to load filter options:", error);
         // Fallback to basic options
