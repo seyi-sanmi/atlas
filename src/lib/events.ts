@@ -71,7 +71,7 @@ export async function getEventsByCategory(category: string): Promise<Event[]> {
   return data || []
 }
 
-// Get featured events
+// I don't know it's used or not, but it's here - Get featured events (not used)
 export async function getFeaturedEvents(): Promise<Event[]> {
   const { data, error } = await supabase
     .from('events')
@@ -87,7 +87,21 @@ export async function getFeaturedEvents(): Promise<Event[]> {
   return data || []
 }
 
+// Get starred events
+export async function getStarredEvents(): Promise<Event[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('is_starred', true)
+    .order('date', { ascending: true })
 
+  if (error) {
+    console.error('Error fetching starred events:', error)
+    throw error
+  }
+
+  return data || []
+}
 
 // Combined search and filter function
 export async function searchAndFilterEvents(options: {
@@ -95,6 +109,7 @@ export async function searchAndFilterEvents(options: {
   location?: string
   category?: string
   featured?: boolean
+  starred?: boolean
   date?: Date | null
 }): Promise<Event[]> {
   let queryBuilder = supabase.from('events').select('*')
@@ -117,6 +132,11 @@ export async function searchAndFilterEvents(options: {
   // Apply featured filter
   if (options.featured) {
     queryBuilder = queryBuilder.eq('is_featured', true)
+  }
+
+  // Apply starred filter
+  if (options.starred) {
+    queryBuilder = queryBuilder.eq('is_starred', true)
   }
 
   // Apply date filter

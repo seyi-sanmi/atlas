@@ -17,6 +17,22 @@ export async function getAllCommunities(): Promise<Community[]> {
   return data || [];
 }
 
+// Get starred communities
+export async function getStarredCommunities(): Promise<Community[]> {
+  const { data, error } = await supabase
+    .from(VIEW_NAME)
+    .select('*')
+    .eq('starred_on_website', true)
+    .order('name');
+
+  if (error) {
+    console.error(`Error fetching starred communities from ${VIEW_NAME}:`, error);
+    throw error;
+  }
+
+  return data || [];
+}
+
 // Search communities by name, type, or research areas
 export async function searchCommunities(query: string): Promise<Community[]> {
   if (!query.trim()) {
@@ -54,6 +70,7 @@ export async function searchAndFilterCommunities(options: {
   query?: string;
   communityType?: string;
   location?: string;
+  starred?: boolean;
 }): Promise<Community[]> {
   let queryBuilder = supabase.from(VIEW_NAME).select('*');
 
@@ -76,6 +93,11 @@ export async function searchAndFilterCommunities(options: {
 
   if (options.location && options.location !== 'All Locations') {
     queryBuilder = queryBuilder.contains('location_names', [options.location]);
+  }
+
+  // Apply starred filter
+  if (options.starred) {
+    queryBuilder = queryBuilder.eq('starred_on_website', true);
   }
   
   queryBuilder = queryBuilder.order('name');
