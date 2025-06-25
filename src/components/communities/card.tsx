@@ -262,6 +262,19 @@ export function CommunityCard({
           <div className="flex-1 overflow-y-auto p-4">
             <SheetHeader>
               <SheetTitle>{community.name}</SheetTitle>
+              
+              {/* Community Type Subheader */}
+              <div className="text-sm text-white/70 font-medium mt-1">
+                {community.communityType}
+              </div>
+              
+              {/* Academic Association Subheader (conditional) */}
+              {community.academicAssociation && (
+                <div className="text-sm text-white/60 font-medium mt-1">
+                  {community.academicAssociation}
+                </div>
+              )}
+              
               <div>
                 <div className="flex flex-col gap-4 mt-2">
                   {/* Community Image */}
@@ -329,20 +342,42 @@ export function CommunityCard({
                       </div>
                     </div>
 
-                    {/* Contact */}
+                    {/* Community Size */}
                     <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <Users className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
-                          Contact
+                          Community Size
                         </span>
                         <span className="font-sans text-sm text-white/90">
-                          {community.contact}
+                          {community.size}
                         </span>
                       </div>
                     </div>
+
+                    {/* Community LinkedIn */}
+                    {community.communityLinkedIn && (
+                      <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
+                          <Globe className="w-4 h-4 text-[#D45E3C]" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                            LinkedIn
+                          </span>
+                          <a 
+                            href={community.communityLinkedIn}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-sans text-sm text-[#D45E3C] hover:text-[#AE3813] transition-colors duration-200"
+                          >
+                            View LinkedIn Profile
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* About Section */}
@@ -358,6 +393,66 @@ export function CommunityCard({
                     </p>
                   </div>
 
+                  {/* Selection Process */}
+                  {community.selectionProcessForMembers && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                          Selection Process
+                        </h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                        {community.selectionProcessForMembers}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Who Can Join */}
+                  {community.communityTarget && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                          Who can join
+                        </h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                        {community.communityTarget}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Member Locations */}
+                  {community.memberLocations && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                          Members are located in:
+                        </h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                        {community.memberLocations}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Meeting Location */}
+                  {community.meetingLocation && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                          Meetings held
+                        </h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                        {community.meetingLocation}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Research Areas */}
                   {community.researchAreas && (
                     <div className="mt-2 rounded-lg">
@@ -372,6 +467,21 @@ export function CommunityCard({
                       </p>
                     </div>
                   )}
+
+                  {/* Community Information */}
+                  {community.communityInformation && (
+                    <div className="mt-2 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                          To learn more about this community:
+                        </h4>
+                      </div>
+                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                        {community.communityInformation}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </SheetHeader>
@@ -381,30 +491,38 @@ export function CommunityCard({
           <SheetFooter>
             <button
               className={`sm:px-4 px-4 pr-1 py-3 text-white font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
-                community.websiteUrl
+                community.websiteUrl || community.communityLinkedIn
                   ? "bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
               }`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (community.websiteUrl) {
+                const linkToOpen = community.websiteUrl || community.communityLinkedIn;
+                if (linkToOpen) {
                   window.open(
-                    community.websiteUrl,
+                    linkToOpen,
                     "_blank",
                     "noopener,noreferrer"
                   );
                 }
               }}
-              disabled={!community.websiteUrl}
+              disabled={!community.websiteUrl && !community.communityLinkedIn}
               title={
                 community.websiteUrl
                   ? "Open community website"
-                  : "No website URL available"
+                  : community.communityLinkedIn
+                  ? "Open community LinkedIn"
+                  : "No website or LinkedIn available"
               }
             >
               <span>
-                {community.websiteUrl ? "Visit Website" : "No URL Available"}
+                {community.websiteUrl 
+                  ? "Visit Website" 
+                  : community.communityLinkedIn 
+                  ? "Visit LinkedIn"
+                  : "No Link Available"
+                }
               </span>
               <ArrowRightIcon className="w-6 h-6 text-white" />
             </button>
