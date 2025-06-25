@@ -1,5 +1,22 @@
 import puppeteer from 'puppeteer';
 
+// Serverless-friendly imports
+let chromium: any;
+let puppeteerCore: any;
+
+// Dynamically import serverless dependencies in production
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+
+if (isProduction) {
+  try {
+    chromium = require('@sparticuz/chromium');
+    puppeteerCore = require('puppeteer-core');
+    console.log('📦 Using serverless Puppeteer packages');
+  } catch (error) {
+    console.log('⚠️ Serverless packages not available, falling back to regular puppeteer');
+  }
+}
+
 export interface LumaEventData {
   name: string;
   description: string;
@@ -41,19 +58,75 @@ export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventDat
   let browser;
   
   try {
-    // Launch browser with optimized settings
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ]
+    // Enhanced browser configuration for serverless environments
+    const isVercel = process.env.VERCEL || process.env.VERCEL_ENV;
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    console.log('🌍 Environment detection:', {
+      isVercel: !!isVercel,
+      isDevelopment,
+      platform: process.platform,
+      nodeEnv: process.env.NODE_ENV
     });
+
+    // Enhanced args for serverless/production environments
+    const browserArgs = [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu',
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-renderer-backgrounding',
+      '--disable-features=TranslateUI',
+      '--disable-ipc-flooding-protection'
+    ];
+
+    // Add Vercel-specific args
+    if (isVercel) {
+      browserArgs.push(
+        '--single-process',
+        '--no-sandbox',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor'
+      );
+    }
+
+    const browserConfig = {
+      headless: true,
+      args: browserArgs,
+      ...(isVercel ? {
+        executablePath: '/usr/bin/chromium-browser',
+        // Fallback for different Vercel configurations
+        ...(process.env.CHROME_EXECUTABLE_PATH && {
+          executablePath: process.env.CHROME_EXECUTABLE_PATH
+        })
+      } : {})
+    };
+
+    console.log('🚀 Browser config:', {
+      headless: browserConfig.headless,
+      argsCount: browserConfig.args.length,
+      executablePath: browserConfig.executablePath || 'default'
+    });
+
+    // Launch browser with optimized settings
+    if (isProduction && chromium && puppeteerCore) {
+      // Use serverless-friendly version
+      console.log('🌐 Using serverless chromium...');
+      browser = await puppeteerCore.launch({
+        ...browserConfig,
+        executablePath: await chromium.executablePath(),
+        args: [...browserConfig.args, ...chromium.args]
+      });
+    } else {
+      // Use regular puppeteer for development
+      console.log('💻 Using regular puppeteer...');
+      browser = await puppeteer.launch(browserConfig);
+    }
 
     const page = await browser.newPage();
     
