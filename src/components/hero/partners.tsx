@@ -86,11 +86,14 @@ const ParallaxText = ({
   );
 };
 
-function useTypewriterCity(cities: { name: string; image: string }[]) {
+function useTypewriterCity(cities: { name: string; image?: string }[]) {
   const [cityIdx, setCityIdx] = useState(0);
   const [displayText, setDisplayText] = useState(""); // Start empty for smooth animation
   const [isDeleting, setIsDeleting] = useState(false);
-  const [image, setImage] = useState(cities[0]?.image || "");
+  const [image, setImage] = useState(
+    cities[0]?.image ||
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.1"
+  );
   const [imageLoaded, setImageLoaded] = useState(false);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -109,7 +112,9 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
 
   // Preload next image
   useEffect(() => {
-    const newImage = cities[cityIdx]?.image;
+    const newImage =
+      cities[cityIdx]?.image ||
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.1";
     if (newImage && newImage !== image) {
       setImageLoaded(false);
       const img = new window.Image();
@@ -133,11 +138,11 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
 
     const currentCity = cities[cityIdx]?.name || "";
 
-    // Slower, more relaxed timing
-    const typingSpeed = isMobile ? 150 : 180;
-    const deletingSpeed = isMobile ? 80 : 100;
-    const pauseAfterTyping = isMobile ? 3000 : 3500;
-    const pauseBeforeNext = isMobile ? 500 : 800;
+    // Updated timing for 3.5 second total cycle
+    const typingSpeed = isMobile ? 100 : 120;
+    const deletingSpeed = isMobile ? 60 : 80;
+    const pauseAfterTyping = 3500; // 3.5 seconds display time
+    const pauseBeforeNext = isMobile ? 300 : 400;
 
     const animate = () => {
       if (!isDeleting && displayText.length < currentCity.length) {
@@ -175,13 +180,23 @@ function useTypewriterCity(cities: { name: string; image: string }[]) {
   return { displayText, image, imageLoaded };
 }
 
-function PartnersHero() {
+function PartnersHero({
+  title = "What's Happening",
+  showBackground = true,
+  height = "h-[60vh] sm:h-[70vh]",
+  typewriterItems,
+}: {
+  title?: string;
+  showBackground?: boolean;
+  height?: string;
+  typewriterItems?: { name: string; image?: string }[];
+}) {
   // Typewriter effect for city and background image
   const {
     displayText: cityText,
     image: cityImage,
     imageLoaded,
-  } = useTypewriterCity(cities);
+  } = useTypewriterCity(typewriterItems || cities);
 
   // Use only the typewriter text, no fallback during animation
   const currentCityName = cityText;
@@ -232,26 +247,36 @@ function PartnersHero() {
   ];
 
   return (
-    <section className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <div
-          className={`w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-2000 ease-in-out ${
-            imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
-          }`}
-          style={{
-            backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.9), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
-          }}
-        />
+    <section className={`relative ${height} w-full overflow-hidden`}>
+      {/* Background Image - Conditionally rendered */}
+      {showBackground && (
+        <div className="absolute inset-0 z-0">
+          <div
+            className={`w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-2000 ease-in-out ${
+              imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+            }`}
+            style={{
+              backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
+            }}
+          />
 
-        {/* Animated Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#131318]" />
-      </div>
+          {/* Animated Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#131318]" />
+        </div>
+      )}
+
+      {/* Solid background when image is disabled */}
+      {!showBackground && (
+        <div className="absolute inset-0 z-0 bg-[#131318]">
+          {/* Gradient Overlay for consistency */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a20] via-[#131318] to-[#131318]" />
+        </div>
+      )}
 
       {/* Hero Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 py-8 sm:mt-8">
         <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-white drop-shadow-2xl">
-          What's Happening
+          {title}
           <br />
           {/* Typewriter effect for city */}
           <span className="inline-block min-w-[6ch] sm:min-w-[8ch] relative text-transparent bg-clip-text bg-gradient-to-r from-[#AE3813] to-[#D45E3C]">
