@@ -240,7 +240,7 @@ function PartnersHero() {
             imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
           }`}
           style={{
-            backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
+            backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.9), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
           }}
         />
 

@@ -163,16 +163,16 @@ export function CommunityCard({
       <SheetTrigger asChild>
         <div
           onClick={handleClick}
-          className={`group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
+          className={` group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
           tabIndex={0}
           role="button"
           aria-label={`View details for ${community.name}`}
         >
           {/* Hero Image Side - Always show with DiceBear patterns */}
-          <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
+          <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
             <div className="rounded-lg overflow-hidden h-full">
               <div
-                className={`w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
+                className={`z-0 w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
                   isSelected
                     ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
                     : ""
@@ -260,23 +260,23 @@ export function CommunityCard({
           <div className="flex-1 overflow-y-auto p-4">
             <SheetHeader>
               <SheetTitle>{community.name}</SheetTitle>
-              
+
               {/* Community Type Subheader */}
               <div className="text-sm text-white/70 font-medium mt-1">
                 {community.communityType}
               </div>
-              
+
               {/* Academic Association Subheader (conditional) */}
               {community.academicAssociation && (
                 <div className="text-sm text-white/60 font-medium mt-1">
                   {community.academicAssociation}
                 </div>
               )}
-              
+
               <div>
                 <div className="flex flex-col gap-4 mt-2">
                   {/* Community Image */}
-                  {/* <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
+                  <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
                     <div className="rounded-lg overflow-hidden h-full">
                       <div
                         className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
@@ -293,7 +293,7 @@ export function CommunityCard({
                         <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-lg sm:text-xl font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
+                            <div className="text-lg sm:text-xl max-w-sm font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
                               {community.name}
                             </div>
                             <div className="text-xs text-white/80 font-medium uppercase tracking-wider mt-1">
@@ -306,7 +306,7 @@ export function CommunityCard({
                         </div>
                       </div>
                     </div>
-                  </div> */}
+                  </div>
 
                   {/* Community Details Grid */}
                   <div className="grid gap-3">
@@ -365,7 +365,7 @@ export function CommunityCard({
                           <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
                             LinkedIn
                           </span>
-                          <a 
+                          <a
                             href={community.communityLinkedIn}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -496,13 +496,10 @@ export function CommunityCard({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const linkToOpen = community.websiteUrl || community.communityLinkedIn;
+                const linkToOpen =
+                  community.websiteUrl || community.communityLinkedIn;
                 if (linkToOpen) {
-                  window.open(
-                    linkToOpen,
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
+                  window.open(linkToOpen, "_blank", "noopener,noreferrer");
                 }
               }}
               disabled={!community.websiteUrl && !community.communityLinkedIn}
@@ -515,12 +512,11 @@ export function CommunityCard({
               }
             >
               <span>
-                {community.websiteUrl 
-                  ? "Visit Website" 
-                  : community.communityLinkedIn 
+                {community.websiteUrl
+                  ? "Visit Website"
+                  : community.communityLinkedIn
                   ? "Visit LinkedIn"
-                  : "No Link Available"
-                }
+                  : "No Link Available"}
               </span>
               <ArrowRightIcon className="w-6 h-6 text-white" />
             </button>

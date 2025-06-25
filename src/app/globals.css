@@ -56,7 +56,9 @@
   translate: 1px 1px;
   max-width: 720px;
 }
-
+.data-atlas-overlay-nav {
+  justify-content: center;
+}
 .atlas-overlay-notch,
 .atlas-right-overlay-notch {
   --stroke-color: #eaeaea;

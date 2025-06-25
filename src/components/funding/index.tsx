@@ -7,6 +7,7 @@ import Hero from "../hero";
 import { EventCard } from "./card";
 import FundingFilter from "./filter";
 import PartnersHero from "../hero/partners";
+import NewFundingFilter from "./new-filter";
 
 export interface FundingOpportunity {
   name: string;
@@ -242,13 +243,26 @@ function ClientFundingPage() {
       <main className="relative -mt-40 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl">
           <div className=" min-h-screen w-full">
-            <div className="p-2 sm:p-8">
+            <NewFundingFilter
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedFunder={selectedFunder}
+              onFunderChange={setSelectedFunder}
+              selectedFocusArea={selectedFocusArea}
+              onFocusAreaChange={setSelectedFocusArea}
+              selectedAmountRange={selectedAmountRange}
+              onAmountRangeChange={setSelectedAmountRange}
+              // selectedDate={selectedDate}
+              // onDateChange={setSelectedDate}
+              // fundingOpportunities={fundingOpportunities}
+            />
+            <div className="p-2 sm:p-8 sm:pt-4">
               <div className="w-full space-y-12">
                 {groupedFunding.map(({ focusArea, funding: areaFunding }) => {
                   return (
                     <section key={focusArea} className="">
                       <div className="data-atlas-overlay-nav mx-auto">
-                        <div className="mx-auto atlas-overlay-notch bg-[#1E1E25] border-t border-b border-[#565558] border-l">
+                        <div className="mx-auto atlas-overlay-notch bg-[#1E1E25] border-t border-b border-[#565558] border-l justify-center">
                           <h2 className="flex items-center gap-3 text-[12px] text-balance sm:text-base font-normal text-white tracking-wide pl-1">
                             <svg
                               width="60"

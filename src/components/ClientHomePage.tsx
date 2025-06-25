@@ -168,7 +168,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
       <main className="relative -mt-40 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl sm:flex">
           <div className=" min-h-screen lg:w-2/3">
-            <div className="p-2 sm:p-8">
+            <div className="p-2 sm:p-8 sm:pt-4">
               <EventsList
                 events={events}
                 onEventSelect={handleEventSelect}

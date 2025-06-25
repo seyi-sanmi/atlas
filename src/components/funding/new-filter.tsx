@@ -1,46 +1,40 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  getUniqueCommunityTypes,
-  getUniqueCommunityLocations,
-} from "@/lib/communities";
 import { Search } from "lucide-react";
 
-interface CommunitiesFilterProps {
+interface FundingFilterProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  selectedLocation: string;
-  onLocationChange: (location: string) => void;
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
-  selectedDate?: Date | null;
-  onDateChange: (date: Date | null) => void;
+  selectedFunder: string;
+  onFunderChange: (funder: string) => void;
+  selectedFocusArea: string;
+  onFocusAreaChange: (focusArea: string) => void;
+  selectedAmountRange: string;
+  onAmountRangeChange: (amountRange: string) => void;
   refreshTrigger?: number;
 }
 
-export default function CommunitiesFilter({
+export default function NewFundingFilter({
   searchQuery,
   onSearchChange,
-  selectedLocation,
-  onLocationChange,
-  selectedCategory,
-  onCategoryChange,
-  selectedDate,
-  onDateChange,
+  selectedFunder,
+  onFunderChange,
+  selectedFocusArea,
+  onFocusAreaChange,
+  selectedAmountRange,
+  onAmountRangeChange,
   refreshTrigger,
-}: CommunitiesFilterProps) {
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [selectedCommunityTypes, setSelectedCommunityTypes] = useState<
-    string[]
-  >([]);
-  const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>(
+}: FundingFilterProps) {
+  const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
+  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
+  const [selectedAmountRanges, setSelectedAmountRanges] = useState<string[]>(
     []
   );
-  const [locations, setLocations] = useState<string[]>([]);
-  const [communityTypes, setCommunityTypes] = useState<string[]>([]);
-  const [researchAreas, setResearchAreas] = useState<string[]>([]);
-  const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [funders, setFunders] = useState<string[]>([]);
+  const [focusAreas, setFocusAreas] = useState<string[]>([]);
+  const [amountRanges, setAmountRanges] = useState<string[]>([]);
+  const [isLoadingFilters, setIsLoadingFilters] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Handle Cmd+K keyboard shortcut
@@ -62,46 +56,41 @@ export default function CommunitiesFilter({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Load filter options from Supabase
+  // Load filter options
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
         setIsLoadingFilters(true);
 
-        // Fetch unique community types and locations from Supabase
-        const [uniqueCommunityTypes, uniqueLocations] = await Promise.all([
-          getUniqueCommunityTypes(),
-          getUniqueCommunityLocations(),
+        // Set funding-specific filter options
+        setFunders([
+          "All Funders",
+          "Innovate UK & The Social Tech Trust",
+          "The Royal Society",
+          "The Wellcome Trust",
+          "National Heritage Fund",
+          "The STEM Forward Foundation",
+          "The Newton Society",
+          "The Raspberry Pi Foundation",
         ]);
 
-        setLocations(["All Locations", ...uniqueLocations.sort()]);
-        setCommunityTypes(["All Types", ...uniqueCommunityTypes.sort()]);
+        setFocusAreas([
+          "All Focus Areas",
+          "Technology & Social Impact",
+          "Scientific Research",
+          "Heritage & Conservation",
+          "Education & STEM",
+        ]);
 
-        // For research areas, we'll use a basic set for now since we don't have a specific function
-        // You could add a getUniqueResearchAreas function to the communities library if needed
-        setResearchAreas([
-          "All Areas",
-          "Biotechnology",
-          "AI",
-          "Climate Tech",
-          "Quantum Computing",
-          "Sustainable Materials",
+        setAmountRanges([
+          "All Amounts",
+          "Under £10k",
+          "£10k - £50k",
+          "£50k - £100k",
+          "Over £100k",
         ]);
       } catch (error) {
         console.error("Failed to load filter options:", error);
-        // Fallback to basic options
-        setLocations([
-          "All Locations",
-          "Boston, MA",
-          "San Francisco, CA",
-          "Online",
-        ]);
-        setCommunityTypes([
-          "All Types",
-          "Founder & Investor Network",
-          "Academic Research",
-        ]);
-        setResearchAreas(["All Areas", "Biotechnology", "AI", "Climate Tech"]);
       } finally {
         setIsLoadingFilters(false);
       }
@@ -110,54 +99,66 @@ export default function CommunitiesFilter({
     loadFilterOptions();
   }, [refreshTrigger]);
 
-  // Sync local state with parent props for locations
+  // Sync local state with parent props for funders
   useEffect(() => {
-    if (selectedLocation && selectedLocation !== "All Locations") {
-      setSelectedLocations([selectedLocation]);
+    if (selectedFunder && selectedFunder !== "All Funders") {
+      setSelectedFunders([selectedFunder]);
     } else {
-      setSelectedLocations([]);
+      setSelectedFunders([]);
     }
-  }, [selectedLocation]);
+  }, [selectedFunder]);
 
-  // Sync local state with parent props for community types
+  // Sync local state with parent props for focus areas
   useEffect(() => {
-    if (selectedCategory && selectedCategory !== "All Types") {
-      setSelectedCommunityTypes([selectedCategory]);
+    if (selectedFocusArea && selectedFocusArea !== "All Focus Areas") {
+      setSelectedFocusAreas([selectedFocusArea]);
     } else {
-      setSelectedCommunityTypes([]);
+      setSelectedFocusAreas([]);
     }
-  }, [selectedCategory]);
+  }, [selectedFocusArea]);
 
-  const toggleLocation = (location: string) => {
-    if (location === "All Locations") {
-      onLocationChange("");
-      setSelectedLocations([]);
+  // Sync local state with parent props for amount ranges
+  useEffect(() => {
+    if (selectedAmountRange && selectedAmountRange !== "All Amounts") {
+      setSelectedAmountRanges([selectedAmountRange]);
     } else {
-      onLocationChange(location);
-      setSelectedLocations([location]);
+      setSelectedAmountRanges([]);
+    }
+  }, [selectedAmountRange]);
+
+  const toggleFunder = (funder: string) => {
+    if (funder === "All Funders") {
+      onFunderChange("");
+      setSelectedFunders([]);
+    } else {
+      onFunderChange(funder);
+      setSelectedFunders([funder]);
     }
   };
 
-  const toggleCommunityType = (communityType: string) => {
-    if (communityType === "All Types") {
-      setSelectedCommunityTypes([]);
-      onCategoryChange("");
-    } else if (selectedCommunityTypes.includes(communityType)) {
-      setSelectedCommunityTypes([]);
-      onCategoryChange("");
+  const toggleFocusArea = (focusArea: string) => {
+    if (focusArea === "All Focus Areas") {
+      setSelectedFocusAreas([]);
+      onFocusAreaChange("");
+    } else if (selectedFocusAreas.includes(focusArea)) {
+      setSelectedFocusAreas([]);
+      onFocusAreaChange("");
     } else {
-      setSelectedCommunityTypes([communityType]);
-      onCategoryChange(communityType);
+      setSelectedFocusAreas([focusArea]);
+      onFocusAreaChange(focusArea);
     }
   };
 
-  const toggleResearchArea = (area: string) => {
-    if (area === "All Areas") {
-      setSelectedResearchAreas([]);
-    } else if (selectedResearchAreas.includes(area)) {
-      setSelectedResearchAreas(selectedResearchAreas.filter((a) => a !== area));
+  const toggleAmountRange = (amountRange: string) => {
+    if (amountRange === "All Amounts") {
+      setSelectedAmountRanges([]);
+      onAmountRangeChange("");
+    } else if (selectedAmountRanges.includes(amountRange)) {
+      setSelectedAmountRanges([]);
+      onAmountRangeChange("");
     } else {
-      setSelectedResearchAreas([...selectedResearchAreas, area]);
+      setSelectedAmountRanges([amountRange]);
+      onAmountRangeChange(amountRange);
     }
   };
 
@@ -171,22 +172,21 @@ export default function CommunitiesFilter({
         {/* Main Filter Row */}
         <div className="flex gap-4 items-center justify-center mx-auto">
           {/* Search with Button */}
-
           <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-white/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
             <Search size={18} />
             <span>Search</span>
           </button>
 
-          {/* Locations Dropdown */}
+          {/* Funders Dropdown */}
           <div className="relative z-[9999999]">
             <button
-              onClick={() => toggleDropdown("locations")}
+              onClick={() => toggleDropdown("funders")}
               className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
             >
-              <span>{selectedLocation || "Locations"}</span>
+              <span>{selectedFunder || "Funders"}</span>
               <svg
                 className={`w-4 h-4 transition-transform ${
-                  openDropdown === "locations" ? "rotate-180" : ""
+                  openDropdown === "funders" ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -200,31 +200,30 @@ export default function CommunitiesFilter({
                 />
               </svg>
             </button>
-            {openDropdown === "locations" && (
-              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg min-w-[200px] max-h-60 overflow-y-auto">
+            {openDropdown === "funders" && (
+              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg min-w-[280px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-white/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
-                    Loading locations...
+                    Loading funders...
                   </div>
                 ) : (
-                  locations.map((location) => (
+                  funders.map((funder) => (
                     <button
-                      key={location}
+                      key={funder}
                       onClick={() => {
-                        toggleLocation(location);
+                        toggleFunder(funder);
                         setOpenDropdown(null);
                       }}
                       className={`w-full z-[9999999] text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
-                        (location === "All Locations" &&
-                          (!selectedLocation || selectedLocation === "")) ||
-                        (location !== "All Locations" &&
-                          selectedLocation === location)
+                        (funder === "All Funders" &&
+                          (!selectedFunder || selectedFunder === "")) ||
+                        (funder !== "All Funders" && selectedFunder === funder)
                           ? "bg-white/20 text-white"
                           : "text-gray-300"
                       }`}
                     >
-                      {location}
+                      {funder}
                     </button>
                   ))
                 )}
@@ -232,16 +231,16 @@ export default function CommunitiesFilter({
             )}
           </div>
 
-          {/* Community Type Dropdown */}
+          {/* Focus Areas Dropdown */}
           <div className="relative z-[9999999]">
             <button
-              onClick={() => toggleDropdown("types")}
+              onClick={() => toggleDropdown("focusAreas")}
               className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
-              <span>{selectedCategory || "Community Type"}</span>
+              <span>{selectedFocusArea || "Focus Area"}</span>
               <svg
                 className={`w-4 h-4 transition-transform ${
-                  openDropdown === "types" ? "rotate-180" : ""
+                  openDropdown === "focusAreas" ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -255,31 +254,31 @@ export default function CommunitiesFilter({
                 />
               </svg>
             </button>
-            {openDropdown === "types" && (
+            {openDropdown === "focusAreas" && (
               <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[220px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-white/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
-                    Loading types...
+                    Loading focus areas...
                   </div>
                 ) : (
-                  communityTypes.map((communityType) => (
+                  focusAreas.map((focusArea) => (
                     <button
-                      key={communityType}
+                      key={focusArea}
                       onClick={() => {
-                        toggleCommunityType(communityType);
+                        toggleFocusArea(focusArea);
                         setOpenDropdown(null);
                       }}
                       className={`w-full text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
-                        (communityType === "All Types" &&
-                          (!selectedCategory || selectedCategory === "")) ||
-                        (communityType !== "All Types" &&
-                          selectedCategory === communityType)
+                        (focusArea === "All Focus Areas" &&
+                          (!selectedFocusArea || selectedFocusArea === "")) ||
+                        (focusArea !== "All Focus Areas" &&
+                          selectedFocusArea === focusArea)
                           ? "bg-white/20 text-white"
                           : "text-gray-300"
                       }`}
                     >
-                      {communityType}
+                      {focusArea}
                     </button>
                   ))
                 )}
@@ -287,20 +286,16 @@ export default function CommunitiesFilter({
             )}
           </div>
 
-          {/* Research Areas Dropdown */}
+          {/* Amount Range Dropdown */}
           <div className="relative z-[9999999]">
             <button
-              onClick={() => toggleDropdown("research")}
+              onClick={() => toggleDropdown("amounts")}
               className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
-              <span>
-                {selectedResearchAreas.length > 0
-                  ? `Research (${selectedResearchAreas.length})`
-                  : "Research Areas"}
-              </span>
+              <span>{selectedAmountRange || "Amount Range"}</span>
               <svg
                 className={`w-4 h-4 transition-transform ${
-                  openDropdown === "research" ? "rotate-180" : ""
+                  openDropdown === "amounts" ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -314,28 +309,32 @@ export default function CommunitiesFilter({
                 />
               </svg>
             </button>
-            {openDropdown === "research" && (
-              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[200px] max-h-60 overflow-y-auto">
+            {openDropdown === "amounts" && (
+              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[160px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-white/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
-                    Loading areas...
+                    Loading amounts...
                   </div>
                 ) : (
-                  researchAreas.map((area) => (
+                  amountRanges.map((amountRange) => (
                     <button
-                      key={area}
-                      onClick={() => toggleResearchArea(area)}
+                      key={amountRange}
+                      onClick={() => {
+                        toggleAmountRange(amountRange);
+                        setOpenDropdown(null);
+                      }}
                       className={`w-full text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
-                        (area === "All Areas" &&
-                          selectedResearchAreas.length === 0) ||
-                        (area !== "All Areas" &&
-                          selectedResearchAreas.includes(area))
+                        (amountRange === "All Amounts" &&
+                          (!selectedAmountRange ||
+                            selectedAmountRange === "")) ||
+                        (amountRange !== "All Amounts" &&
+                          selectedAmountRange === amountRange)
                           ? "bg-white/20 text-white"
                           : "text-gray-300"
                       }`}
                     >
-                      {area}
+                      {amountRange}
                     </button>
                   ))
                 )}
@@ -345,9 +344,9 @@ export default function CommunitiesFilter({
         </div>
         {/* Active Filters Indicator */}
         {(searchQuery ||
-          selectedLocation ||
-          selectedCategory ||
-          selectedResearchAreas.length > 0) && (
+          selectedFunder ||
+          selectedFocusArea ||
+          selectedAmountRange) && (
           <div className=" rounded-sm p-0">
             <h4 className="text-sm font-medium text-white/80 mb-2 flex justify-center items-center">
               Active Filters:
@@ -358,24 +357,21 @@ export default function CommunitiesFilter({
                   Search: "{searchQuery}"
                 </span>
               )}
-              {selectedLocation && (
+              {selectedFunder && (
                 <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
-                  {selectedLocation}
+                  {selectedFunder}
                 </span>
               )}
-              {selectedCategory && (
+              {selectedFocusArea && (
                 <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
-                  {selectedCategory}
+                  {selectedFocusArea}
                 </span>
               )}
-              {selectedResearchAreas.map((area) => (
-                <span
-                  key={area}
-                  className="bg-[#AE3813] text-white px-2 py-1 rounded-full"
-                >
-                  {area}
+              {selectedAmountRange && (
+                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                  {selectedAmountRange}
                 </span>
-              ))}
+              )}
             </div>
           </div>
         )}
