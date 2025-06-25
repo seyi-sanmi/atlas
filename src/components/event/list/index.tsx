@@ -96,8 +96,8 @@ export function EventsList({
 
         return (
           <section key={date} className="">
-            <div className="data-atlas-overlay-nav">
-              <div className="atlas-overlay-notch bg-[#1E1E25] border-t border-b border-[#565558] border-l">
+            <div className="data-right-atlas-overlay-nav">
+              <div className="atlas-right-overlay-notch bg-[#1E1E25] border-t border-b border-[#565558] border-l">
                 <h2 className="flex items-center gap-3 text-[12px] text-balance sm:text-base font-normal text-white tracking-wide pl-1">
                   {formattedDate}
                   <div className="w-1 h-1 bg-white/60 rounded-full" />
@@ -113,7 +113,7 @@ export function EventsList({
                   viewBox="0 0 60 42"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="atlas-overlay-notch-tail"
+                  className="atlas-right-overlay-notch-tail"
                   preserveAspectRatio="none"
                 >
                   <mask

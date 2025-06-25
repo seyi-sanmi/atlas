@@ -44,7 +44,8 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-.data-atlas-overlay-nav {
+.data-atlas-overlay-nav,
+.data-right-atlas-overlay-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -56,7 +57,8 @@
   max-width: 720px;
 }
 
-.atlas-overlay-notch {
+.atlas-overlay-notch,
+.atlas-right-overlay-notch {
   --stroke-color: #eaeaea;
   /* --background-color: #ffffff; */
   translate: -1px 0;
@@ -72,19 +74,41 @@
 .atlas-overlay-notch > *:not(.error-overlay-notch-tail) {
   margin-right: -10px;
 }
+.atlas-right-overlay-notch > *:not(.error-overlay-notch-tail) {
+  margin-right: -10px;
+}
 
-.atlas-overlay-notch-tail {
+.atlas-overlay-notch-tail,
+.atlas-right-overlay-notch-tail {
+  position: absolute;
+  top: -1px;
+  right: -17%;
+  pointer-events: none;
+  z-index: -1;
+  height: calc(100% + 1px);
+}
+.atlas-overlay-notch-tail-right {
   position: absolute;
   top: -1px;
   right: -18%;
   pointer-events: none;
   z-index: -1;
   height: calc(100% + 1px);
+
+  left: -54px;
+  transform: rotateY(180deg);
 }
 
 @media (max-width: 639px) {
+  .atlas-right-overlay-notch-tail {
+    right: -23%;
+  }
   .atlas-overlay-notch-tail {
-    right: -22%;
+    right: -15%;
+  }
+  .data-atlas-overlay-nav {
+    scale: 0.89;
+    transform: translateY(2.8px);
   }
 
   .atlas-overlay-notch {
@@ -172,11 +196,13 @@
 
 /* Custom typewriter cursor animation for better mobile support */
 @keyframes typewriter-cursor {
-  0%, 50% { 
-    opacity: 1; 
+  0%,
+  50% {
+    opacity: 1;
   }
-  51%, 100% { 
-    opacity: 0; 
+  51%,
+  100% {
+    opacity: 0;
   }
 }
 
@@ -184,7 +210,7 @@
   animation: typewriter-cursor 1s infinite;
   display: inline-block;
   width: 2px;
-  background-color: #D45E3C;
+  background-color: #d45e3c;
   margin-left: 2px;
   /* Ensure animation works on mobile */
   -webkit-animation: typewriter-cursor 1s infinite;

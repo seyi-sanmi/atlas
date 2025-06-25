@@ -166,13 +166,13 @@ export function EventCard({
       <SheetTrigger asChild>
         <div
           onClick={handleClick}
-          className={`group relative bg-[#1E1E25] ${getRoundingClasses()} border border-[#565558] transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
+          className={`group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
           tabIndex={0}
           role="button"
           aria-label={`View details for ${funding.name}`}
         >
           {/* Hero Image Side - Always show with DiceBear patterns */}
-          <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
+          {/* <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
             <div className="rounded-lg overflow-hidden h-full">
               <div
                 className={`w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
@@ -190,10 +190,8 @@ export function EventCard({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                {/* Dark overlay for better text readability */}
                 <div className="absolute inset-0 bg-black/40 rounded-lg" />
 
-                {/* Focus Area overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center px-4">
                     <div className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight mb-1">
@@ -203,14 +201,13 @@ export function EventCard({
                       {focusArea.split(" ").slice(1).join(" ")}
                     </div>
                     <div className="text-sm text-white/60 font-medium mt-2">
-                      {/* {formatAmount(funding.amount)} */}
                       {funding.amount.toLocaleString()}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Content Side */}
           <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-4 flex flex-col justify-between min-w-0">

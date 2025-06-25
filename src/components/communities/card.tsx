@@ -140,7 +140,7 @@ export function CommunityCard({
     if (isFirstInGroup && isLastInGroup) {
       return "rounded-lg rounded-tl-none";
     } else if (isFirstInGroup) {
-      return "rounded-t-lg rounded-b-none rounded-tl-none";
+      return "rounded-t-lg rounded-b-none rounded-tl-lg";
     } else if (isLastInGroup) {
       return "rounded-b-lg rounded-t-none";
     } else {
@@ -163,7 +163,7 @@ export function CommunityCard({
       <SheetTrigger asChild>
         <div
           onClick={handleClick}
-          className={`group relative bg-[#1E1E25] ${getRoundingClasses()} border border-[#565558] transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
+          className={`group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
           tabIndex={0}
           role="button"
           aria-label={`View details for ${community.name}`}
@@ -193,7 +193,7 @@ export function CommunityCard({
                 {/* Community type overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-lg sm:text-xl text-pretty font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
+                    <div className="text-base sm:text-lg text-pretty font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
                       {community.name}
                     </div>
                     <div className="text-xs mx-auto text-white/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
