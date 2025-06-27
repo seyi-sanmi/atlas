@@ -8,6 +8,7 @@ import { EventCard } from "./card";
 import FundingFilter from "./filter";
 import PartnersHero from "../hero/partners";
 import NewFundingFilter from "./new-filter";
+import { useTheme } from "next-themes";
 
 export interface FundingOpportunity {
   name: string;
@@ -18,8 +19,8 @@ export interface FundingOpportunity {
   focusArea: string;
   eligibility: string;
   applicationLink: string;
+  is_starred: boolean;
 }
-
 const fundingOpportunities: FundingOpportunity[] = [
   {
     name: "Tech for Good Grant",
@@ -32,6 +33,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     eligibility:
       "UK-registered startups and SMEs with a clear social mission and a functioning prototype.",
     applicationLink: "https://example.com/apply/tech-for-good",
+    is_starred: false,
   },
   {
     name: "Early-Career Scientist Catalyst Fund",
@@ -44,6 +46,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     eligibility:
       "Researchers within 5 years of their PhD award, affiliated with a UK university or recognised research institution.",
     applicationLink: "https://example.com/apply/scientist-catalyst",
+    is_starred: true,
   },
   {
     name: "Medical Research Breakthrough Grant",
@@ -56,6 +59,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     eligibility:
       "Established researchers with a PhD and a host institution in the UK.",
     applicationLink: "https://example.com/apply/medical-breakthrough",
+    is_starred: false,
   },
   {
     name: "Heritage Restoration Initiative",
@@ -68,6 +72,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     eligibility:
       "Owners of Grade I or Grade II* listed buildings, or registered building preservation trusts.",
     applicationLink: "https://example.com/apply/heritage-restoration",
+    is_starred: false,
   },
   {
     name: "Future Leaders in STEM Scholarship",
@@ -80,6 +85,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     eligibility:
       "Final year A-Level students from households with an income below £30,000, holding an offer from a UK university for a STEM subject.",
     applicationLink: "https://example.com/apply/stem-leaders",
+    is_starred: false,
   },
   {
     name: "STEM for All Ages",
@@ -91,6 +97,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     focusArea: "Education & STEM",
     eligibility: "Museums, libraries, and registered charities in the UK.",
     applicationLink: "https://example.com/apply/stem-for-all",
+    is_starred: false,
   },
   {
     name: "Primary School Coding Clubs",
@@ -102,6 +109,7 @@ const fundingOpportunities: FundingOpportunity[] = [
     focusArea: "Education & STEM",
     eligibility: "UK primary schools and parent-teacher associations.",
     applicationLink: "https://example.com/apply/primary-coding",
+    is_starred: false,
   },
 ];
 
@@ -232,8 +240,9 @@ function ClientFundingPage() {
     }));
   }, [filteredFunding]);
 
+  const { theme } = useTheme();
   return (
-    <div className="min-h-screen w-full bg-[#131318] text-gray-100 font-sans">
+    <div className="min-h-screen w-full bg-primary-bgtext-gray-100 font-sans">
       <Header />
 
       {/* Hero Section */}
@@ -266,8 +275,8 @@ function ClientFundingPage() {
                   return (
                     <section key={focusArea} className="">
                       <div className="data-atlas-overlay-nav mx-auto">
-                        <div className="mx-auto atlas-overlay-notch bg-[#1E1E25] border-t border-b border-[#565558] border-l justify-center">
-                          <h2 className="flex items-center gap-3 text-[12px] text-balance sm:text-base font-normal text-white tracking-wide pl-1">
+                        <div className="mx-auto atlas-overlay-notch bg-secondary-bg border-t border-b border-primary-border border-l justify-center">
+                          <h2 className="flex items-center gap-3 text-[12px] text-balance sm:text-base font-normal text-primary-text tracking-wide pl-1">
                             <svg
                               width="60"
                               height="42"
@@ -334,11 +343,11 @@ function ClientFundingPage() {
                                 </mask>
                                 <path
                                   d="M0 1.02441H7.0783C14.772 1.02441 21.7836 5.43765 25.111 12.3746L33.8889 30.6743C37.2164 37.6112 44.228 42.0244 51.9217 42.0244H59H0L0 1.02441Z"
-                                  fill="#1E1E25"
+                                  fill={theme == "dark" ? "#1E1E25" : "#ebebeb"}
                                 ></path>
                                 <path
                                   d="M0 1.02441L0 0.0244141H-1V1.02441H0ZM0 42.0244H-1V43.0244H0L0 42.0244ZM33.8889 30.6743L32.9873 31.1068L33.8889 30.6743ZM25.111 12.3746L26.0127 11.9421L25.111 12.3746ZM0 2.02441H7.0783V0.0244141H0L0 2.02441ZM59 41.0244H0L0 43.0244H59V41.0244ZM1 42.0244L1 1.02441H-1L-1 42.0244H1ZM24.2094 12.8071L32.9873 31.1068L34.7906 30.2418L26.0127 11.9421L24.2094 12.8071ZM51.9217 43.0244H59V41.0244H51.9217V43.0244ZM32.9873 31.1068C36.4811 38.3905 43.8433 43.0244 51.9217 43.0244V41.0244C44.6127 41.0244 37.9517 36.8318 34.7906 30.2418L32.9873 31.1068ZM7.0783 2.02441C14.3873 2.02441 21.0483 6.21699 24.2094 12.8071L26.0127 11.9421C22.5188 4.65831 15.1567 0.0244141 7.0783 0.0244141V2.02441Z"
-                                  fill="#565558"
+                                  fill={theme == "dark" ? "#565558" : "#E0E0E0"}
                                   mask="url(#error_overlay_nav_path_3_outside_2_2667_14687)"
                                 ></path>
                               </g>
@@ -346,8 +355,8 @@ function ClientFundingPage() {
                             <div className="max-w-52 min-w-42 truncate">
                               {focusArea}
                             </div>
-                            <div className="w-1 h-1 bg-white/60 rounded-full" />
-                            <span className="text-[12px] sm:text-base shrink-0 font-light text-white/60">
+                            <div className="w-1 h-1 dark:bg-white/60 bg-black/60 rounded-full" />
+                            <span className="text-[12px] sm:text-base shrink-0 font-light text-primary-text/60">
                               {areaFunding.length}
                             </span>
                           </h2>
@@ -418,11 +427,11 @@ function ClientFundingPage() {
                               </mask>
                               <path
                                 d="M0 1.02441H7.0783C14.772 1.02441 21.7836 5.43765 25.111 12.3746L33.8889 30.6743C37.2164 37.6112 44.228 42.0244 51.9217 42.0244H59H0L0 1.02441Z"
-                                fill="#1E1E25"
+                                fill={theme == "dark" ? "#1E1E25" : "#ebebeb"}
                               ></path>
                               <path
                                 d="M0 1.02441L0 0.0244141H-1V1.02441H0ZM0 42.0244H-1V43.0244H0L0 42.0244ZM33.8889 30.6743L32.9873 31.1068L33.8889 30.6743ZM25.111 12.3746L26.0127 11.9421L25.111 12.3746ZM0 2.02441H7.0783V0.0244141H0L0 2.02441ZM59 41.0244H0L0 43.0244H59V41.0244ZM1 42.0244L1 1.02441H-1L-1 42.0244H1ZM24.2094 12.8071L32.9873 31.1068L34.7906 30.2418L26.0127 11.9421L24.2094 12.8071ZM51.9217 43.0244H59V41.0244H51.9217V43.0244ZM32.9873 31.1068C36.4811 38.3905 43.8433 43.0244 51.9217 43.0244V41.0244C44.6127 41.0244 37.9517 36.8318 34.7906 30.2418L32.9873 31.1068ZM7.0783 2.02441C14.3873 2.02441 21.0483 6.21699 24.2094 12.8071L26.0127 11.9421C22.5188 4.65831 15.1567 0.0244141 7.0783 0.0244141V2.02441Z"
-                                fill="#565558"
+                                fill={theme == "dark" ? "#565558" : "#E0E0E0"}
                                 mask="url(#error_overlay_nav_path_3_outside_2_2667_14687)"
                               ></path>
                             </g>
@@ -431,7 +440,7 @@ function ClientFundingPage() {
                       </div>
 
                       {/* Funding Grid */}
-                      <div className="divide-x divide-y divide-white/30 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0 bg-[#1E1E25] border border-[#565558] rounded-lg overflow-hidden">
+                      <div className="divide-x divide-y dark:divide-white/30 divide-primary-border grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0 bg-secondary-bg border border-primary-border rounded-lg overflow-hidden">
                         {areaFunding.map((funding, fundingIndex) => (
                           <EventCard
                             key={funding.name}
@@ -458,10 +467,10 @@ function ClientFundingPage() {
 
                 {groupedFunding.length === 0 && !loading && (
                   <div className="text-center py-16">
-                    <div className="text-white/60 text-lg font-medium mb-2">
+                    <div className="text-primary-text/60 text-lg font-medium mb-2">
                       No funding opportunities found
                     </div>
-                    <div className="text-white/40 text-sm">
+                    <div className="text-primary-text/40 text-sm">
                       Try adjusting your filters or check back later for new
                       opportunities
                     </div>

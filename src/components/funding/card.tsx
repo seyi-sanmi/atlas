@@ -31,6 +31,7 @@ interface FundingOpportunity {
   focusArea: string;
   eligibility: string;
   applicationLink: string;
+  is_starred: boolean;
 }
 
 interface EventCardProps {
@@ -172,12 +173,12 @@ export function EventCard({
           aria-label={`View details for ${funding.name}`}
         >
           {/* Hero Image Side - Always show with DiceBear patterns */}
-          {/* <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
+          {/* <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
             <div className="rounded-lg overflow-hidden h-full">
               <div
                 className={`w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
                   isSelected
-                    ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
+                    ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
                     : ""
                 } ${isClicked ? "animate-ripple" : ""}`}
                 style={{
@@ -190,17 +191,17 @@ export function EventCard({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                <div className="absolute inset-0 bg-black/40 rounded-lg" />
+                <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
 
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center px-4">
-                    <div className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight mb-1">
+                    <div className="text-2xl sm:text-3xl font-bold text-primary-text font-display tracking-tight mb-1">
                       {focusArea.split(" ")[0]}
                     </div>
-                    <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                    <div className="text-base text-primary-text/80 font-medium uppercase tracking-wider">
                       {focusArea.split(" ").slice(1).join(" ")}
                     </div>
-                    <div className="text-sm text-white/60 font-medium mt-2">
+                    <div className="text-sm text-primary-text/60 font-medium mt-2">
                       {funding.amount.toLocaleString()}
                     </div>
                   </div>
@@ -208,16 +209,24 @@ export function EventCard({
               </div>
             </div>
           </div> */}
+          {/* Starred indicator */}
 
           {/* Content Side */}
           <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-4 flex flex-col justify-between min-w-0">
             {/* Title */}
-            <h3 className="font-display font-medium text-lg sm:text-2xl text-[#F5F5F7] tracking-tight leading-tight line-clamp-2">
-              {funding.name}
+
+            <h3 className="font-display font-medium text-lg sm:text-2xl text-secondary-text tracking-tight leading-tight line-clamp-2">
+              <span>{funding.name}</span>
+
+              {funding.is_starred && (
+                <span className="inline-block -mb-1.5 ml-[4px] w-fit bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
+                  <Star className="w-3 h-3 text-yellow-800 fill-current drop-shadow-sm" />
+                </span>
+              )}
             </h3>
 
             {/* Meta Row */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-white/60">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-primary-text/60">
               {showAmount && (
                 <div className="flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4" />
@@ -237,20 +246,20 @@ export function EventCard({
 
             {/* Description Preview */}
             {funding.description && (
-              <p className="font-sans text-sm text-white/60 leading-relaxed line-clamp-2 transition-all duration-300">
+              <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-2 transition-all duration-300">
                 {funding.description}
               </p>
             )}
 
             {/* Focus Area & Funder */}
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-white/60">
+              <div className="flex items-center gap-2 text-primary-text/60">
                 <Target className="w-4 h-4" />
                 <span className="font-sans text-sm truncate">
                   {funding.focusArea}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-white/60">
+              <div className="flex items-center gap-2 text-primary-text/60">
                 <Building className="w-4 h-4" />
                 <span className="font-sans text-sm truncate">
                   {funding.funder}
@@ -285,7 +294,7 @@ export function EventCard({
                   <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
                     <div className="rounded-lg overflow-hidden h-full">
                       <div
-                        className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
+                        className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
                         style={{
                           backgroundImage: `url("${generateLightHeroPattern(
                             funding,
@@ -296,16 +305,16 @@ export function EventCard({
                           backgroundRepeat: "no-repeat",
                         }}
                       >
-                        <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
+                        <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center px-4">
-                            <div className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight mb-1">
+                            <div className="text-2xl sm:text-3xl font-bold text-primary-text font-display tracking-tight mb-1">
                               {focusArea.split(" ")[0]}
                             </div>
-                            <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                            <div className="text-base text-primary-text/80 font-medium uppercase tracking-wider">
                               {focusArea.split(" ").slice(1).join(" ")}
                             </div>
-                            <div className="text-sm text-white/60 font-medium mt-2">
+                            <div className="text-sm text-primary-text/60 font-medium mt-2">
                               {formatAmount(funding.amount)}
                             </div>
                           </div>
@@ -317,30 +326,30 @@ export function EventCard({
                   {/* Funding Details Grid */}
                   <div className="grid gap-3">
                     {/* Amount */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <DollarSign className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Amount
                         </span>
-                        <span className="font-sans text-sm text-white/90 font-semibold">
+                        <span className="font-sans text-sm text-primary-text/90 font-semibold">
                           {formatAmount(funding.amount)}
                         </span>
                       </div>
                     </div>
 
                     {/* Deadline */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <CalendarDays className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Deadline
                         </span>
-                        <span className="font-sans text-sm text-white/90">
+                        <span className="font-sans text-sm text-primary-text/90">
                           {new Date(funding.deadline).toLocaleDateString(
                             "en-GB"
                           )}{" "}
@@ -350,30 +359,30 @@ export function EventCard({
                     </div>
 
                     {/* Focus Area */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <Target className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Focus Area
                         </span>
-                        <span className="font-sans text-sm text-white/90">
+                        <span className="font-sans text-sm text-primary-text/90">
                           {funding.focusArea}
                         </span>
                       </div>
                     </div>
 
                     {/* Funder */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <Building className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Funder
                         </span>
-                        <span className="font-sans text-sm text-white/90">
+                        <span className="font-sans text-sm text-primary-text/90">
                           {funding.funder}
                         </span>
                       </div>
@@ -385,11 +394,11 @@ export function EventCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           About this Funding
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed whitespace-pre-line text-sm">
                         {funding.description}
                       </p>
                     </div>
@@ -400,11 +409,11 @@ export function EventCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           Eligibility
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed whitespace-pre-line text-sm">
                         {funding.eligibility}
                       </p>
                     </div>
@@ -417,7 +426,7 @@ export function EventCard({
           {/* Fixed Footer */}
           <SheetFooter>
             <button
-              className={`sm:px-4 px-4 pr-1 py-3 text-white font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
+              className={`  sm:px-4 px-4 pr-1 py-3 dark:text-primary-text text-white font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
                 funding.applicationLink
                   ? "bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
@@ -443,7 +452,7 @@ export function EventCard({
               <span>
                 {funding.applicationLink ? "Apply Now" : "No URL Available"}
               </span>
-              <ArrowRightIcon className="w-6 h-6 text-white" />
+              <ArrowRightIcon className="w-6 h-6 dark:text-primary-text text-white" />
             </button>
           </SheetFooter>
         </div>

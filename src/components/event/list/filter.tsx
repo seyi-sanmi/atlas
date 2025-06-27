@@ -29,7 +29,9 @@ export default function EventFilter({
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // June 2025
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(null);
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(
+    null
+  );
   const [locations, setLocations] = useState<string[]>(["All Locations"]);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
@@ -37,9 +39,11 @@ export default function EventFilter({
   // Handle Cmd+K keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
-        const searchInput = document.getElementById('search-input') as HTMLInputElement;
+        const searchInput = document.getElementById(
+          "search-input"
+        ) as HTMLInputElement;
         if (searchInput) {
           searchInput.focus();
           searchInput.select();
@@ -47,15 +51,15 @@ export default function EventFilter({
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Static event types
   const staticEventTypes = [
     "All Types",
     "Hackathon",
-    "Workshop", 
+    "Workshop",
     "Conference",
     "Meetup",
     "Webinar",
@@ -67,11 +71,11 @@ export default function EventFilter({
       try {
         setIsLoadingFilters(true);
         const uniqueCities = await getUniqueLocations();
-        
+
         setLocations(["All Locations", ...uniqueCities]);
         setEventTypes(staticEventTypes);
       } catch (error) {
-        console.error('Failed to load filter options:', error);
+        console.error("Failed to load filter options:", error);
         // Fallback to static data if API fails
         setLocations(["All Locations", "London", "Glasgow", "Online"]);
         setEventTypes(staticEventTypes);
@@ -151,7 +155,7 @@ export default function EventFilter({
       days.push(
         <div
           key={day}
-          className="text-center text-white/40 text-sm font-medium p-2 "
+          className="text-center text-primary-text/40 text-sm font-medium p-2 "
         >
           {day}
         </div>
@@ -165,22 +169,33 @@ export default function EventFilter({
 
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const calendarDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      const isSelected = selectedDate && 
+      const calendarDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day
+      );
+      const isSelected =
+        selectedDate &&
         calendarDate.getFullYear() === selectedDate.getFullYear() &&
         calendarDate.getMonth() === selectedDate.getMonth() &&
         calendarDate.getDate() === selectedDate.getDate();
-      
+
       days.push(
         <button
           key={day}
           onClick={() => {
-            const newSelectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            const newSelectedDate = new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              day
+            );
             setSelectedCalendarDay(day);
             onDateChange(newSelectedDate);
           }}
           className={`font-sans p-1.5 px-1 cursor-pointer text-center rounded-sm hover:bg-white/20 transition-colors ${
-            isSelected ? "bg-white/10 text-white" : "text-gray-300"
+            isSelected
+              ? "bg-white/10 text-primary-text"
+              : "dark:dark:text-gray-300 text-black/50"
           }`}
         >
           {day}
@@ -193,7 +208,10 @@ export default function EventFilter({
     const remainingCells = totalCells - (firstDay + daysInMonth);
     for (let day = 1; day <= remainingCells; day++) {
       days.push(
-        <div key={`next-${day}`} className="p-2 text-center text-white/30">
+        <div
+          key={`next-${day}`}
+          className="p-2 text-center text-primary-text/30"
+        >
           {day}
         </div>
       );
@@ -220,32 +238,41 @@ export default function EventFilter({
   return (
     <div
       //   style={{ backgroundColor: "#1E1E25" }}
-      className="p-6 pt-0 text-white"
+      className="p-6 pt-0 text-primary-text"
     >
       <div className="max-w-md mx-auto space-y-3 font-sans">
         {/* Active Filters Indicator */}
-        {(searchQuery || selectedLocation || selectedCategory || selectedDate) && (
+        {(searchQuery ||
+          selectedLocation ||
+          selectedCategory ||
+          selectedDate) && (
           <div className="bg-white/5 rounded-sm p-3 mb-4">
-            <h4 className="text-sm font-medium text-white/80 mb-2">Active Filters:</h4>
+            <h4 className="text-sm font-medium text-primary-text/80 mb-2">
+              Active Filters:
+            </h4>
             <div className="flex flex-wrap gap-1 text-xs">
               {searchQuery && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   Search: "{searchQuery}"
                 </span>
               )}
               {selectedLocation && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedLocation}
                 </span>
               )}
               {selectedCategory && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedCategory}
                 </span>
               )}
               {selectedDate && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
-                  {selectedDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
+                  {selectedDate.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </span>
               )}
             </div>
@@ -258,16 +285,16 @@ export default function EventFilter({
             placeholder="Search events..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-white/5 backdrop-blur-xs border border-white/10 rounded-sm px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-gray-500"
+            className="w-full dark:bg-white/5 bg-black/5 backdrop-blur-xs border dark:border-white/10 border-black/10 rounded-sm px-4 py-3 text-primary-text dark:placeholder-gray-300 placeholder-gray-600 focus:outline-none focus:border-gray-500"
             id="search-input"
           />
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 text-sm">
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary-text/40 text-sm">
             ⌘ K
           </div>
         </div>
 
         {/* Submit Event Button */}
-        <button className="w-full bg-white/30 text-white/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors">
+        <button className="w-full bg-white/30 text-primary-text/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors">
           Submit Event
         </button>
 
@@ -316,7 +343,7 @@ export default function EventFilter({
           </div>
 
           <div className="grid grid-cols-7 gap-1">{renderCalendar()}</div>
-          
+
           {/* Clear Date Filter */}
           {selectedDate && (
             <div className="flex justify-center pt-2">
@@ -325,7 +352,7 @@ export default function EventFilter({
                   setSelectedCalendarDay(null);
                   onDateChange(null);
                 }}
-                className="text-sm text-white/60 hover:text-white transition-colors"
+                className="text-sm text-primary-text/60 hover:text-primary-text transition-colors"
               >
                 Clear date filter
               </button>
@@ -338,7 +365,7 @@ export default function EventFilter({
           <h3 className="text-lg font-medium font-display">Cities</h3>
           <div className="flex flex-wrap gap-2">
             {isLoadingFilters ? (
-              <div className="flex items-center gap-2 text-white/60">
+              <div className="flex items-center gap-2 text-primary-text/60">
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
                 <span className="text-sm">Loading cities...</span>
               </div>
@@ -348,10 +375,12 @@ export default function EventFilter({
                   key={location}
                   onClick={() => toggleLocation(location)}
                   className={`cursor-pointer px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                    (location === "All Locations" && (!selectedLocation || selectedLocation === "")) || 
-                    (location !== "All Locations" && selectedLocation === location)
+                    (location === "All Locations" &&
+                      (!selectedLocation || selectedLocation === "")) ||
+                    (location !== "All Locations" &&
+                      selectedLocation === location)
                       ? "bg-white text-black"
-                      : "bg-white/10 text-gray-300 hover:bg-white/30"
+                      : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/30"
                   }`}
                 >
                   {location}
@@ -370,10 +399,11 @@ export default function EventFilter({
                 key={eventType}
                 onClick={() => toggleEventType(eventType)}
                 className={`cursor-pointer px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                  (eventType === "All Types" && (!selectedCategory || selectedCategory === "")) ||
+                  (eventType === "All Types" &&
+                    (!selectedCategory || selectedCategory === "")) ||
                   (eventType !== "All Types" && selectedCategory === eventType)
                     ? "bg-white text-black"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20"
+                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
                 }`}
               >
                 {eventType}

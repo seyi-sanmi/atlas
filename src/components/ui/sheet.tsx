@@ -60,13 +60,13 @@ function SheetContent({
         className={cn(
           "data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 overflow-hidden",
           side === "right" &&
-            "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full border-l sm:max-w-xl w-full bg-[#18181C] text-white border-white/5",
+            "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full border-l sm:max-w-xl w-full bg-[#fff] dark:bg-[#18181C] text-primary-text border-white/5",
           side === "left" &&
-            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-xl bg-[#18181C] text-white border-white/5",
+            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-xl bg-[#fff] dark:bg-[#18181C] text-primary-text border-white/5",
           side === "top" &&
-            "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b bg-[#18181C] text-white border-white/5",
+            "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b bg-[#fff] dark:bg-[#18181C] text-primary-text border-white/5",
           side === "bottom" &&
-            "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t bg-[#18181C] text-white border-white/5",
+            "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t bg-[#fff] dark:bg-[#18181C] text-primary-text border-white/5",
           className
         )}
         {...props}
@@ -96,7 +96,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sheet-footer"
       className={cn(
-        "mt-auto flex flex-col gap-2 p-4 border-t border-white/5 bg-[#18181C] flex-shrink-0",
+        "mt-auto flex flex-col gap-2 p-4 border-t border-white/5 bg-[#fff] dark:bg-[#18181C] flex-shrink-0",
         className
       )}
       {...props}
@@ -112,7 +112,7 @@ function SheetTitle({
     <SheetPrimitive.Title
       data-slot="sheet-title"
       className={cn(
-        "font-semibold flex items-center gap-2 text-2xl font-display text-[#F5F5F7] pt-0",
+        "font-semibold flex items-center gap-2 text-2xl font-display text-secondary-text pt-0",
         className
       )}
       {...props}

@@ -46,6 +46,7 @@ interface Community {
   secondaryCommunityContact: string;
   secondaryContactEmail: string;
   secondaryContactLinkedIn: string | null;
+  is_starred?: boolean;
 }
 
 interface CommunityCardProps {
@@ -169,12 +170,28 @@ export function CommunityCard({
           aria-label={`View details for ${community.name}`}
         >
           {/* Hero Image Side - Always show with DiceBear patterns */}
-          <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-[#1E1E25] w-full sm:w-2/5 sm:h-auto relative">
-            <div className="rounded-lg overflow-hidden h-full">
+          <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
+            {/* Starred indicator */}
+            {!community.is_starred && (
+              <div className="absolute top-[5px] -right-2 z-10">
+                <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
+                  <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
+                </div>
+              </div>
+            )}
+
+            <div
+              className={`rounded-lg overflow-hidden h-full p-[2px] ${
+                !community.is_starred
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500"
+                  : ""
+              }`}
+            >
+              {" "}
               <div
                 className={`z-0 w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
                   isSelected
-                    ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
+                    ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
                     : ""
                 } ${isClicked ? "animate-ripple" : ""}`}
                 style={{
@@ -187,17 +204,17 @@ export function CommunityCard({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                <div className="absolute inset-0 bg-black/40 rounded-lg" />
+                <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
 
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-base sm:text-lg text-pretty font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
+                    <div className="text-base sm:text-lg text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight">
                       {community.name}
                     </div>
-                    <div className="text-xs mx-auto text-white/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
+                    <div className="text-xs mx-auto text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
                       {community.size}
                     </div>
-                    <div className="text-xs text-white/60 font-medium">
+                    <div className="text-xs text-primary-text/60 font-medium">
                       Members
                     </div>
                   </div>
@@ -208,12 +225,12 @@ export function CommunityCard({
 
           {/* Content Side */}
           <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-2 flex flex-col justify-between min-w-0">
-            {/* <h3 className="font-display font-medium text-lg sm:text-2xl text-[#F5F5F7] tracking-tight leading-tight line-clamp-2">
+            {/* <h3 className="font-display font-medium text-lg sm:text-2xl text-secondary-text tracking-tight leading-tight line-clamp-2">
               {community.name}
             </h3> */}
 
             {/* Meta Col */}
-            <div className="flex flex-col gap-2 text-sm text-white/60">
+            <div className="flex flex-col gap-2 text-sm text-primary-text/60">
               <div className="flex items-center gap-1.5">
                 <Building className="w-4 h-4" />
                 <span className="font-sans">{community.communityType}</span>
@@ -227,12 +244,12 @@ export function CommunityCard({
             </div>
 
             {/* Description Preview */}
-            <p className="font-sans text-sm text-white/60 leading-relaxed line-clamp-2 transition-all duration-300">
+            <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-2 transition-all duration-300">
               {community.purpose}
             </p>
 
             {/* Contact */}
-            <div className="flex items-center gap-2 text-white/60">
+            <div className="flex items-center gap-2 text-primary-text/60">
               <Users className="w-4 h-4" />
               <span className="font-sans text-sm truncate">
                 {community.contact}
@@ -262,13 +279,13 @@ export function CommunityCard({
               <SheetTitle>{community.name}</SheetTitle>
 
               {/* Community Type Subheader */}
-              <div className="text-sm text-white/70 font-medium mt-1">
+              <div className="text-sm text-primary-text/70 font-medium mt-1">
                 {community.communityType}
               </div>
 
               {/* Academic Association Subheader (conditional) */}
               {community.academicAssociation && (
-                <div className="text-sm text-white/60 font-medium mt-1">
+                <div className="text-sm text-primary-text/60 font-medium mt-1">
                   {community.academicAssociation}
                 </div>
               )}
@@ -279,7 +296,7 @@ export function CommunityCard({
                   <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
                     <div className="rounded-lg overflow-hidden h-full">
                       <div
-                        className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] -translate-y-1.5"
+                        className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
                         style={{
                           backgroundImage: `url("${generateLightHeroPattern(
                             community,
@@ -290,16 +307,16 @@ export function CommunityCard({
                           backgroundRepeat: "no-repeat",
                         }}
                       >
-                        <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
+                        <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-lg sm:text-xl max-w-sm font-bold text-white font-display tracking-tight px-2 text-center leading-tight">
+                            <div className="text-lg sm:text-xl max-w-sm font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight">
                               {community.name}
                             </div>
-                            <div className="text-xs text-white/80 font-medium uppercase tracking-wider mt-1">
+                            <div className="text-xs text-primary-text/80 font-medium uppercase tracking-wider mt-1">
                               {community.size}
                             </div>
-                            <div className="text-xs text-white/60 font-medium">
+                            <div className="text-xs text-primary-text/60 font-medium">
                               Members
                             </div>
                           </div>
@@ -311,45 +328,45 @@ export function CommunityCard({
                   {/* Community Details Grid */}
                   <div className="grid gap-3">
                     {/* Meeting Info */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <Clock className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Meeting Frequency
                         </span>
-                        <span className="font-sans text-sm text-white/90">
+                        <span className="font-sans text-sm text-primary-text/90">
                           {community.meetingFrequency}
                         </span>
                       </div>
                     </div>
 
                     {/* Location */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <MapPin className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Location
                         </span>
-                        <span className="font-sans text-sm text-white/90">
+                        <span className="font-sans text-sm text-primary-text/90">
                           {community.geographicLocations}
                         </span>
                       </div>
                     </div>
 
                     {/* Community Size */}
-                    <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                       <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                         <Users className="w-4 h-4 text-[#D45E3C]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                           Community Size
                         </span>
-                        <span className="font-sans text-sm text-white/90">
+                        <span className="font-sans text-sm text-primary-text/90">
                           {community.size}
                         </span>
                       </div>
@@ -357,12 +374,12 @@ export function CommunityCard({
 
                     {/* Community LinkedIn */}
                     {community.communityLinkedIn && (
-                      <div className="flex items-center gap-3 p-3 bg-[#1E1E25]/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
+                      <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
                         <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
                           <Globe className="w-4 h-4 text-[#D45E3C]" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-xs text-white/40 font-medium uppercase tracking-wide">
+                          <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
                             LinkedIn
                           </span>
                           <a
@@ -382,11 +399,11 @@ export function CommunityCard({
                   <div className="mt-2 rounded-lg">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                      <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                      <h4 className="font-semibold font-display text-secondary-text text-base">
                         About this Community
                       </h4>
                     </div>
-                    <p className="font-sans text-white/80 leading-relaxed whitespace-pre-line text-sm">
+                    <p className="font-sans text-primary-text/80 leading-relaxed whitespace-pre-line text-sm">
                       {community.purpose}
                     </p>
                   </div>
@@ -396,11 +413,11 @@ export function CommunityCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           Selection Process
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
                         {community.selectionProcessForMembers}
                       </p>
                     </div>
@@ -411,11 +428,11 @@ export function CommunityCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           Who can join
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
                         {community.communityTarget}
                       </p>
                     </div>
@@ -426,11 +443,11 @@ export function CommunityCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           Members are located in:
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
                         {community.memberLocations}
                       </p>
                     </div>
@@ -441,11 +458,11 @@ export function CommunityCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           Meetings held
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
                         {community.meetingLocation}
                       </p>
                     </div>
@@ -456,11 +473,11 @@ export function CommunityCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           Research Areas
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
                         {community.researchAreas}
                       </p>
                     </div>
@@ -471,11 +488,11 @@ export function CommunityCard({
                     <div className="mt-2 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-[#F5F5F7] text-base">
+                        <h4 className="font-semibold font-display text-secondary-text text-base">
                           To learn more about this community:
                         </h4>
                       </div>
-                      <p className="font-sans text-white/80 leading-relaxed text-sm">
+                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
                         {community.communityInformation}
                       </p>
                     </div>
@@ -488,7 +505,7 @@ export function CommunityCard({
           {/* Fixed Footer */}
           <SheetFooter>
             <button
-              className={`sm:px-4 px-4 pr-1 py-3 text-white font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
+              className={`sm:px-4 px-4 pr-1 py-3 text-primary-text font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
                 community.websiteUrl || community.communityLinkedIn
                   ? "bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
@@ -518,7 +535,7 @@ export function CommunityCard({
                   ? "Visit LinkedIn"
                   : "No Link Available"}
               </span>
-              <ArrowRightIcon className="w-6 h-6 text-white" />
+              <ArrowRightIcon className="w-6 h-6 text-primary-text" />
             </button>
           </SheetFooter>
         </div>

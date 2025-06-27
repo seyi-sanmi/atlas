@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, X } from 'lucide-react';
-import { Event } from '@/lib/supabase';
+import React, { useState, useEffect, useRef } from "react";
+import { Search, X } from "lucide-react";
+import { Event } from "@/lib/supabase";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -11,13 +11,13 @@ interface SearchModalProps {
   onSearchChange: (query: string) => void;
 }
 
-export function SearchModal({ 
-  isOpen, 
-  onClose, 
-  events, 
-  onEventSelect, 
-  searchQuery, 
-  onSearchChange 
+export function SearchModal({
+  isOpen,
+  onClose,
+  events,
+  onEventSelect,
+  searchQuery,
+  onSearchChange,
 }: SearchModalProps) {
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -29,13 +29,20 @@ export function SearchModal({
     if (!searchQuery.trim()) {
       setFilteredEvents(events.slice(0, 8)); // Show first 8 events when no query
     } else {
-      const filtered = events.filter(event =>
-        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.categories.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase()))
-      ).slice(0, 8); // Limit to 8 results
+      const filtered = events
+        .filter(
+          (event) =>
+            event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            event.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.categories.some((cat) =>
+              cat.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+        )
+        .slice(0, 8); // Limit to 8 results
       setFilteredEvents(filtered);
     }
     setSelectedIndex(0);
@@ -54,18 +61,20 @@ export function SearchModal({
       if (!isOpen) return;
 
       switch (e.key) {
-        case 'Escape':
+        case "Escape":
           onClose();
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
-          setSelectedIndex(prev => Math.min(prev + 1, filteredEvents.length - 1));
+          setSelectedIndex((prev) =>
+            Math.min(prev + 1, filteredEvents.length - 1)
+          );
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
-          setSelectedIndex(prev => Math.max(prev - 1, 0));
+          setSelectedIndex((prev) => Math.max(prev - 1, 0));
           break;
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (filteredEvents[selectedIndex]) {
             onEventSelect(filteredEvents[selectedIndex]);
@@ -75,16 +84,18 @@ export function SearchModal({
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, filteredEvents, selectedIndex, onEventSelect, onClose]);
 
   // Scroll selected item into view
   useEffect(() => {
     if (resultsRef.current) {
-      const selectedElement = resultsRef.current.children[selectedIndex] as HTMLElement;
+      const selectedElement = resultsRef.current.children[
+        selectedIndex
+      ] as HTMLElement;
       if (selectedElement) {
-        selectedElement.scrollIntoView({ block: 'nearest' });
+        selectedElement.scrollIntoView({ block: "nearest" });
       }
     }
   }, [selectedIndex]);
@@ -94,15 +105,15 @@ export function SearchModal({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
-      <div className="relative w-full max-w-2xl mx-4 bg-[#1E1E25] border border-[#565558] rounded-lg shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-2xl mx-4 bg-secondary-bg border border-primary-border rounded-lg shadow-2xl overflow-hidden">
         {/* Search Input */}
-        <div className="flex items-center px-4 py-3 border-b border-[#565558]">
+        <div className="flex items-center px-4 py-3 border-b border-primary-border">
           <Search className="w-5 h-5 text-gray-400 mr-3" />
           <input
             ref={searchInputRef}
@@ -110,7 +121,7 @@ export function SearchModal({
             placeholder="Search events..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none text-lg"
+            className="flex-1 bg-transparent text-primary-text placeholder-gray-400 outline-none text-lg"
           />
           <button
             onClick={onClose}
@@ -121,18 +132,15 @@ export function SearchModal({
         </div>
 
         {/* Search Results */}
-        <div 
-          ref={resultsRef}
-          className="max-h-96 overflow-y-auto"
-        >
+        <div ref={resultsRef} className="max-h-96 overflow-y-auto">
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event, index) => (
               <div
                 key={event.id}
                 className={`px-4 py-3 cursor-pointer transition-colors border-l-2 ${
                   index === selectedIndex
-                    ? 'bg-[#AE3813]/20 border-[#AE3813]'
-                    : 'border-transparent hover:bg-white/5'
+                    ? "bg-[#AE3813]/20 border-[#AE3813]"
+                    : "border-transparent hover:bg-white/5"
                 }`}
                 onClick={() => {
                   onEventSelect(event);
@@ -142,7 +150,7 @@ export function SearchModal({
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-medium truncate">
+                    <h3 className="text-primary-text font-medium truncate">
                       {event.title}
                     </h3>
                     <p className="text-gray-400 text-sm mt-1 line-clamp-2">
@@ -160,7 +168,7 @@ export function SearchModal({
                     {event.categories.slice(0, 2).map((category, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 bg-white/10 text-gray-300 text-xs rounded-full"
+                        className="px-2 py-1 bg-white/10 dark:text-gray-300 text-black/50 text-xs rounded-full"
                       >
                         {category}
                       </span>
@@ -183,18 +191,24 @@ export function SearchModal({
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 bg-[#131318] border-t border-[#565558] text-xs text-gray-500 flex items-center justify-between">
+        <div className="px-4 py-2 bg-primary-bgborder-t border-primary-border text-xs text-gray-500 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-xs">↑↓</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-xs">
+                ↑↓
+              </kbd>
               Navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-xs">Enter</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-xs">
+                Enter
+              </kbd>
               Select
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-xs">Esc</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-xs">
+                Esc
+              </kbd>
               Close
             </span>
           </div>
@@ -203,4 +217,4 @@ export function SearchModal({
       </div>
     </div>
   );
-} 
+}

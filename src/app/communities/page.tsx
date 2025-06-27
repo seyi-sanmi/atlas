@@ -11,19 +11,19 @@ export default async function Communities() {
   // Server-side data fetching for initial load
   try {
     const initialCommunities = await getAllCommunities();
-    
+
     return (
-      <div className="min-h-screen w-full bg-[#131318] text-gray-100 font-sans">
+      <div className="min-h-screen w-full bg-primary-bg text-gray-100 font-sans">
         <ClientCommunitiesPage initialCommunities={initialCommunities} />
         <Footer />
       </div>
     );
   } catch (error) {
-    console.error('Failed to fetch communities on server:', error);
-    
+    console.error("Failed to fetch communities on server:", error);
+
     // Fallback to client-side loading if server fetch fails
     return (
-      <div className="min-h-screen w-full bg-[#131318] text-gray-100 font-sans">
+      <div className="min-h-screen w-full bg-primary-bg text-gray-100 font-sans">
         <ClientCommunitiesPage />
         <Footer />
       </div>

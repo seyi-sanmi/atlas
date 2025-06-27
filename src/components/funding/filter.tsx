@@ -173,7 +173,7 @@ export default function FundingFilter({
       days.push(
         <div
           key={day}
-          className="text-center text-white/40 text-sm font-medium p-2 "
+          className="text-center text-primary-text/40 text-sm font-medium p-2 "
         >
           {day}
         </div>
@@ -211,7 +211,9 @@ export default function FundingFilter({
             onDateChange(newSelectedDate);
           }}
           className={`font-sans p-1.5 px-1 cursor-pointer text-center rounded-sm hover:bg-white/20 transition-colors ${
-            isSelected ? "bg-white/10 text-white" : "text-gray-300"
+            isSelected
+              ? "bg-white/10 text-primary-text"
+              : "dark:text-gray-300 text-black/50"
           }`}
         >
           {day}
@@ -224,7 +226,10 @@ export default function FundingFilter({
     const remainingCells = totalCells - (firstDay + daysInMonth);
     for (let day = 1; day <= remainingCells; day++) {
       days.push(
-        <div key={`next-${day}`} className="p-2 text-center text-white/30">
+        <div
+          key={`next-${day}`}
+          className="p-2 text-center text-primary-text/30"
+        >
           {day}
         </div>
       );
@@ -249,7 +254,7 @@ export default function FundingFilter({
   ];
 
   return (
-    <div className="p-6 pt-0 text-white">
+    <div className="p-6 pt-0 text-primary-text">
       <div className="max-w-md mx-auto space-y-3 font-sans">
         {/* Active Filters Indicator */}
         {(searchQuery ||
@@ -258,32 +263,32 @@ export default function FundingFilter({
           selectedAmountRange ||
           selectedDate) && (
           <div className="bg-white/5 rounded-sm p-3 mb-4">
-            <h4 className="text-sm font-medium text-white/80 mb-2">
+            <h4 className="text-sm font-medium text-primary-text/80 mb-2">
               Active Filters:
             </h4>
             <div className="flex flex-wrap gap-1 text-xs">
               {searchQuery && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   Search: "{searchQuery}"
                 </span>
               )}
               {selectedFunder && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedFunder}
                 </span>
               )}
               {selectedFocusArea && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedFocusArea}
                 </span>
               )}
               {selectedAmountRange && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedAmountRange}
                 </span>
               )}
               {selectedDate && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedDate.toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -302,16 +307,16 @@ export default function FundingFilter({
             placeholder="Search funding opportunities..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-white/5 backdrop-blur-xs border border-white/10 rounded-sm px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-gray-500"
+            className="w-full bg-white/5 backdrop-blur-xs border border-white/10 rounded-sm px-4 py-3 text-primary-text placeholder-gray-300 focus:outline-none focus:border-gray-500"
             id="search-input"
           />
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 text-sm">
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary-text/40 text-sm">
             ⌘ K
           </div>
         </div>
 
         {/* Submit Funding Button */}
-        <button className="w-full bg-white/30 text-white/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors">
+        <button className="w-full bg-white/30 text-primary-text/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors">
           Submit Funding Opportunity
         </button>
 
@@ -368,7 +373,7 @@ export default function FundingFilter({
                   setSelectedCalendarDay(null);
                   onDateChange(null);
                 }}
-                className="text-sm text-white/60 hover:text-white transition-colors"
+                className="text-sm text-primary-text/60 hover:text-primary-text transition-colors"
               >
                 Clear deadline filter
               </button>
@@ -390,7 +395,7 @@ export default function FundingFilter({
                   (focusArea !== "All Focus Areas" &&
                     selectedFocusArea === focusArea)
                     ? "bg-white text-black"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20"
+                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
                 }`}
               >
                 {focusArea}
@@ -412,7 +417,7 @@ export default function FundingFilter({
                     (!selectedAmountRange || selectedAmountRange === "")) ||
                   (range !== "All Amounts" && selectedAmountRange === range)
                     ? "bg-white text-black"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20"
+                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
                 }`}
               >
                 {range}
@@ -434,7 +439,7 @@ export default function FundingFilter({
                     (!selectedFunder || selectedFunder === "")) ||
                   (funder !== "All Funders" && selectedFunder === funder)
                     ? "bg-white text-black"
-                    : "bg-white/10 text-gray-300 hover:bg-white/30"
+                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/30"
                 }`}
               >
                 {funder}

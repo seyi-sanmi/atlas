@@ -1,4 +1,5 @@
 "use client";
+import { useTheme } from "next-themes";
 import React, { useEffect, useRef, useState } from "react";
 
 const cities = [
@@ -246,6 +247,8 @@ function PartnersHero({
     />,
   ];
 
+  const { theme } = useTheme();
+
   return (
     <section className={`relative ${height} w-full overflow-hidden`}>
       {/* Background Image - Conditionally rendered */}
@@ -256,26 +259,29 @@ function PartnersHero({
               imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
             }`}
             style={{
-              backgroundImage: `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`,
+              background:
+                theme == "dark"
+                  ? `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`
+                  : `linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6)), url('${cityImage}')`,
             }}
           />
 
           {/* Animated Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#131318]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent dark:to-[#131318] to-[#F0F0F0]" />
         </div>
       )}
 
       {/* Solid background when image is disabled */}
       {!showBackground && (
-        <div className="absolute inset-0 z-0 bg-[#131318]">
+        <div className="absolute inset-0 z-0 bg-primary-bg">
           {/* Gradient Overlay for consistency */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a20] via-[#131318] to-[#131318]" />
+          <div className="absolute inset-0 bg-gradient-to-b dark:from-[#1a1a20] from-[#ffffff] dark:via-[#131318] via-[#F0F0F0] dark:to-[#131318] to-[#F0F0F0]" />
         </div>
       )}
 
       {/* Hero Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 py-8 sm:mt-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-white drop-shadow-2xl">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-primary-text drop-shadow-2xl">
           {title}
           <br />
           {/* Typewriter effect for city */}
@@ -294,10 +300,10 @@ function PartnersHero({
         </ParallaxText>
 
         {/* Time & Date Badge */}
-        {/* <div className="bg-white/10 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
-            <div className="flex items-center gap-4 text-white/90">
+        {/* <div className="dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
+            <div className="flex items-center gap-4 text-primary-text/90">
               <span className="font-mono text-lg font-semibold">{time}</span>
-              <div className="w-1 h-1 bg-white/60 rounded-full" />
+              <div className="w-1 h-1 dark:bg-white/60 bg-black/60 rounded-full" />
               <span className="text-sm font-medium">{date}</span>
             </div>
           </div> */}

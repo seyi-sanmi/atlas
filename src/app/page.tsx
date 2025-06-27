@@ -11,7 +11,7 @@ export default async function Home() {
   const initialEvents = await getAllEvents();
 
   return (
-    <div className="min-h-screen w-full bg-[#131318] text-gray-100 font-sans">
+    <div className="min-h-screen w-full bg-primary-bg text-gray-100 font-sans">
       <ClientHomePage initialEvents={initialEvents} />
       <Footer />
     </div>

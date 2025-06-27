@@ -167,12 +167,12 @@ export default function NewFundingFilter({
   };
 
   return (
-    <div className=" text-white">
+    <div className=" text-primary-text">
       <div className="max-w-6xl mx-auto space-y-4 font-sans">
         {/* Main Filter Row */}
         <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
           {/* Search with Button */}
-          <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-white/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
+          <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-primary-text/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
             <Search size={18} />
             <span>Search</span>
           </button>
@@ -181,7 +181,7 @@ export default function NewFundingFilter({
           <div className="relative z-[9999999]">
             <button
               onClick={() => toggleDropdown("funders")}
-              className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
+              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
             >
               <span>{selectedFunder || "Funders"}</span>
               <svg
@@ -201,9 +201,9 @@ export default function NewFundingFilter({
               </svg>
             </button>
             {openDropdown === "funders" && (
-              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg min-w-[280px] max-h-60 overflow-y-auto">
+              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg min-w-[280px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-white/60">
+                  <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading funders...
                   </div>
@@ -215,12 +215,12 @@ export default function NewFundingFilter({
                         toggleFunder(funder);
                         setOpenDropdown(null);
                       }}
-                      className={`w-full z-[9999999] text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
+                      className={`w-full z-[9999999] text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (funder === "All Funders" &&
                           (!selectedFunder || selectedFunder === "")) ||
                         (funder !== "All Funders" && selectedFunder === funder)
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300"
+                          ? "bg-white/20 text-primary-text"
+                          : "dark:text-gray-300 text-black/50"
                       }`}
                     >
                       {funder}
@@ -235,7 +235,7 @@ export default function NewFundingFilter({
           <div className="relative z-[9999999]">
             <button
               onClick={() => toggleDropdown("focusAreas")}
-              className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
+              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
               <span>{selectedFocusArea || "Focus Area"}</span>
               <svg
@@ -255,9 +255,9 @@ export default function NewFundingFilter({
               </svg>
             </button>
             {openDropdown === "focusAreas" && (
-              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[220px] max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[220px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-white/60">
+                  <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading focus areas...
                   </div>
@@ -269,13 +269,13 @@ export default function NewFundingFilter({
                         toggleFocusArea(focusArea);
                         setOpenDropdown(null);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
+                      className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (focusArea === "All Focus Areas" &&
                           (!selectedFocusArea || selectedFocusArea === "")) ||
                         (focusArea !== "All Focus Areas" &&
                           selectedFocusArea === focusArea)
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300"
+                          ? "bg-white/20 text-primary-text"
+                          : "dark:text-gray-300 text-black/50"
                       }`}
                     >
                       {focusArea}
@@ -290,7 +290,7 @@ export default function NewFundingFilter({
           <div className="relative z-[9999999]">
             <button
               onClick={() => toggleDropdown("amounts")}
-              className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
+              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
               <span>{selectedAmountRange || "Amount Range"}</span>
               <svg
@@ -310,9 +310,9 @@ export default function NewFundingFilter({
               </svg>
             </button>
             {openDropdown === "amounts" && (
-              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[160px] max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[160px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-white/60">
+                  <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading amounts...
                   </div>
@@ -324,14 +324,14 @@ export default function NewFundingFilter({
                         toggleAmountRange(amountRange);
                         setOpenDropdown(null);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
+                      className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (amountRange === "All Amounts" &&
                           (!selectedAmountRange ||
                             selectedAmountRange === "")) ||
                         (amountRange !== "All Amounts" &&
                           selectedAmountRange === amountRange)
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300"
+                          ? "bg-white/20 text-primary-text"
+                          : "dark:text-gray-300 text-black/50"
                       }`}
                     >
                       {amountRange}
@@ -348,27 +348,27 @@ export default function NewFundingFilter({
           selectedFocusArea ||
           selectedAmountRange) && (
           <div className=" rounded-sm p-0">
-            <h4 className="text-sm font-medium text-white/80 mb-2 flex justify-center items-center">
+            <h4 className="text-sm font-medium text-primary-text/80 mb-2 flex justify-center items-center">
               Active Filters:
             </h4>
             <div className="flex flex-wrap justify-center gap-1 text-xs">
               {searchQuery && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   Search: "{searchQuery}"
                 </span>
               )}
               {selectedFunder && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedFunder}
                 </span>
               )}
               {selectedFocusArea && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedFocusArea}
                 </span>
               )}
               {selectedAmountRange && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedAmountRange}
                 </span>
               )}

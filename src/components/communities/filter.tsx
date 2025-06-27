@@ -166,12 +166,12 @@ export default function CommunitiesFilter({
   };
 
   return (
-    <div className=" text-white">
+    <div className=" text-primary-text">
       <div className="max-w-6xl mx-auto space-y-4 font-sans">
         {/* Main Filter Row */}
         <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
           {/* Search with Button */}
-          <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-white/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
+          <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-primary-text/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
             <Search size={18} />
             <span>Search</span>
           </button>
@@ -180,7 +180,7 @@ export default function CommunitiesFilter({
           <div className="relative z-[9999999]">
             <button
               onClick={() => toggleDropdown("locations")}
-              className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
+              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
             >
               <span>{selectedLocation || "Locations"}</span>
               <svg
@@ -200,9 +200,9 @@ export default function CommunitiesFilter({
               </svg>
             </button>
             {openDropdown === "locations" && (
-              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg min-w-[220px] max-h-60 overflow-y-auto">
+              <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg min-w-[220px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-white/60">
+                  <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading locations...
                   </div>
@@ -214,13 +214,13 @@ export default function CommunitiesFilter({
                         toggleLocation(location);
                         setOpenDropdown(null);
                       }}
-                      className={`w-full z-[9999999] text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
+                      className={`w-full z-[9999999] text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (location === "All Locations" &&
                           (!selectedLocation || selectedLocation === "")) ||
                         (location !== "All Locations" &&
                           selectedLocation === location)
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300"
+                          ? "bg-white/20 text-primary-text"
+                          : "dark:text-gray-300 text-black/50"
                       }`}
                     >
                       {location}
@@ -235,7 +235,7 @@ export default function CommunitiesFilter({
           <div className="relative z-[9999999]">
             <button
               onClick={() => toggleDropdown("types")}
-              className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
+              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
               <span>{selectedCategory || "Community Type"}</span>
               <svg
@@ -255,9 +255,9 @@ export default function CommunitiesFilter({
               </svg>
             </button>
             {openDropdown === "types" && (
-              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[260px] max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[260px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-white/60">
+                  <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading types...
                   </div>
@@ -269,13 +269,13 @@ export default function CommunitiesFilter({
                         toggleCommunityType(communityType);
                         setOpenDropdown(null);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
+                      className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (communityType === "All Types" &&
                           (!selectedCategory || selectedCategory === "")) ||
                         (communityType !== "All Types" &&
                           selectedCategory === communityType)
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300"
+                          ? "bg-white/20 text-primary-text"
+                          : "dark:text-gray-300 text-black/50"
                       }`}
                     >
                       {communityType}
@@ -290,7 +290,7 @@ export default function CommunitiesFilter({
           <div className="relative z-[9999999]">
             <button
               onClick={() => toggleDropdown("research")}
-              className="bg-white/10 backdrop-blur-xs text-white px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
+              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
               <span>
                 {selectedResearchAreas.length > 0
@@ -314,9 +314,9 @@ export default function CommunitiesFilter({
               </svg>
             </button>
             {openDropdown === "research" && (
-              <div className="absolute top-full left-0 mt-1 bg-[#1E1E25] border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[200px] max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[200px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-white/60">
+                  <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading areas...
                   </div>
@@ -325,13 +325,13 @@ export default function CommunitiesFilter({
                     <button
                       key={area}
                       onClick={() => toggleResearchArea(area)}
-                      className={`w-full text-left px-4 py-2 hover:bg-white/10 backdrop-blur-xs transition-colors ${
+                      className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (area === "All Areas" &&
                           selectedResearchAreas.length === 0) ||
                         (area !== "All Areas" &&
                           selectedResearchAreas.includes(area))
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300"
+                          ? "bg-white/20 text-primary-text"
+                          : "dark:text-gray-300 text-black/50"
                       }`}
                     >
                       {area}
@@ -348,29 +348,29 @@ export default function CommunitiesFilter({
           selectedCategory ||
           selectedResearchAreas.length > 0) && (
           <div className=" rounded-sm p-0">
-            <h4 className="text-sm font-medium text-white/80 mb-2 flex justify-center items-center">
+            <h4 className="text-sm font-medium text-primary-text/80 mb-2 flex justify-center items-center">
               Active Filters:
             </h4>
             <div className="flex flex-wrap justify-center gap-1 text-xs">
               {searchQuery && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   Search: "{searchQuery}"
                 </span>
               )}
               {selectedLocation && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedLocation}
                 </span>
               )}
               {selectedCategory && (
-                <span className="bg-[#AE3813] text-white px-2 py-1 rounded-full">
+                <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedCategory}
                 </span>
               )}
               {selectedResearchAreas.map((area) => (
                 <span
                   key={area}
-                  className="bg-[#AE3813] text-white px-2 py-1 rounded-full"
+                  className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full"
                 >
                   {area}
                 </span>

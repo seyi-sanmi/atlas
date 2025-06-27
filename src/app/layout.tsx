@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,8 +63,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable}  ${Paragon.variable} antialiased`}
         // ${displayFont.variable}
       >
-        {children}
-        <Analytics />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );
