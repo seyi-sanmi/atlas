@@ -97,6 +97,14 @@ export function EventCard({
 }: EventCardProps) {
   const [isClicked, setIsClicked] = useState(false);
 
+  // Helper function to safely parse ISO date string (YYYY-MM-DD)
+  const parseEventDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed
+  };
+
+  const eventDate = parseEventDate(date);
+
   const handleClick = () => {
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 300);
@@ -176,16 +184,16 @@ export function EventCard({
                 {/* Date overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-4xl sm:text-5xl font-bold text-primary-text font-display tracking-tight">
-                      {new Date(date).getDate().toString().padStart(2, "0")}
+                    <div className="text-4xl sm:text-5xl font-bold text-white font-display tracking-tight">
+                      {eventDate.getDate().toString().padStart(2, "0")}
                     </div>
-                    <div className="text-base text-primary-text/80 font-medium uppercase tracking-wider">
-                      {new Date(date).toLocaleDateString("en-US", {
+                    <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                      {eventDate.toLocaleDateString("en-US", {
                         month: "short",
                       })}
                     </div>
-                    <div className="text-sm text-primary-text/60 font-medium">
-                      {new Date(date).getFullYear()}
+                    <div className="text-sm text-white/60 font-medium">
+                      {eventDate.getFullYear()}
                     </div>
                   </div>
                 </div>
@@ -270,16 +278,16 @@ export function EventCard({
                         <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-4xl sm:text-5xl font-bold text-primary-text font-display tracking-tight">
-                              {new Date(date).getDate()}
+                            <div className="text-4xl sm:text-5xl font-bold text-white font-display tracking-tight">
+                              {eventDate.getDate()}
                             </div>
-                            <div className="text-base text-primary-text/80 font-medium uppercase tracking-wider">
-                              {new Date(date).toLocaleDateString("en-US", {
+                            <div className="text-base text-white/80 font-medium uppercase tracking-wider">
+                              {eventDate.toLocaleDateString("en-US", {
                                 month: "short",
                               })}
                             </div>
-                            <div className="text-sm text-primary-text/60 font-medium">
-                              {new Date(date).getFullYear()}
+                            <div className="text-sm text-white/60 font-medium">
+                              {eventDate.getFullYear()}
                             </div>
                           </div>
                         </div>

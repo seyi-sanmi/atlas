@@ -70,8 +70,11 @@ function extractEventbriteEventId(url: string): string | null {
 
 // Import from Luma API with scraper fallback
 async function importFromLuma(eventId: string, originalUrl: string) {
+  console.log('🔍 Starting importFromLuma with:', { eventId, originalUrl });
+  
   // First, try the API if available
   if (process.env.LUMA_API_KEY) {
+    console.log('🔑 Luma API key found, attempting API import...');
     try {
       const response = await fetch(`https://api.lu.ma/public/v1/event/${eventId}`, {
         method: 'GET',
@@ -81,9 +84,11 @@ async function importFromLuma(eventId: string, originalUrl: string) {
         },
       });
 
+      console.log('📡 API response status:', response.status);
+
       if (response.ok) {
         const lumaEventData = await response.json();
-        console.log('Successfully imported from Luma API');
+        console.log('✅ Successfully imported from Luma API');
         
         return {
           title: lumaEventData.name || 'Untitled Event',
@@ -100,22 +105,29 @@ async function importFromLuma(eventId: string, originalUrl: string) {
           platform: 'luma'
         };
       } else {
-        console.log(`Luma API failed with status ${response.status}, falling back to scraper`);
+        console.log(`⚠️ Luma API failed with status ${response.status}, falling back to scraper`);
       }
     } catch (apiError) {
-      console.log('Luma API error, falling back to scraper:', apiError);
+      console.log('❌ Luma API error, falling back to scraper:', apiError);
     }
   } else {
-    console.log('No Luma API key found, using scraper');
+    console.log('🔓 No Luma API key found, using scraper');
   }
 
   // Fallback to scraper
   try {
-    console.log('Attempting to scrape Luma event:', originalUrl);
+    console.log('🕷️ Attempting to scrape Luma event:', originalUrl);
     const scrapedData = await scrapeLumaEvent(originalUrl);
     
     if (scrapedData) {
-      console.log('Successfully scraped Luma event');
+      console.log('✅ Successfully scraped Luma event');
+      console.log('📊 Scraped data preview:', {
+        title: scrapedData.title?.substring(0, 50) + '...',
+        time: scrapedData.time,
+        city: scrapedData.city,
+        platform: scrapedData.platform
+      });
+      
       return {
         title: scrapedData.title,
         description: scrapedData.description,
@@ -130,12 +142,19 @@ async function importFromLuma(eventId: string, originalUrl: string) {
         imported_at: new Date().toISOString(),
         platform: 'luma-scraped'
       };
+    } else {
+      console.error('❌ Scraper returned null/undefined data');
     }
   } catch (scrapeError) {
-    console.error('Scraper error:', scrapeError);
+    console.error('❌ Scraper error details:', {
+      message: scrapeError instanceof Error ? scrapeError.message : String(scrapeError),
+      stack: scrapeError instanceof Error ? scrapeError.stack : undefined,
+      name: scrapeError instanceof Error ? scrapeError.name : 'Unknown'
+    });
   }
 
   // If both API and scraper fail
+  console.error('💥 Both API and scraper methods failed for event:', eventId);
   return {
     success: false,
     error: 'Unable to import event. Both API and scraper methods failed. This may be because: 1) The event is private or restricted, 2) The event URL is incorrect, or 3) The event page structure has changed. Please verify the URL and try again.'

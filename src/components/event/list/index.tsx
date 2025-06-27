@@ -26,7 +26,10 @@ export function EventsList({
     const groups: { [date: string]: Event[] } = {};
 
     events.forEach((event) => {
-      const date = new Date(event.date);
+      // Parse date string directly to avoid timezone issues
+      // event.date is in format "2025-07-08", so split and create date safely
+      const [year, month, day] = event.date.split('-').map(Number);
+      const date = new Date(year, month - 1, day); // month is 0-indexed
       const dateKey = date.toDateString();
 
       if (!groups[dateKey]) {
@@ -191,7 +194,7 @@ export function EventsList({
                 {dateEvents.map((event, eventIndex) => (
                   <EventCard
                     key={event.id}
-                    date={date}
+                    date={event.date}
                     event={event}
                     onClick={() => onEventSelect(event)}
                     isSelected={selectedEvent?.id === event.id}

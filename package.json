@@ -18,7 +18,11 @@
     "dotenv": "^16.5.0",
     "lucide-react": "^0.515.0",
     "next": "15.3.3",
+<<<<<<< HEAD
     "next-themes": "^0.4.6",
+=======
+    "playwright-core": "^1.53.1",
+>>>>>>> 7b53bb48b22eeed8d91c1c8c62ec2f58d8da9fc9
     "puppeteer": "^24.10.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

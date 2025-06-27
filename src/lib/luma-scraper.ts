@@ -1,5 +1,7 @@
 import puppeteer from 'puppeteer';
 
+
+
 export interface LumaEventData {
   name: string;
   description: string;
@@ -35,46 +37,106 @@ export interface ScrapedEventData {
 }
 
 /**
- * Scrapes event data from a Luma event page
+ * Simple HTTP fetch approach to get Luma event data
+ * This works in serverless environments without browser dependencies
  */
-export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventData | null> {
+async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | null> {
+  try {
+    console.log('🌐 Attempting HTTP fetch approach...');
+    
+    const response = await fetch(eventUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+      }
+    });
+
+    if (!response.ok) {
+      console.log(`❌ HTTP fetch failed with status: ${response.status}`);
+      return null;
+    }
+
+    const html = await response.text();
+    console.log('✅ Successfully fetched HTML content');
+
+    // Extract JSON-LD data from HTML
+    const jsonLdMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>(.*?)<\/script>/g);
+    
+    if (!jsonLdMatch) {
+      console.log('❌ No JSON-LD script tags found in HTML');
+      return null;
+    }
+
+    // Try to find Event schema
+    for (const scriptMatch of jsonLdMatch) {
+      try {
+        const jsonContent = scriptMatch.replace(/<script[^>]*>/, '').replace(/<\/script>/, '').trim();
+        const data = JSON.parse(jsonContent);
+        
+        if (data['@type'] === 'Event') {
+          console.log('✅ Found Event JSON-LD data via HTTP fetch');
+          return parseJsonLdData(data, eventUrl);
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+
+    console.log('❌ No Event schema found in JSON-LD data');
+    return null;
+
+  } catch (error) {
+    console.error('❌ HTTP fetch approach failed:', error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
+/**
+ * Fallback browser approach using Playwright (more reliable than Puppeteer in serverless)
+ */
+async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventData | null> {
   let browser;
   
   try {
-    // Launch browser with optimized settings
-    browser = await puppeteer.launch({
+    console.log('🎭 Attempting Playwright fallback...');
+    
+    // Try Playwright if available
+    let playwright;
+    try {
+      playwright = await import('playwright-core');
+      console.log('📦 Playwright available, launching browser...');
+    } catch (e) {
+      console.log('❌ Playwright not available, trying Puppeteer...');
+      return await puppeteerFallback(eventUrl);
+    }
+
+    // Use Playwright chromium
+    browser = await playwright.chromium.launch({
       headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
         '--disable-gpu'
       ]
     });
 
     const page = await browser.newPage();
     
-    // Set user agent to avoid detection
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-    
-    // Set viewport
-    await page.setViewport({ width: 1366, height: 768 });
-
-    console.log(`Navigating to: ${eventUrl}`);
-    
-    // Navigate to the event page
-    await page.goto(eventUrl, { 
-      waitUntil: 'networkidle2',
-      timeout: 30000 
+    // Set user agent
+    await page.setExtraHTTPHeaders({
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     });
 
-    // Wait for the page to load completely
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log(`🎭 Navigating to: ${eventUrl}`);
+    await page.goto(eventUrl, { waitUntil: 'networkidle', timeout: 30000 });
 
-    // Extract JSON-LD structured data (primary method)
+    // Extract JSON-LD data
     const jsonLdData = await page.evaluate(() => {
       const scripts = document.querySelectorAll('script[type="application/ld+json"]');
       for (const script of scripts) {
@@ -91,39 +153,102 @@ export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventDat
     });
 
     if (jsonLdData) {
-      console.log('Found JSON-LD data:', jsonLdData);
+      console.log('✅ Found JSON-LD data via Playwright');
       return parseJsonLdData(jsonLdData, eventUrl);
     }
 
-    // Fallback: Extract data from page elements
-    console.log('JSON-LD not found, trying DOM extraction...');
-    const domData = await extractFromDOM(page);
-    
-    if (domData) {
-      return {
-        title: domData.title || 'Untitled Event',
-        description: domData.description || '',
-        date: domData.date || new Date().toISOString().split('T')[0],
-        time: domData.time || 'TBD',
-        location: domData.location || 'TBD',
-        city: domData.city || 'TBD',
-        organizer: domData.organizer || 'Luma Event',
-        categories: domData.categories || ['Scraped'],
-        url: eventUrl,
-        platform: 'luma-scraped'
-      };
-    }
-
-    throw new Error('Could not extract event data from the page');
+    throw new Error('No Event JSON-LD data found');
 
   } catch (error) {
-    console.error('Error scraping Luma event:', error);
-    throw error;
+    console.error('❌ Playwright fallback failed:', error instanceof Error ? error.message : String(error));
+    return null;
   } finally {
     if (browser) {
       await browser.close();
     }
   }
+}
+
+/**
+ * Puppeteer fallback (for local development)
+ */
+async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | null> {
+  let browser;
+  
+  try {
+    console.log('🕷️ Using Puppeteer fallback...');
+    
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ]
+    });
+
+    const page = await browser.newPage();
+    
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    
+    console.log(`🕷️ Navigating to: ${eventUrl}`);
+    await page.goto(eventUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+
+    // Extract JSON-LD data
+    const jsonLdData = await page.evaluate(() => {
+      const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+      for (const script of scripts) {
+        try {
+          const data = JSON.parse(script.textContent || '');
+          if (data['@type'] === 'Event') {
+            return data;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      return null;
+    });
+
+    if (jsonLdData) {
+      console.log('✅ Found JSON-LD data via Puppeteer');
+      return parseJsonLdData(jsonLdData, eventUrl);
+    }
+
+    throw new Error('No Event JSON-LD data found');
+
+  } catch (error) {
+    console.error('❌ Puppeteer fallback failed:', error instanceof Error ? error.message : String(error));
+    return null;
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}
+
+/**
+ * Main scraping function with multiple fallback strategies
+ */
+export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventData | null> {
+  console.log('🚀 Starting Luma event scraping with hybrid approach...');
+  
+  // Strategy 1: Simple HTTP fetch (fastest, works in serverless)
+  let result = await fetchLumaEventData(eventUrl);
+  if (result) {
+    return result;
+  }
+
+  // Strategy 2: Browser fallback (Playwright or Puppeteer)
+  console.log('📄 HTTP fetch failed, trying browser fallback...');
+  result = await browserFallbackApproach(eventUrl);
+  if (result) {
+    return result;
+  }
+
+  console.error('💥 All scraping strategies failed');
+  throw new Error('Could not extract event data from the page');
 }
 
 /**
@@ -133,20 +258,23 @@ function parseJsonLdData(jsonLd: any, eventUrl: string): ScrapedEventData {
   const startDate = new Date(jsonLd.startDate);
   const endDate = jsonLd.endDate ? new Date(jsonLd.endDate) : null;
 
-  // Extract time range
+  // Extract time range - preserve original timezone
   let timeString = 'TBD';
   if (jsonLd.startDate) {
+    // Parse the time in the event's original timezone
     const startTime = startDate.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
+      timeZone: 'Europe/London' // Use UK timezone for UK events
     });
     
     if (endDate) {
       const endTime = endDate.toLocaleTimeString('en-US', { 
         hour: 'numeric', 
         minute: '2-digit',
-        hour12: true 
+        hour12: true,
+        timeZone: 'Europe/London' // Use UK timezone for UK events
       });
       timeString = `${startTime} - ${endTime}`;
     } else {
@@ -205,75 +333,6 @@ function parseJsonLdData(jsonLd: any, eventUrl: string): ScrapedEventData {
     categories: ['Scraped'],
     platform: 'luma-scraped'
   };
-}
-
-/**
- * Fallback DOM extraction when JSON-LD is not available
- */
-async function extractFromDOM(page: any): Promise<Partial<ScrapedEventData> | null> {
-  try {
-    const domData = await page.evaluate(() => {
-      // Try to extract basic information from DOM
-      const title = document.querySelector('h1')?.textContent?.trim() || 
-                   document.querySelector('[data-testid="event-title"]')?.textContent?.trim() ||
-                   document.title;
-
-      const description = document.querySelector('[data-testid="event-description"]')?.textContent?.trim() ||
-                         document.querySelector('.event-description')?.textContent?.trim() ||
-                         document.querySelector('meta[name="description"]')?.getAttribute('content') ||
-                         '';
-
-      // Look for date/time information
-      const dateElement = document.querySelector('[data-testid="event-date"]') ||
-                         document.querySelector('.event-date') ||
-                         document.querySelector('[class*="date"]');
-      
-      const timeElement = document.querySelector('[data-testid="event-time"]') ||
-                         document.querySelector('.event-time') ||
-                         document.querySelector('[class*="time"]');
-
-      // Look for location information
-      const locationElement = document.querySelector('[data-testid="event-location"]') ||
-                             document.querySelector('.event-location') ||
-                             document.querySelector('[class*="location"]');
-
-      return {
-        title: title || 'Untitled Event',
-        description: description,
-        date: dateElement?.textContent?.trim() || 'TBD',
-        time: timeElement?.textContent?.trim() || 'TBD',
-        location: locationElement?.textContent?.trim() || 'TBD'
-      };
-    });
-
-    // Process the extracted date if it's in a readable format
-    let processedDate = new Date().toISOString().split('T')[0]; // Default to today
-    if (domData.date && domData.date !== 'TBD') {
-      try {
-        const parsed = new Date(domData.date);
-        if (!isNaN(parsed.getTime())) {
-          processedDate = parsed.toISOString().split('T')[0];
-        }
-      } catch (e) {
-        // Keep default date
-      }
-    }
-
-    return {
-      title: domData.title,
-      description: domData.description,
-      date: processedDate,
-      time: domData.time,
-      location: domData.location,
-      city: 'TBD', // Hard to extract from DOM without more context
-      organizer: 'Luma Event',
-      categories: ['Scraped']
-    };
-
-  } catch (error) {
-    console.error('Error extracting from DOM:', error);
-    return null;
-  }
 }
 
 /**

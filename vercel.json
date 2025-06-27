@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/actions/import-event.ts": {
+      "maxDuration": 15
+    }
+  }
+} 
