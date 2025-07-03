@@ -13,6 +13,7 @@ interface EventFilterProps {
   selectedDate?: Date | null;
   onDateChange: (date: Date | null) => void;
   refreshTrigger?: number; // Optional prop to trigger refresh of filter options
+  onSubmitEvent?: () => void; // Callback to open the import event modal
 }
 
 export default function EventFilter({
@@ -25,6 +26,7 @@ export default function EventFilter({
   selectedDate,
   onDateChange,
   refreshTrigger,
+  onSubmitEvent,
 }: EventFilterProps) {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
@@ -294,7 +296,10 @@ export default function EventFilter({
         </div>
 
         {/* Submit Event Button */}
-        <button className="w-full bg-white/30 text-primary-text/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors">
+        <button 
+          onClick={onSubmitEvent}
+          className="w-full bg-white/30 text-primary-text/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors"
+        >
           Submit Event
         </button>
 

@@ -36,11 +36,8 @@ export function SearchModal({
             event.description
               .toLowerCase()
               .includes(searchQuery.toLowerCase()) ||
-            event.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.categories.some((cat) =>
-              cat.toLowerCase().includes(searchQuery.toLowerCase())
-            )
+                        event.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.location.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .slice(0, 8); // Limit to 8 results
       setFilteredEvents(filtered);
@@ -163,16 +160,6 @@ export function SearchModal({
                       <span>•</span>
                       <span>{event.time}</span>
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1 ml-4">
-                    {event.categories.slice(0, 2).map((category, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-white/10 dark:text-gray-300 text-black/50 text-xs rounded-full"
-                      >
-                        {category}
-                      </span>
-                    ))}
                   </div>
                 </div>
               </div>

@@ -18,9 +18,10 @@ import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   onEventImported?: () => void; // Callback to refresh events list
+  onOpenImportModal?: () => void; // Optional callback to open import modal externally
 }
 
-export function Header({ onEventImported }: HeaderProps) {
+export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const pathname = usePathname();
 
@@ -140,30 +141,27 @@ export function Header({ onEventImported }: HeaderProps) {
             </button>
 
             <button
-              onClick={() => setShowImportModal(true)}
+              onClick={() => onOpenImportModal ? onOpenImportModal() : setShowImportModal(true)}
               className="text-white dark:text-black sm:px-4 px-3 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
             >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline-block ">Import Event</span>
-            </button>
-
-            <button className="sm:px-4 px-3 py-2 bg-white/10 text-primary-text font-medium font-sans rounded-md hover:bg-white/20 transition-all duration-200 flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline-block">Add Event</span>
+              <span className="hidden sm:inline-block ">Add Event</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Import Modal */}
-      <ImportEventModal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onEventImported={() => {
-          setShowImportModal(false);
-          onEventImported?.();
-        }}
-      />
+      {/* Import Modal - only render if no external modal handler */}
+      {!onOpenImportModal && (
+        <ImportEventModal
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onEventImported={() => {
+            setShowImportModal(false);
+            onEventImported?.();
+          }}
+        />
+      )}
     </header>
   );
 }

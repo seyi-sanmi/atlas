@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { SlidersHorizontal } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
+import { ImportEventModal } from "@/components/ImportEventModal";
 import Hero from "./hero";
 
 interface ClientHomePageProps {
@@ -31,6 +32,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Simple cache to avoid repeated queries
   const [cachedEvents, setCachedEvents] = useState<Event[]>(initialEvents);
@@ -111,7 +113,14 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
     setSelectedEvent(event);
   };
 
+  const handleOpenImportModal = () => {
+    setIsImportModalOpen(true);
+  };
+
   const handleEventImported = async () => {
+    // Close the import modal
+    setIsImportModalOpen(false);
+    
     // Clear cache and reload events
     setCachedEvents([]);
     setLastCacheTime(0);
@@ -149,7 +158,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
 
   return (
     <>
-      <Header onEventImported={handleEventImported} />
+      <Header onEventImported={handleEventImported} onOpenImportModal={handleOpenImportModal} />
 
       {/* Search Modal */}
       <SearchModal
@@ -159,6 +168,13 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
         onEventSelect={handleEventSelect}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+      />
+
+      {/* Import Event Modal */}
+      <ImportEventModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onEventImported={handleEventImported}
       />
 
       {/* Hero Section */}
@@ -189,6 +205,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onCategoryChange={setSelectedCategory}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
+                onSubmitEvent={handleOpenImportModal}
               />
             </div>
           </div>
@@ -222,6 +239,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onCategoryChange={setSelectedCategory}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
+                onSubmitEvent={handleOpenImportModal}
               />
             </div>
           </SheetContent>
