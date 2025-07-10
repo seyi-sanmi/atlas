@@ -45,6 +45,19 @@ export interface Event {
   url?: string // Optional URL to the original event page
   image_url?: string // Optional URL to the event image
   links?: string[] // Optional array of links extracted from the event page
+  
+  // AI Categorization fields
+  ai_event_type?: string // AI suggested event type
+  ai_interest_areas?: string[] // AI suggested interest areas
+  ai_categorized?: boolean // Whether AI categorization was successful
+  ai_categorized_at?: string // Timestamp of AI categorization
+  
+  // Import/platform fields
+  luma_id?: string
+  eventbrite_id?: string
+  imported_at?: string
+  platform?: string
+  
   created_at?: string
   updated_at?: string
 } 

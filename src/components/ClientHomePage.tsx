@@ -30,6 +30,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedInterestAreas, setSelectedInterestAreas] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -51,6 +52,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
           query: searchQuery,
           location: selectedLocation,
           category: selectedCategory,
+          interestAreas: selectedInterestAreas,
           date: selectedDate,
         });
         setEvents(filteredEvents);
@@ -70,6 +72,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
       !searchQuery &&
       !selectedLocation &&
       !selectedCategory &&
+      selectedInterestAreas.length === 0 &&
       !selectedDate
     ) {
       setEvents(cachedEvents);
@@ -84,6 +87,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
     searchQuery,
     selectedLocation,
     selectedCategory,
+    selectedInterestAreas,
     selectedDate,
     cachedEvents,
   ]);
@@ -203,6 +207,8 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onLocationChange={setSelectedLocation}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
+                selectedInterestAreas={selectedInterestAreas}
+                onInterestAreasChange={setSelectedInterestAreas}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onSubmitEvent={handleOpenImportModal}
@@ -237,6 +243,8 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onLocationChange={setSelectedLocation}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
+                selectedInterestAreas={selectedInterestAreas}
+                onInterestAreasChange={setSelectedInterestAreas}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onSubmitEvent={handleOpenImportModal}

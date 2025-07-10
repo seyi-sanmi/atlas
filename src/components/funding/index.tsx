@@ -127,6 +127,14 @@ function ClientFundingPage() {
   const [selectedAmountRange, setSelectedAmountRange] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedFunder("");
+    setSelectedFocusArea("");
+    setSelectedAmountRange("");
+    setSelectedDate(null);
+  };
+
   // Typewriter effect for city and background image
 
   useEffect(() => {
@@ -265,9 +273,7 @@ function ClientFundingPage() {
               onFocusAreaChange={setSelectedFocusArea}
               selectedAmountRange={selectedAmountRange}
               onAmountRangeChange={setSelectedAmountRange}
-              // selectedDate={selectedDate}
-              // onDateChange={setSelectedDate}
-              // fundingOpportunities={fundingOpportunities}
+              onClearAll={clearAllFilters}
             />
             <div className="p-2 sm:p-8 sm:pt-4">
               <div className="w-full space-y-12">

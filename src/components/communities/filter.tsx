@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getUniqueCommunityTypes,
   getUniqueCommunityLocations,
+  getUniqueResearchAreas,
 } from "@/lib/communities";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface CommunitiesFilterProps {
   searchQuery: string;
@@ -14,6 +15,8 @@ interface CommunitiesFilterProps {
   onLocationChange: (location: string) => void;
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  selectedResearchAreas: string[];
+  onResearchAreasChange: (areas: string[]) => void;
   selectedDate?: Date | null;
   onDateChange: (date: Date | null) => void;
   refreshTrigger?: number;
@@ -26,6 +29,8 @@ export default function CommunitiesFilter({
   onLocationChange,
   selectedCategory,
   onCategoryChange,
+  selectedResearchAreas,
+  onResearchAreasChange,
   selectedDate,
   onDateChange,
   refreshTrigger,
@@ -34,14 +39,15 @@ export default function CommunitiesFilter({
   const [selectedCommunityTypes, setSelectedCommunityTypes] = useState<
     string[]
   >([]);
-  const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>(
-    []
-  );
   const [locations, setLocations] = useState<string[]>([]);
   const [communityTypes, setCommunityTypes] = useState<string[]>([]);
   const [researchAreas, setResearchAreas] = useState<string[]>([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const locationsRef = useRef<HTMLDivElement>(null);
+  const typesRef = useRef<HTMLDivElement>(null);
+  const researchAreasRef = useRef<HTMLDivElement>(null);
 
   // Handle Cmd+K keyboard shortcut
   useEffect(() => {
@@ -49,7 +55,7 @@ export default function CommunitiesFilter({
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
         const searchInput = document.getElementById(
-          "search-input"
+          "communities-search-input"
         ) as HTMLInputElement;
         if (searchInput) {
           searchInput.focus();
@@ -62,31 +68,55 @@ export default function CommunitiesFilter({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        openDropdown === "locations" &&
+        locationsRef.current &&
+        !locationsRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      } else if (
+        openDropdown === "types" &&
+        typesRef.current &&
+        !typesRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      } else if (
+        openDropdown === "research" &&
+        researchAreasRef.current &&
+        !researchAreasRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+    };
+
+    if (openDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openDropdown]);
+
   // Load filter options from Supabase
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
         setIsLoadingFilters(true);
 
-        // Fetch unique community types and locations from Supabase
-        const [uniqueCommunityTypes, uniqueLocations] = await Promise.all([
+        // Fetch unique community types, locations, and research areas from Supabase
+        const [uniqueCommunityTypes, uniqueLocations, uniqueResearchAreas] = await Promise.all([
           getUniqueCommunityTypes(),
           getUniqueCommunityLocations(),
+          getUniqueResearchAreas(),
         ]);
 
         setLocations(["All Locations", ...uniqueLocations.sort()]);
         setCommunityTypes(["All Types", ...uniqueCommunityTypes.sort()]);
-
-        // For research areas, we'll use a basic set for now since we don't have a specific function
-        // You could add a getUniqueResearchAreas function to the communities library if needed
-        setResearchAreas([
-          "All Areas",
-          "Biotechnology",
-          "AI",
-          "Climate Tech",
-          "Quantum Computing",
-          "Sustainable Materials",
-        ]);
+        setResearchAreas(uniqueResearchAreas.sort());
       } catch (error) {
         console.error("Failed to load filter options:", error);
         // Fallback to basic options
@@ -101,7 +131,12 @@ export default function CommunitiesFilter({
           "Founder & Investor Network",
           "Academic Research",
         ]);
-        setResearchAreas(["All Areas", "Biotechnology", "AI", "Climate Tech"]);
+        setResearchAreas([
+          "Biotechnology",
+          "AI",
+          "Climate Tech",
+          "Quantum Computing",
+        ]);
       } finally {
         setIsLoadingFilters(false);
       }
@@ -152,12 +187,10 @@ export default function CommunitiesFilter({
   };
 
   const toggleResearchArea = (area: string) => {
-    if (area === "All Areas") {
-      setSelectedResearchAreas([]);
-    } else if (selectedResearchAreas.includes(area)) {
-      setSelectedResearchAreas(selectedResearchAreas.filter((a) => a !== area));
+    if (selectedResearchAreas.includes(area)) {
+      onResearchAreasChange(selectedResearchAreas.filter(a => a !== area));
     } else {
-      setSelectedResearchAreas([...selectedResearchAreas, area]);
+      onResearchAreasChange([...selectedResearchAreas, area]);
     }
   };
 
@@ -165,19 +198,47 @@ export default function CommunitiesFilter({
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
 
-  return (
-    <div className=" text-primary-text">
-      <div className="max-w-6xl mx-auto space-y-4 font-sans">
-        {/* Main Filter Row */}
-        <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
-          {/* Search with Button */}
-          <button className="flex space-x-1.5 items-center bg-white/20  backdrop-blur-xs text-primary-text/90 font-normal px-3.5 py-3 rounded-sm hover:bg-white hover:text-black transition-colors whitespace-nowrap">
-            <Search size={18} />
-            <span>Search</span>
-          </button>
+  const clearAllFilters = () => {
+    onSearchChange("");
+    onLocationChange("");
+    onCategoryChange("");
+    onResearchAreasChange([]);
+    setSelectedLocations([]);
+    setSelectedCommunityTypes([]);
+  };
 
+  return (
+    <div className="text-primary-text">
+      <div className="max-w-6xl mx-auto space-y-4 font-sans">
+        {/* Search Input */}
+        <div className="flex justify-center">
+          <div className="relative w-full max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-primary-text/60" />
+            </div>
+            <input
+              id="communities-search-input"
+              type="text"
+              placeholder="Search communities... (⌘+K)"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full pl-10 pr-10 py-3 bg-white/10 backdrop-blur-sm text-primary-text placeholder-primary-text/60 border border-white/20 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#AE3813] focus:border-transparent"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <X className="h-4 w-4 text-primary-text/60 hover:text-primary-text" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filter Dropdowns */}
+        <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
           {/* Locations Dropdown */}
-          <div className="relative z-[9999999]">
+          <div className="relative z-[9999999]" ref={locationsRef}>
             <button
               onClick={() => toggleDropdown("locations")}
               className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
@@ -212,7 +273,6 @@ export default function CommunitiesFilter({
                       key={location}
                       onClick={() => {
                         toggleLocation(location);
-                        setOpenDropdown(null);
                       }}
                       className={`w-full z-[9999999] text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (location === "All Locations" &&
@@ -231,8 +291,8 @@ export default function CommunitiesFilter({
             )}
           </div>
 
-          {/* Community Type Dropdown */}
-          <div className="relative z-[9999999]">
+          {/* Community Types Dropdown */}
+          <div className="relative z-[9999999]" ref={typesRef}>
             <button
               onClick={() => toggleDropdown("types")}
               className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
@@ -262,23 +322,21 @@ export default function CommunitiesFilter({
                     Loading types...
                   </div>
                 ) : (
-                  communityTypes.map((communityType) => (
+                  communityTypes.map((type) => (
                     <button
-                      key={communityType}
+                      key={type}
                       onClick={() => {
-                        toggleCommunityType(communityType);
-                        setOpenDropdown(null);
+                        toggleCommunityType(type);
                       }}
                       className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
-                        (communityType === "All Types" &&
-                          (!selectedCategory || selectedCategory === "")) ||
-                        (communityType !== "All Types" &&
-                          selectedCategory === communityType)
+                        (type === "All Types" && !selectedCategory) ||
+                        (type !== "All Types" &&
+                          selectedCategory === type)
                           ? "bg-white/20 text-primary-text"
                           : "dark:text-gray-300 text-black/50"
                       }`}
                     >
-                      {communityType}
+                      {type}
                     </button>
                   ))
                 )}
@@ -287,15 +345,20 @@ export default function CommunitiesFilter({
           </div>
 
           {/* Research Areas Dropdown */}
-          <div className="relative z-[9999999]">
+          <div className="relative" ref={researchAreasRef}>
             <button
               onClick={() => toggleDropdown("research")}
-              className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
+              className={`dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between ${
+                selectedResearchAreas.length > 0 ? 'border-blue-500/50' : 'border-white/10'
+              }`}
             >
-              <span>
-                {selectedResearchAreas.length > 0
-                  ? `Research (${selectedResearchAreas.length})`
-                  : "Research Areas"}
+              <span className="flex items-center gap-2">
+                Research Area
+                {selectedResearchAreas.length > 0 && (
+                  <span className="bg-blue-500/20 text-blue-300 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {selectedResearchAreas.length}
+                  </span>
+                )}
               </span>
               <svg
                 className={`w-4 h-4 transition-transform ${
@@ -314,40 +377,79 @@ export default function CommunitiesFilter({
               </svg>
             </button>
             {openDropdown === "research" && (
-              <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[200px] max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-md shadow-lg w-[300px] max-h-80 overflow-y-auto z-10 p-2">
+                <div className="flex justify-between items-center p-2 border-b border-white/10 mb-2">
+                  <h4 className="font-semibold">Filter by Research Area</h4>
+                  {selectedResearchAreas.length > 0 && (
+                    <button
+                      onClick={() => onResearchAreasChange([])}
+                      className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
                 {isLoadingFilters ? (
-                  <div className="p-3 text-center text-primary-text/60">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
-                    Loading areas...
+                  <div className="p-4 text-center text-primary-text/60">
+                    Loading...
                   </div>
                 ) : (
                   researchAreas.map((area) => (
                     <button
                       key={area}
                       onClick={() => toggleResearchArea(area)}
-                      className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
-                        (area === "All Areas" &&
-                          selectedResearchAreas.length === 0) ||
-                        (area !== "All Areas" &&
-                          selectedResearchAreas.includes(area))
-                          ? "bg-white/20 text-primary-text"
-                          : "dark:text-gray-300 text-black/50"
+                      className={`w-full text-left px-3 py-2.5 text-sm hover:bg-white/10 transition-colors rounded-md flex items-center gap-3 ${
+                        selectedResearchAreas.includes(area)
+                          ? "text-blue-300"
+                          : ""
                       }`}
                     >
-                      {area}
+                      <div
+                        className={`w-4 h-4 rounded-sm border-2 flex-shrink-0 ${
+                          selectedResearchAreas.includes(area)
+                            ? "bg-blue-500 border-blue-500"
+                            : "border-white/20"
+                        }`}
+                      >
+                        {selectedResearchAreas.includes(area) && (
+                          <svg
+                            className="w-full h-full text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <span>{area}</span>
                     </button>
                   ))
                 )}
               </div>
             )}
           </div>
+
+          {/* Clear Filters Button */}
+          {(searchQuery || selectedLocation || selectedCategory || selectedResearchAreas.length > 0) && (
+            <button
+              onClick={clearAllFilters}
+              className="text-sm text-primary-text/60 hover:text-primary-text underline"
+            >
+              Clear all filters
+            </button>
+          )}
         </div>
+
         {/* Active Filters Indicator */}
-        {(searchQuery ||
-          selectedLocation ||
-          selectedCategory ||
-          selectedResearchAreas.length > 0) && (
-          <div className=" rounded-sm p-0">
+        {(searchQuery || selectedLocation || selectedCategory || selectedResearchAreas.length > 0) && (
+          <div className="rounded-sm p-0">
             <h4 className="text-sm font-medium text-primary-text/80 mb-2 flex justify-center items-center">
               Active Filters:
             </h4>
@@ -370,7 +472,7 @@ export default function CommunitiesFilter({
               {selectedResearchAreas.map((area) => (
                 <span
                   key={area}
-                  className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full"
+                  className="bg-blue-600 text-primary-text px-2 py-1 rounded-full"
                 >
                   {area}
                 </span>

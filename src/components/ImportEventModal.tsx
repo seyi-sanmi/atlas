@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { importEvent, saveImportedEvent } from "@/app/actions/import-event";
-import { X, Download, Save, AlertCircle, CheckCircle } from "lucide-react";
+import { X, Download, Save, AlertCircle, CheckCircle, Sparkles, Edit } from "lucide-react";
+import { EVENT_TYPES } from "@/lib/event-categorizer";
 
 interface ImportEventModalProps {
   isOpen: boolean;
@@ -177,6 +178,16 @@ export function ImportEventModal({
                     this event)
                   </p>
                 )}
+                {preview?.ai_categorized && (
+                  <p className="text-blue-300 text-xs mt-1">
+                    🤖 AI categorization completed - please review suggested tags below
+                  </p>
+                )}
+                {preview?.ai_categorized === false && (
+                  <p className="text-yellow-300 text-xs mt-1">
+                    ⚠️ AI categorization failed - using default categories
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -239,22 +250,24 @@ export function ImportEventModal({
 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium dark:text-gray-300 text-black/50">
-                    Category
+                    Event Type
                   </label>
                   <select
-                    value={preview.categories?.[0] || "Imported"}
+                    value={preview.ai_event_type || "Other"}
                     onChange={(e) =>
-                      updatePreview("categories", [e.target.value])
+                      updatePreview("ai_event_type", e.target.value)
                     }
                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-primary-text focus:outline-none focus:border-[#AE3813]"
                   >
-                    <option value="Imported">Imported</option>
-                    <option value="Hackathon">Hackathon</option>
-                    <option value="Workshop">Workshop</option>
-                    <option value="Conference">Conference</option>
-                    <option value="Networking">Networking</option>
-                    <option value="Webinar">Webinar</option>
+                    {EVENT_TYPES.map((eventType) => (
+                      <option key={eventType} value={eventType}>
+                        {eventType}
+                      </option>
+                    ))}
                   </select>
+                  <p className="text-xs text-gray-400">
+                    This is used for filtering events on the website
+                  </p>
                 </div>
               </div>
 
@@ -269,6 +282,87 @@ export function ImportEventModal({
                   className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-primary-text placeholder-gray-400 focus:outline-none focus:border-[#AE3813] resize-none"
                 />
               </div>
+
+              {/* AI Categorization Section */}
+              {preview.ai_categorized !== undefined && (
+                <div className="space-y-4 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-5 h-5 text-blue-400" />
+                    <h4 className="text-md font-medium text-primary-text">
+                      AI Suggested Categories
+                    </h4>
+                    {preview.ai_categorized && (
+                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                        ✓ Analyzed
+                      </span>
+                    )}
+                    {!preview.ai_categorized && (
+                      <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full">
+                        ✗ Failed
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    {/* AI Event Type */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-blue-300">
+                        <Edit className="w-4 h-4 inline mr-1" />
+                        Event Type
+                      </label>
+                      <select
+                        value={preview.ai_event_type || "Other"}
+                        onChange={(e) => updatePreview("ai_event_type", e.target.value)}
+                        className="w-full bg-white/5 border border-blue-400/30 rounded-md px-3 py-2 text-primary-text focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                      >
+                        <option value="Meetup / Mixer">Meetup / Mixer</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Lecture">Lecture</option>
+                        <option value="Panel Discussion">Panel Discussion</option>
+                        <option value="Fireside Chat">Fireside Chat</option>
+                        <option value="Webinar">Webinar</option>
+                        <option value="Hackathon">Hackathon</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    {/* AI Interest Areas */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-blue-300">
+                        <Edit className="w-4 h-4 inline mr-1" />
+                        Interest Areas ({preview.ai_interest_areas?.length || 0} selected)
+                      </label>
+                      <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-white/5 border border-blue-400/30 rounded-md">
+                        {preview.ai_interest_areas?.length > 0 ? (
+                          preview.ai_interest_areas.map((area: string, index: number) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center gap-1 bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full border border-blue-400/30"
+                            >
+                              {area}
+                              <button
+                                onClick={() => {
+                                  const updatedAreas = preview.ai_interest_areas.filter((_: any, i: number) => i !== index);
+                                  updatePreview("ai_interest_areas", updatedAreas);
+                                }}
+                                className="text-blue-400 hover:text-blue-200 ml-1"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 text-sm">No interest areas detected</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-blue-300/70">
+                        AI has analyzed the event content and suggested these categories. You can remove tags by clicking the × button.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex justify-between pt-4">

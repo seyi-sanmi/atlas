@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 
 interface FundingFilterProps {
@@ -13,6 +13,7 @@ interface FundingFilterProps {
   selectedAmountRange: string;
   onAmountRangeChange: (amountRange: string) => void;
   refreshTrigger?: number;
+  onClearAll: () => void;
 }
 
 export default function NewFundingFilter({
@@ -25,6 +26,7 @@ export default function NewFundingFilter({
   selectedAmountRange,
   onAmountRangeChange,
   refreshTrigger,
+  onClearAll,
 }: FundingFilterProps) {
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
   const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
@@ -36,6 +38,16 @@ export default function NewFundingFilter({
   const [amountRanges, setAmountRanges] = useState<string[]>([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const fundersRef = useRef<HTMLDivElement>(null);
+  const focusAreasRef = useRef<HTMLDivElement>(null);
+  const amountRangesRef = useRef<HTMLDivElement>(null);
+
+  const hasActiveFilters =
+    searchQuery ||
+    selectedFunder ||
+    selectedFocusArea ||
+    selectedAmountRange;
 
   // Handle Cmd+K keyboard shortcut
   useEffect(() => {
@@ -55,6 +67,41 @@ export default function NewFundingFilter({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Check for funders dropdown
+      if (
+        openDropdown === "funders" &&
+        fundersRef.current &&
+        !fundersRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+      // Check for focus areas dropdown
+      else if (
+        openDropdown === "focusAreas" &&
+        focusAreasRef.current &&
+        !focusAreasRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+      // Check for amount ranges dropdown
+      else if (
+        openDropdown === "amountRanges" &&
+        amountRangesRef.current &&
+        !amountRangesRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openDropdown]);
 
   // Load filter options
   useEffect(() => {
@@ -178,7 +225,7 @@ export default function NewFundingFilter({
           </button>
 
           {/* Funders Dropdown */}
-          <div className="relative z-[9999999]">
+          <div className="relative z-[9999999]" ref={fundersRef}>
             <button
               onClick={() => toggleDropdown("funders")}
               className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[140px] justify-between"
@@ -232,7 +279,7 @@ export default function NewFundingFilter({
           </div>
 
           {/* Focus Areas Dropdown */}
-          <div className="relative z-[9999999]">
+          <div className="relative z-[9999999]" ref={focusAreasRef}>
             <button
               onClick={() => toggleDropdown("focusAreas")}
               className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
@@ -265,15 +312,11 @@ export default function NewFundingFilter({
                   focusAreas.map((focusArea) => (
                     <button
                       key={focusArea}
-                      onClick={() => {
-                        toggleFocusArea(focusArea);
-                        setOpenDropdown(null);
-                      }}
+                      onClick={() => toggleFocusArea(focusArea)}
                       className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (focusArea === "All Focus Areas" &&
-                          (!selectedFocusArea || selectedFocusArea === "")) ||
-                        (focusArea !== "All Focus Areas" &&
-                          selectedFocusArea === focusArea)
+                          !selectedFocusArea) ||
+                        selectedFocusAreas.includes(focusArea)
                           ? "bg-white/20 text-primary-text"
                           : "dark:text-gray-300 text-black/50"
                       }`}
@@ -286,16 +329,16 @@ export default function NewFundingFilter({
             )}
           </div>
 
-          {/* Amount Range Dropdown */}
-          <div className="relative z-[9999999]">
+          {/* Amount Ranges Dropdown */}
+          <div className="relative z-[9999999]" ref={amountRangesRef}>
             <button
-              onClick={() => toggleDropdown("amounts")}
+              onClick={() => toggleDropdown("amountRanges")}
               className="dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between"
             >
               <span>{selectedAmountRange || "Amount Range"}</span>
               <svg
                 className={`w-4 h-4 transition-transform ${
-                  openDropdown === "amounts" ? "rotate-180" : ""
+                  openDropdown === "amountRanges" ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -309,27 +352,22 @@ export default function NewFundingFilter({
                 />
               </svg>
             </button>
-            {openDropdown === "amounts" && (
+            {openDropdown === "amountRanges" && (
               <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[160px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-primary-text/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
-                    Loading amounts...
+                    Loading amount ranges...
                   </div>
                 ) : (
                   amountRanges.map((amountRange) => (
                     <button
                       key={amountRange}
-                      onClick={() => {
-                        toggleAmountRange(amountRange);
-                        setOpenDropdown(null);
-                      }}
+                      onClick={() => toggleAmountRange(amountRange)}
                       className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (amountRange === "All Amounts" &&
-                          (!selectedAmountRange ||
-                            selectedAmountRange === "")) ||
-                        (amountRange !== "All Amounts" &&
-                          selectedAmountRange === amountRange)
+                          !selectedAmountRange) ||
+                        selectedAmountRanges.includes(amountRange)
                           ? "bg-white/20 text-primary-text"
                           : "dark:text-gray-300 text-black/50"
                       }`}
@@ -373,6 +411,16 @@ export default function NewFundingFilter({
                 </span>
               )}
             </div>
+          </div>
+        )}
+        {hasActiveFilters && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={onClearAll}
+              className="text-sm text-primary-text/60 hover:text-primary-text transition-colors"
+            >
+              Clear all filters
+            </button>
           </div>
         )}
       </div>

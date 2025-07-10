@@ -55,12 +55,12 @@ export async function getEventsByLocation(location: string): Promise<Event[]> {
   return data || []
 }
 
-// Filter events by categories
+// Filter events by AI event type (modern approach) or fallback to legacy categories  
 export async function getEventsByCategory(category: string): Promise<Event[]> {
   const { data, error } = await supabase
     .from('events')
     .select('*')
-    .contains('categories', [category])
+    .or(`ai_event_type.eq.${category},categories.cs.{${category}}`)
     .order('date', { ascending: true })
 
   if (error) {
@@ -108,6 +108,7 @@ export async function searchAndFilterEvents(options: {
   query?: string
   location?: string
   category?: string
+  interestAreas?: string[]
   featured?: boolean
   starred?: boolean
   date?: Date | null
@@ -124,9 +125,16 @@ export async function searchAndFilterEvents(options: {
     queryBuilder = queryBuilder.eq('city', options.location)
   }
 
-  // Apply category filter
+  // Apply category filter (try AI event type first, fallback to legacy categories)
   if (options.category) {
-    queryBuilder = queryBuilder.contains('categories', [options.category])
+    queryBuilder = queryBuilder.or(`ai_event_type.eq.${options.category},categories.cs.{${options.category}}`)
+  }
+
+  // Apply interest areas filter (AI interest areas)
+  if (options.interestAreas && options.interestAreas.length > 0) {
+    // Filter events that have any of the selected interest areas
+    const interestAreaFilters = options.interestAreas.map(area => `ai_interest_areas.cs.{${area}}`).join(',')
+    queryBuilder = queryBuilder.or(interestAreaFilters)
   }
 
   // Apply featured filter
@@ -180,20 +188,61 @@ export async function getUniqueLocations(): Promise<string[]> {
   return uniqueCities
 }
 
-// Get unique categories from all events
+// Get unique AI event types from all events (preferred) with fallback to legacy categories
 export async function getUniqueCategories(): Promise<string[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('categories')
+    .select('ai_event_type, categories')
 
   if (error) {
     console.error('Error fetching categories:', error)
     throw error
   }
 
-  // Flatten all categories arrays and get unique values
-  const allCategories = data?.flatMap(event => event.categories || []) || []
-  const uniqueCategories = [...new Set(allCategories)].sort()
+  // Collect AI event types and legacy categories, prioritizing AI types
+  const aiEventTypes = data?.map(event => event.ai_event_type).filter(Boolean) || []
+  const legacyCategories = data?.flatMap(event => event.categories || []) || []
+  
+  // Combine and deduplicate, prioritizing AI event types
+  const allCategories = [...new Set([...aiEventTypes, ...legacyCategories])].sort()
+  
+  return allCategories
+}
 
-  return uniqueCategories
+// Get unique AI event types only
+export async function getUniqueAIEventTypes(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('ai_event_type')
+    .not('ai_event_type', 'is', null)
+
+  if (error) {
+    console.error('Error fetching AI event types:', error)
+    throw error
+  }
+
+  // Get unique AI event types
+  const aiEventTypes = data?.map(event => event.ai_event_type).filter(Boolean) || []
+  const uniqueAITypes = [...new Set(aiEventTypes)].sort()
+  
+  return uniqueAITypes
+}
+
+// Get unique AI interest areas from all events
+export async function getUniqueAIInterestAreas(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('ai_interest_areas')
+    .not('ai_interest_areas', 'is', null)
+
+  if (error) {
+    console.error('Error fetching AI interest areas:', error)
+    throw error
+  }
+
+  // Flatten all interest areas arrays and get unique values
+  const allInterestAreas = data?.flatMap(event => event.ai_interest_areas || []) || []
+  const uniqueInterestAreas = [...new Set(allInterestAreas)].sort()
+  
+  return uniqueInterestAreas
 }

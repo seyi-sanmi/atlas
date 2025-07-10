@@ -2,6 +2,40 @@
 
 import { supabase } from '@/lib/supabase'
 import { scrapeLumaEvent } from '@/lib/luma-scraper'
+import { categorizeEventWithRetry } from '@/lib/event-categorizer'
+
+// Helper function to add AI categorization to event data
+async function addAICategorization(eventData: any) {
+  try {
+    console.log('🤖 Starting AI categorization for event:', eventData.title?.substring(0, 50) + '...');
+    
+    const aiResult = await categorizeEventWithRetry({
+      title: eventData.title || '',
+      description: eventData.description || ''
+    });
+    
+    console.log('✅ AI categorization completed:', aiResult);
+    
+    return {
+      ...eventData,
+      ai_event_type: aiResult.event_type,
+      ai_interest_areas: aiResult.event_interest_areas,
+      ai_categorized: true,
+      ai_categorized_at: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('❌ AI categorization failed:', error);
+    
+    // Return original data with default AI values on error
+    return {
+      ...eventData,
+      ai_event_type: 'Other',
+      ai_interest_areas: [],
+      ai_categorized: false,
+      ai_categorized_at: new Date().toISOString()
+    };
+  }
+}
 
 // Platform detection and URL parsing
 function detectPlatform(url: string): 'luma' | 'eventbrite' | null {
@@ -90,7 +124,7 @@ async function importFromLuma(eventId: string, originalUrl: string) {
         const lumaEventData = await response.json();
         console.log('✅ Successfully imported from Luma API');
         
-        return {
+        const baseEventData = {
           title: lumaEventData.name || 'Untitled Event',
           description: lumaEventData.description || '',
           date: lumaEventData.start_at ? new Date(lumaEventData.start_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -104,6 +138,8 @@ async function importFromLuma(eventId: string, originalUrl: string) {
           imported_at: new Date().toISOString(),
           platform: 'luma'
         };
+        
+        return await addAICategorization(baseEventData);
       } else {
         console.log(`⚠️ Luma API failed with status ${response.status}, falling back to scraper`);
       }
@@ -128,7 +164,7 @@ async function importFromLuma(eventId: string, originalUrl: string) {
         platform: scrapedData.platform
       });
       
-      return {
+      const baseEventData = {
         title: scrapedData.title,
         description: scrapedData.description,
         date: scrapedData.date,
@@ -142,6 +178,8 @@ async function importFromLuma(eventId: string, originalUrl: string) {
         imported_at: new Date().toISOString(),
         platform: 'luma-scraped'
       };
+      
+      return await addAICategorization(baseEventData);
     } else {
       console.error('❌ Scraper returned null/undefined data');
     }
@@ -197,7 +235,7 @@ async function importFromEventbrite(eventId: string, originalUrl: string) {
 
   const eventbriteEventData = await response.json();
 
-  return {
+  const baseEventData = {
     title: eventbriteEventData.name?.text || 'Untitled Event',
     description: eventbriteEventData.description?.html || eventbriteEventData.description?.text || '',
     date: eventbriteEventData.start?.utc ? new Date(eventbriteEventData.start.utc).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -211,6 +249,8 @@ async function importFromEventbrite(eventId: string, originalUrl: string) {
     imported_at: new Date().toISOString(),
     platform: 'eventbrite'
   };
+  
+  return await addAICategorization(baseEventData);
 }
 
 // Helper function to extract location from Eventbrite event data

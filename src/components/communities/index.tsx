@@ -17,20 +17,21 @@ import { useTheme } from "next-themes";
 
 // Randomized research areas list - stable across renders
 const RESEARCH_AREAS = [
-  "Biotechnology & Synthetic Biology",
+  "Biotech & Synthetic Biology",
   "Genetics & Genomics",
   "Healthcare & Medicine",
   "Longevity & Aging",
   "Biosecurity & Biodefense",
   "Neuroscience",
-  "Materials Science & Engineering",
+  "Materials Science",
   "Quantum Computing",
-  "Robotics & AI",
+  "Robotics",
   "Nanotechnology",
   "Space & Astronomy",
   "Neurotechnology",
   "Climate & Atmospheric Science",
   "Renewable Energy",
+  "Deep Tech",
   "Ocean & Marine Science",
   "Conservation Biology",
   "Agriculture & Food Systems",
@@ -145,6 +146,7 @@ function ClientCommunitiesPage({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"list" | "map">("list");
 
   useEffect(() => {
@@ -182,6 +184,7 @@ function ClientCommunitiesPage({
           query: searchQuery,
           communityType: selectedCategory,
           location: selectedLocation,
+          researchAreas: selectedResearchAreas,
         });
         setCommunities(data);
       } catch (error) {
@@ -192,14 +195,25 @@ function ClientCommunitiesPage({
     };
 
     // Only apply filters if any are set, otherwise use the default fetch
-    if (searchQuery || selectedLocation || selectedCategory) {
+    if (
+      searchQuery ||
+      selectedLocation ||
+      selectedCategory ||
+      selectedResearchAreas.length > 0
+    ) {
       fetchFilteredCommunities();
     } else if (initialCommunities.length > 0) {
       // Reset to initial communities when filters are cleared
       setCommunities(initialCommunities);
       setLoading(false);
     }
-  }, [searchQuery, selectedLocation, selectedCategory, initialCommunities]);
+  }, [
+    searchQuery,
+    selectedLocation,
+    selectedCategory,
+    selectedResearchAreas,
+    initialCommunities,
+  ]);
 
   const handleCommunitySelect = (community: LegacyCommunity) => {
     console.log("Selected community:", community);
@@ -273,6 +287,8 @@ function ClientCommunitiesPage({
               onLocationChange={setSelectedLocation}
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
+              selectedResearchAreas={selectedResearchAreas}
+              onResearchAreasChange={setSelectedResearchAreas}
               selectedDate={null}
               onDateChange={() => {}}
             />

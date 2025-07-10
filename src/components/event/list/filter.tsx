@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getUniqueLocations, getUniqueCategories } from "@/lib/events";
+import { useState, useEffect, useRef } from "react";
+import { getUniqueLocations, getUniqueAIEventTypes, getUniqueAIInterestAreas } from "@/lib/events";
+import { EVENT_TYPES } from "@/lib/event-categorizer";
 
 interface EventFilterProps {
   searchQuery: string;
@@ -10,6 +11,8 @@ interface EventFilterProps {
   onLocationChange: (location: string) => void;
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  selectedInterestAreas?: string[];
+  onInterestAreasChange?: (areas: string[]) => void;
   selectedDate?: Date | null;
   onDateChange: (date: Date | null) => void;
   refreshTrigger?: number; // Optional prop to trigger refresh of filter options
@@ -23,6 +26,8 @@ export default function EventFilter({
   onLocationChange,
   selectedCategory,
   onCategoryChange,
+  selectedInterestAreas = [],
+  onInterestAreasChange,
   selectedDate,
   onDateChange,
   refreshTrigger,
@@ -30,13 +35,20 @@ export default function EventFilter({
 }: EventFilterProps) {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // June 2025
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(
     null
   );
   const [locations, setLocations] = useState<string[]>(["All Locations"]);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [interestAreas, setInterestAreas] = useState<string[]>([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const locationsRef = useRef<HTMLDivElement>(null);
+  const eventTypesRef = useRef<HTMLDivElement>(null);
+  const interestAreasRef = useRef<HTMLDivElement>(null);
 
   // Handle Cmd+K keyboard shortcut
   useEffect(() => {
@@ -57,30 +69,67 @@ export default function EventFilter({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Static event types
-  const staticEventTypes = [
-    "All Types",
-    "Hackathon",
-    "Workshop",
-    "Conference",
-    "Meetup",
-    "Webinar",
-  ];
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        openDropdown === "locations" &&
+        locationsRef.current &&
+        !locationsRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      } else if (
+        openDropdown === "eventTypes" &&
+        eventTypesRef.current &&
+        !eventTypesRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      } else if (
+        openDropdown === "interestAreas" &&
+        interestAreasRef.current &&
+        !interestAreasRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+    };
 
-  // Load dynamic filter options (cities only)
+    if (openDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openDropdown]);
+
+  // Load dynamic filter options (cities, AI event types, and interest areas)
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
         setIsLoadingFilters(true);
-        const uniqueCities = await getUniqueLocations();
+        
+        // Load cities, AI event types, and AI interest areas
+        const [uniqueCities, aiEventTypesFromDB, aiInterestAreasFromDB] = await Promise.all([
+          getUniqueLocations(),
+          getUniqueAIEventTypes(),
+          getUniqueAIInterestAreas()
+        ]);
 
         setLocations(["All Locations", ...uniqueCities]);
-        setEventTypes(staticEventTypes);
+        
+        // Use AI event types from database if available, fallback to predefined types
+        const availableEventTypes = aiEventTypesFromDB.length > 0 
+          ? aiEventTypesFromDB 
+          : EVENT_TYPES.slice(); // Remove 'as const' constraint
+          
+        setEventTypes(["All Types", ...availableEventTypes]);
+        setInterestAreas(aiInterestAreasFromDB);
       } catch (error) {
         console.error("Failed to load filter options:", error);
         // Fallback to static data if API fails
         setLocations(["All Locations", "London", "Glasgow", "Online"]);
-        setEventTypes(staticEventTypes);
+        setEventTypes(["All Types", ...EVENT_TYPES.slice()]);
+        setInterestAreas([]);
       } finally {
         setIsLoadingFilters(false);
       }
@@ -107,6 +156,11 @@ export default function EventFilter({
     }
   }, [selectedCategory]);
 
+  // Sync local state with parent props for interest areas
+  useEffect(() => {
+    setSelectedResearchAreas(selectedInterestAreas || []);
+  }, [selectedInterestAreas]);
+
   const toggleLocation = (location: string) => {
     if (location === "All Locations") {
       onLocationChange("");
@@ -128,6 +182,28 @@ export default function EventFilter({
       setSelectedEventTypes([eventType]);
       onCategoryChange(eventType);
     }
+  };
+
+  const toggleInterestArea = (area: string) => {
+    if (selectedResearchAreas.includes(area)) {
+      const updatedAreas = selectedResearchAreas.filter(a => a !== area);
+      setSelectedResearchAreas(updatedAreas);
+      onInterestAreasChange?.(updatedAreas);
+    } else {
+      const updatedAreas = [...selectedResearchAreas, area];
+      setSelectedResearchAreas(updatedAreas);
+      onInterestAreasChange?.(updatedAreas);
+    }
+  };
+
+  const toggleDropdown = (type: string) => {
+    setOpenDropdown(type);
+  };
+
+  const clearInterestAreas = () => {
+    setSelectedResearchAreas([]);
+    onInterestAreasChange?.([]);
+    setOpenDropdown(null);
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -247,6 +323,7 @@ export default function EventFilter({
         {(searchQuery ||
           selectedLocation ||
           selectedCategory ||
+          selectedResearchAreas.length > 0 ||
           selectedDate) && (
           <div className="bg-white/5 rounded-sm p-3 mb-4">
             <h4 className="text-sm font-medium text-primary-text/80 mb-2">
@@ -268,6 +345,14 @@ export default function EventFilter({
                   {selectedCategory}
                 </span>
               )}
+              {selectedResearchAreas.map((area) => (
+                <span
+                  key={area}
+                  className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full"
+                >
+                  {area}
+                </span>
+              ))}
               {selectedDate && (
                 <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   {selectedDate.toLocaleDateString("en-US", {
@@ -415,6 +500,159 @@ export default function EventFilter({
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Research Areas Dropdown */}
+        <div className="relative" ref={interestAreasRef}>
+          <button
+            onClick={() => toggleDropdown("interestAreas")}
+            className={`w-full bg-secondary-bg border text-primary-text/80 px-4 py-3 rounded-md hover:bg-white/5 transition-colors flex items-center justify-between ${
+              selectedResearchAreas.length > 0 ? 'border-blue-500/50' : 'border-white/10'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              Research Area
+              {selectedResearchAreas.length > 0 && (
+                <span className="bg-blue-500/20 text-blue-300 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {selectedResearchAreas.length}
+                </span>
+              )}
+            </span>
+            <svg
+              className="w-4 h-4 text-primary-text/40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {openDropdown === "interestAreas" && (
+            <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-md shadow-lg w-full max-h-72 overflow-y-auto z-10 p-2">
+              <div className="flex justify-between items-center p-2 border-b border-white/10 mb-2">
+                <h4 className="font-semibold">Select Areas</h4>
+                {selectedResearchAreas.length > 0 && (
+                  <button 
+                    onClick={clearInterestAreas}
+                    className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              {isLoadingFilters ? (
+                <div className="p-4 text-center text-primary-text/60">
+                  Loading...
+                </div>
+              ) : (
+                interestAreas.map((area) => (
+                  <button
+                    key={area}
+                    onClick={() => toggleInterestArea(area)}
+                    className={`w-full text-left px-3 py-2.5 text-sm hover:bg-white/10 transition-colors rounded-md flex items-center gap-3 ${
+                      selectedResearchAreas.includes(area)
+                        ? "text-blue-300"
+                        : ""
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-sm border-2 flex-shrink-0 ${
+                        selectedResearchAreas.includes(area)
+                          ? "bg-blue-500 border-blue-500"
+                          : "border-white/20"
+                      }`}
+                    >
+                      {selectedResearchAreas.includes(area) && (
+                        <svg
+                          className="w-full h-full text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span>{area}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Date Filter */}
+        <div className="bg-secondary-bg border border-white/10 rounded-md p-4">
+          <h3 className="text-lg font-medium font-display mb-2">Date</h3>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigateMonth(-1)}
+              className="p-2 hover:bg-white/10 rounded-sm transition-colors"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <span className="text-lg font-medium font-display">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </span>
+            <button
+              onClick={() => navigateMonth(1)}
+              className="p-2 hover:bg-white/10 rounded-sm transition-colors"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 mt-4">
+            {renderCalendar()}
+          </div>
+
+          {selectedDate && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => {
+                  setSelectedCalendarDay(null);
+                  onDateChange(null);
+                }}
+                className="text-sm text-primary-text/60 hover:text-primary-text transition-colors"
+              >
+                Clear date filter
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
