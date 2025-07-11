@@ -148,7 +148,7 @@ export function EventCard({
           {/* Hero Image Side - Always show with DiceBear patterns */}
           <div className="p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
             {/* Starred indicator */}
-            {!event.is_starred && (
+            {event.is_starred && (
               <div className="absolute top-[5px] -right-2 z-10">
                 <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
                   <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
@@ -157,7 +157,7 @@ export function EventCard({
             )}
             <div
               className={`rounded-lg overflow-hidden h-full p-[2px] ${
-                !event.is_starred
+                event.is_starred
                   ? "bg-gradient-to-r from-yellow-400 to-amber-500"
                   : ""
               }`}

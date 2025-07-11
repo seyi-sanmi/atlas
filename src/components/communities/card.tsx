@@ -125,7 +125,7 @@ export function CommunityCard({
       {/* Hero Image Side - Always show with DiceBear patterns */}
       <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
         {/* Starred indicator */}
-        {!community.starred_on_website && (
+        {community.starred_on_website && (
           <div className="absolute top-[5px] -right-2 z-10">
             <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
               <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
@@ -135,7 +135,7 @@ export function CommunityCard({
 
         <div
           className={`rounded-lg overflow-hidden h-full p-[2px] ${
-            !community.starred_on_website
+            community.starred_on_website
               ? "bg-gradient-to-r from-yellow-400 to-amber-500"
               : ""
           }`}
