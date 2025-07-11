@@ -209,20 +209,21 @@ export default function CommunitiesFilter({
 
   return (
     <div className="text-primary-text">
-      <div className="max-w-6xl mx-auto space-y-4 font-sans">
-        {/* Search Input */}
-        <div className="flex justify-center">
-          <div className="relative w-full max-w-md">
+      <div className="max-w-6xl mx-auto font-sans">
+        {/* Search and Filters in Single Row */}
+        <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
+          {/* Search Input - Smaller */}
+          <div className="relative flex-shrink-0">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-primary-text/60" />
+              <Search className="h-4 w-4 text-primary-text/60" />
             </div>
             <input
               id="communities-search-input"
               type="text"
-              placeholder="Search communities... (⌘+K)"
+              placeholder="Search communities..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-white/10 backdrop-blur-sm text-primary-text placeholder-primary-text/60 border border-white/20 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#AE3813] focus:border-transparent"
+              className="w-60 pl-9 pr-9 py-3 bg-white/10 backdrop-blur-sm text-primary-text placeholder-primary-text/60 border border-white/20 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#AE3813] focus:border-transparent text-sm"
             />
             {searchQuery && (
               <button
@@ -233,10 +234,7 @@ export default function CommunitiesFilter({
               </button>
             )}
           </div>
-        </div>
 
-        {/* Filter Dropdowns */}
-        <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
           {/* Locations Dropdown */}
           <div className="relative z-[9999999]" ref={locationsRef}>
             <button
@@ -447,13 +445,10 @@ export default function CommunitiesFilter({
           )}
         </div>
 
-        {/* Active Filters Indicator */}
+        {/* Active Filters Indicator - Compact */}
         {(searchQuery || selectedLocation || selectedCategory || selectedResearchAreas.length > 0) && (
-          <div className="rounded-sm p-0">
-            <h4 className="text-sm font-medium text-primary-text/80 mb-2 flex justify-center items-center">
-              Active Filters:
-            </h4>
-            <div className="flex flex-wrap justify-center gap-1 text-xs">
+          <div className="mt-3 text-center">
+            <div className="inline-flex flex-wrap gap-2 text-xs">
               {searchQuery && (
                 <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">
                   Search: "{searchQuery}"

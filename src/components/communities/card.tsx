@@ -10,44 +10,7 @@ import {
   Building,
   Mail,
 } from "lucide-react";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-
-interface Community {
-  name: string;
-  communityType: string;
-  geographicLocations: string;
-  academicAssociation: string | null;
-  websiteUrl: string;
-  researchAreas: string;
-  contact: string;
-  communityLinkedIn: string | null;
-  size: string;
-  contactEmail: string;
-  contactLinkedIn: string | null;
-  purpose: string;
-  selectionProcessForMembers: string;
-  memberLocations: string;
-  communityTarget: string;
-  memberCommunication: string;
-  meetingFrequency: string;
-  meetingLocation: string;
-  leadershipChangeFrequency: string;
-  communityInterestAreas: string;
-  communityInformation: string;
-  secondaryCommunityContact: string;
-  secondaryContactEmail: string;
-  secondaryContactLinkedIn: string | null;
-  is_starred?: boolean;
-}
+import { Community } from "@/lib/supabase";
 
 interface CommunityCardProps {
   community: Community;
@@ -98,26 +61,19 @@ const generateLightHeroPattern = (
   communityIndex: number = 0
 ) => {
   // Create a hash from community properties for consistent selection
-  const hash = (
-    community.name +
-    community.communityType +
-    (community.websiteUrl || "")
-  )
+  const seed = community.name
     .split("")
-    .reduce((acc, char) => {
-      return char.charCodeAt(0) + ((acc << 5) - acc);
-    }, 0);
-
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  
   // Use hash to select base color, but offset by index to avoid consecutive duplicates
-  const baseColorIndex = Math.abs(hash) % lightColors.length;
-  const offsetColorIndex =
-    (baseColorIndex + communityIndex) % lightColors.length;
+  const baseColorIndex = Math.abs(seed) % lightColors.length;
+  const offsetColorIndex = (baseColorIndex + communityIndex) % lightColors.length;
 
   const selectedColor = lightColors[offsetColorIndex];
-  const seed = `${community.name}-${community.communityType}-light`;
+  const seedString = `${community.name}-community-light`;
 
   return `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(
-    seed
+    seedString
   )}&backgroundColor=${selectedColor}&scale=120`;
 };
 
@@ -139,407 +95,128 @@ export function CommunityCard({
 
   const getRoundingClasses = () => {
     if (isFirstInGroup && isLastInGroup) {
-      return "rounded-lg rounded-tl-none";
+      return "rounded-lg";
     } else if (isFirstInGroup) {
-      return "rounded-t-lg rounded-b-none rounded-tl-lg";
+      return "rounded-t-lg";
     } else if (isLastInGroup) {
-      return "rounded-b-lg rounded-t-none";
-    } else {
-      return "rounded-none border-t-0";
+      return "rounded-b-lg";
     }
+    return "";
   };
 
   // Generate community type initials for display
   const getTypeInitials = (type: string) => {
     return type
       .split(" ")
-      .map((word) => word.charAt(0))
+      .map((word) => word[0])
       .join("")
       .toUpperCase()
-      .slice(0, 3);
+      .slice(0, 2);
   };
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <div
+      onClick={handleClick}
+      className={` group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
+      tabIndex={0}
+      role="button"
+      aria-label={`View details for ${community.name}`}
+    >
+      {/* Hero Image Side - Always show with DiceBear patterns */}
+      <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
+        {/* Starred indicator */}
+        {!community.starred_on_website && (
+          <div className="absolute top-[5px] -right-2 z-10">
+            <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
+              <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
+            </div>
+          </div>
+        )}
+
         <div
-          onClick={handleClick}
-          className={` group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
-          tabIndex={0}
-          role="button"
-          aria-label={`View details for ${community.name}`}
+          className={`rounded-lg overflow-hidden h-full p-[2px] ${
+            !community.starred_on_website
+              ? "bg-gradient-to-r from-yellow-400 to-amber-500"
+              : ""
+          }`}
         >
-          {/* Hero Image Side - Always show with DiceBear patterns */}
-          <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
-            {/* Starred indicator */}
-            {!community.is_starred && (
-              <div className="absolute top-[5px] -right-2 z-10">
-                <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
-                  <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
+          {" "}
+          <div
+            className={`z-0 w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
+              isSelected
+                ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
+                : ""
+            } ${isClicked ? "animate-ripple" : ""}`}
+            style={{
+              backgroundImage: `url("${generateLightHeroPattern(
+                community,
+                communityIndex
+              )}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
+
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-base sm:text-lg text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight">
+                  {community.name}
                 </div>
-              </div>
-            )}
-
-            <div
-              className={`rounded-lg overflow-hidden h-full p-[2px] ${
-                !community.is_starred
-                  ? "bg-gradient-to-r from-yellow-400 to-amber-500"
-                  : ""
-              }`}
-            >
-              {" "}
-              <div
-                className={`z-0 w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
-                  isSelected
-                    ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
-                    : ""
-                } ${isClicked ? "animate-ripple" : ""}`}
-                style={{
-                  backgroundImage: `url("${generateLightHeroPattern(
-                    community,
-                    communityIndex
-                  )}")`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              >
-                <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
-
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-base sm:text-lg text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight">
-                      {community.name}
-                    </div>
-                    <div className="text-xs mx-auto text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
-                      {community.size}
-                    </div>
-                    <div className="text-xs text-primary-text/60 font-medium">
-                      Members
-                    </div>
-                  </div>
+                <div className="text-xs mx-auto text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
+                  {community.size}
+                </div>
+                <div className="text-xs text-primary-text/60 font-medium">
+                  Members
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Content Side */}
-          <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-2 flex flex-col justify-between min-w-0">
-            {/* <h3 className="font-display font-medium text-lg sm:text-2xl text-secondary-text tracking-tight leading-tight line-clamp-2">
-              {community.name}
-            </h3> */}
-
-            {/* Meta Col */}
-            <div className="flex flex-col gap-2 text-sm text-primary-text/60">
-              <div className="flex items-center gap-1.5">
-                <Building className="w-4 h-4" />
-                <span className="font-sans">{community.communityType}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4" />
-                <span className="font-sans truncate">
-                  {community.geographicLocations}
-                </span>
-              </div>
-            </div>
-
-            {/* Description Preview */}
-            <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-2 transition-all duration-300">
-              {community.purpose}
-            </p>
-
-            {/* Contact */}
-            <div className="flex items-center gap-2 text-primary-text/60">
-              <Users className="w-4 h-4" />
-              <span className="font-sans text-sm truncate">
-                {community.contact}
-              </span>
-            </div>
-
-            {/* View Details Link */}
-            <div className="transition-opacity duration-300 pt-0">
-              <div className="font-sans text-sm bg-gradient-to-r from-white/20 to-white/40 group-hover:from-[#AE3813] group-hover:to-[#D45E3C] bg-clip-text text-transparent hover:underline hover:decoration-2 hover:underline-offset-2 transition-all duration-150 hover:animate-underline-sweep cursor-pointer">
-                View Details →
-              </div>
-            </div>
-          </div>
-
-          {/* Ripple Effect Overlay */}
-          {isClicked && (
-            <div className="absolute inset-0 bg-gradient-to-r from-[#AE3813]/20 to-[#D45E3C]/20 animate-ripple-fade pointer-events-none" />
-          )}
         </div>
-      </SheetTrigger>
+      </div>
 
-      <SheetContent className="w-full sm:max-w-lg">
-        <div className="flex flex-col h-full">
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <SheetHeader>
-              <SheetTitle>{community.name}</SheetTitle>
-
-              {/* Community Type Subheader */}
-              <div className="text-sm text-primary-text/70 font-medium mt-1">
-                {community.communityType}
-              </div>
-
-              {/* Academic Association Subheader (conditional) */}
-              {community.academicAssociation && (
-                <div className="text-sm text-primary-text/60 font-medium mt-1">
-                  {community.academicAssociation}
-                </div>
-              )}
-
-              <div>
-                <div className="flex flex-col gap-4 mt-2">
-                  {/* Community Image */}
-                  <div className="w-full h-48 object-cover rounded-lg shadow-lg mb-2">
-                    <div className="rounded-lg overflow-hidden h-full">
-                      <div
-                        className="w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.4)] "
-                        style={{
-                          backgroundImage: `url("${generateLightHeroPattern(
-                            community,
-                            communityIndex
-                          )}")`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center center",
-                          backgroundRepeat: "no-repeat",
-                        }}
-                      >
-                        <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-lg sm:text-xl max-w-sm font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight">
-                              {community.name}
-                            </div>
-                            <div className="text-xs text-primary-text/80 font-medium uppercase tracking-wider mt-1">
-                              {community.size}
-                            </div>
-                            <div className="text-xs text-primary-text/60 font-medium">
-                              Members
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Community Details Grid */}
-                  <div className="grid gap-3">
-                    {/* Meeting Info */}
-                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
-                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                        <Clock className="w-4 h-4 text-[#D45E3C]" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
-                          Meeting Frequency
-                        </span>
-                        <span className="font-sans text-sm text-primary-text/90">
-                          {community.meetingFrequency}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Location */}
-                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
-                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                        <MapPin className="w-4 h-4 text-[#D45E3C]" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
-                          Location
-                        </span>
-                        <span className="font-sans text-sm text-primary-text/90">
-                          {community.geographicLocations}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Community Size */}
-                    <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
-                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                        <Users className="w-4 h-4 text-[#D45E3C]" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
-                          Community Size
-                        </span>
-                        <span className="font-sans text-sm text-primary-text/90">
-                          {community.size}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Community LinkedIn */}
-                    {community.communityLinkedIn && (
-                      <div className="flex items-center gap-3 p-3 bg-secondary-bg/60 rounded-lg border border-white/5 hover:border-[#D45E3C]/30 transition-colors duration-200">
-                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#AE3813]/20 to-[#D45E3C]/20 rounded-full">
-                          <Globe className="w-4 h-4 text-[#D45E3C]" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-xs text-primary-text/40 font-medium uppercase tracking-wide">
-                            LinkedIn
-                          </span>
-                          <a
-                            href={community.communityLinkedIn}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-sans text-sm text-[#D45E3C] hover:text-[#AE3813] transition-colors duration-200"
-                          >
-                            View LinkedIn Profile
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* About Section */}
-                  <div className="mt-2 rounded-lg">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                      <h4 className="font-semibold font-display text-secondary-text text-base">
-                        About this Community
-                      </h4>
-                    </div>
-                    <p className="font-sans text-primary-text/80 leading-relaxed whitespace-pre-line text-sm">
-                      {community.purpose}
-                    </p>
-                  </div>
-
-                  {/* Selection Process */}
-                  {community.selectionProcessForMembers && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Selection Process
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
-                        {community.selectionProcessForMembers}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Who Can Join */}
-                  {community.communityTarget && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Who can join
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
-                        {community.communityTarget}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Member Locations */}
-                  {community.memberLocations && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Members are located in:
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
-                        {community.memberLocations}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Meeting Location */}
-                  {community.meetingLocation && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Meetings held
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
-                        {community.meetingLocation}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Research Areas */}
-                  {community.researchAreas && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Research Areas
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
-                        {community.researchAreas}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Community Information */}
-                  {community.communityInformation && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          To learn more about this community:
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed text-sm">
-                        {community.communityInformation}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </SheetHeader>
+      {/* Content Side */}
+      <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-2 flex flex-col justify-between min-w-0">
+        {/* Meta Col */}
+        <div className="flex flex-col gap-2 text-sm text-primary-text/60">
+          <div className="flex items-center gap-1.5">
+            <Building className="w-4 h-4" />
+            <span className="font-sans">{community.community_type?.join(", ")}</span>
           </div>
-
-          {/* Fixed Footer */}
-          <SheetFooter>
-            <button
-              className={`sm:px-4 px-4 pr-1 py-3 text-primary-text font-medium font-sans rounded-md transition-all duration-200 flex items-center justify-between gap-2 ${
-                community.websiteUrl || community.communityLinkedIn
-                  ? "bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer"
-                  : "bg-gray-600 cursor-not-allowed opacity-50"
-              }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const linkToOpen =
-                  community.websiteUrl || community.communityLinkedIn;
-                if (linkToOpen) {
-                  window.open(linkToOpen, "_blank", "noopener,noreferrer");
-                }
-              }}
-              disabled={!community.websiteUrl && !community.communityLinkedIn}
-              title={
-                community.websiteUrl
-                  ? "Open community website"
-                  : community.communityLinkedIn
-                  ? "Open community LinkedIn"
-                  : "No website or LinkedIn available"
-              }
-            >
-              <span>
-                {community.websiteUrl
-                  ? "Visit Website"
-                  : community.communityLinkedIn
-                  ? "Visit LinkedIn"
-                  : "No Link Available"}
-              </span>
-              <ArrowRightIcon className="w-6 h-6 text-primary-text" />
-            </button>
-          </SheetFooter>
+          <div className="flex items-center gap-1.5">
+            <MapPin className="w-4 h-4" />
+            <span className="font-sans truncate">
+              {community.location_names?.join(", ")}
+            </span>
+          </div>
         </div>
-      </SheetContent>
-    </Sheet>
+
+        {/* Description Preview */}
+        <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-2 transition-all duration-300">
+          {community.purpose}
+        </p>
+
+        {/* Contact */}
+        <div className="flex items-center gap-2 text-primary-text/60">
+          <Users className="w-4 h-4" />
+          <span className="font-sans text-sm truncate">
+            {community.target_members}
+          </span>
+        </div>
+
+        {/* View Details Link */}
+        <div className="transition-opacity duration-300 pt-0">
+          <div className="font-sans text-sm bg-gradient-to-r from-white/20 to-white/40 group-hover:from-[#AE3813] group-hover:to-[#D45E3C] bg-clip-text text-transparent hover:underline hover:decoration-2 hover:underline-offset-2 transition-all duration-150 hover:animate-underline-sweep cursor-pointer">
+            View Details →
+          </div>
+        </div>
+      </div>
+
+      {/* Ripple Effect Overlay */}
+      {isClicked && (
+        <div className="absolute inset-0 bg-gradient-to-r from-[#AE3813]/20 to-[#D45E3C]/20 animate-ripple-fade pointer-events-none" />
+      )}
+    </div>
   );
 }
