@@ -502,157 +502,31 @@ export default function EventFilter({
           </div>
         </div>
 
-        {/* Research Areas Dropdown */}
-        <div className="relative" ref={interestAreasRef}>
-          <button
-            onClick={() => toggleDropdown("interestAreas")}
-            className={`w-full bg-secondary-bg border text-primary-text/80 px-4 py-3 rounded-md hover:bg-white/5 transition-colors flex items-center justify-between ${
-              selectedResearchAreas.length > 0 ? 'border-blue-500/50' : 'border-white/10'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              Research Area
-              {selectedResearchAreas.length > 0 && (
-                <span className="bg-blue-500/20 text-blue-300 text-xs font-semibold px-2 py-0.5 rounded-full">
-                  {selectedResearchAreas.length}
-                </span>
-              )}
-            </span>
-            <svg
-              className="w-4 h-4 text-primary-text/40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          {openDropdown === "interestAreas" && (
-            <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-md shadow-lg w-full max-h-72 overflow-y-auto z-10 p-2">
-              <div className="flex justify-between items-center p-2 border-b border-white/10 mb-2">
-                <h4 className="font-semibold">Select Areas</h4>
-                {selectedResearchAreas.length > 0 && (
-                  <button 
-                    onClick={clearInterestAreas}
-                    className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
-                  >
-                    Clear
-                  </button>
-                )}
+        {/* Research Areas */}
+        <div className="space-y-3 pt-3">
+          <h3 className="text-lg font-medium font-display">Research Area</h3>
+          <div className="flex flex-wrap gap-2">
+            {isLoadingFilters ? (
+              <div className="flex items-center gap-2 text-primary-text/60">
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
+                <span className="text-sm">Loading areas...</span>
               </div>
-              {isLoadingFilters ? (
-                <div className="p-4 text-center text-primary-text/60">
-                  Loading...
-                </div>
-              ) : (
-                interestAreas.map((area) => (
-                  <button
-                    key={area}
-                    onClick={() => toggleInterestArea(area)}
-                    className={`w-full text-left px-3 py-2.5 text-sm hover:bg-white/10 transition-colors rounded-md flex items-center gap-3 ${
-                      selectedResearchAreas.includes(area)
-                        ? "text-blue-300"
-                        : ""
-                    }`}
-                  >
-                    <div
-                      className={`w-4 h-4 rounded-sm border-2 flex-shrink-0 ${
-                        selectedResearchAreas.includes(area)
-                          ? "bg-blue-500 border-blue-500"
-                          : "border-white/20"
-                      }`}
-                    >
-                      {selectedResearchAreas.includes(area) && (
-                        <svg
-                          className="w-full h-full text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
-                    </div>
-                    <span>{area}</span>
-                  </button>
-                ))
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Date Filter */}
-        <div className="bg-secondary-bg border border-white/10 rounded-md p-4">
-          <h3 className="text-lg font-medium font-display mb-2">Date</h3>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigateMonth(-1)}
-              className="p-2 hover:bg-white/10 rounded-sm transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <span className="text-lg font-medium font-display">
-              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-            </span>
-            <button
-              onClick={() => navigateMonth(1)}
-              className="p-2 hover:bg-white/10 rounded-sm transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+            ) : (
+              interestAreas.map((area) => (
+                <button
+                  key={area}
+                  onClick={() => toggleInterestArea(area)}
+                  className={`cursor-pointer px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedResearchAreas.includes(area)
+                      ? "bg-white text-black"
+                      : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
+                  }`}
+                >
+                  {area}
+                </button>
+              ))
+            )}
           </div>
-
-          <div className="grid grid-cols-7 gap-1 mt-4">
-            {renderCalendar()}
-          </div>
-
-          {selectedDate && (
-            <div className="flex justify-center pt-2">
-              <button
-                onClick={() => {
-                  setSelectedCalendarDay(null);
-                  onDateChange(null);
-                }}
-                className="text-sm text-primary-text/60 hover:text-primary-text transition-colors"
-              >
-                Clear date filter
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
