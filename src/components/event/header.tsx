@@ -13,6 +13,8 @@ import {
   Briefcase,
 } from "lucide-react";
 import { ImportEventModal } from "@/components/ImportEventModal";
+import { SignInButton } from "@/components/auth/SignInButton";
+import { UserMenu } from "@/components/auth/UserMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -147,6 +149,10 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline-block ">Add Event</span>
             </button>
+
+            {/* Authentication */}
+            <SignInButton />
+            <UserMenu />
           </div>
         </div>
       </div>
