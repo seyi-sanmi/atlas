@@ -151,6 +151,15 @@ function Hero() {
   const currentCityName = cityText;
 
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Compute background image only after mount
+  const backgroundImage = !mounted
+    ? undefined // SSR: don't set theme-dependent background
+    : theme == "dark"
+    ? `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`
+    : `linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6)), url('${cityImage}')`;
 
   return (
     <section className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">
@@ -160,16 +169,13 @@ function Hero() {
           className={`w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-2000 ease-in-out ${
             imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
           }`}
-          style={{
-            backgroundImage:
-              theme == "dark"
-                ? `linear-gradient(135deg, rgba(19, 19, 24, 0.8), rgba(30, 30, 37, 0.6)), url('${cityImage}')`
-                : `linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6)), url('${cityImage}')`,
-          }}
+          style={backgroundImage ? { backgroundImage } : {}}
         />
 
         {/* Animated Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent dark:to-[#131318] to-[#F0F0F0]" />
+        {mounted && (
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent dark:to-[#131318] to-[#F0F0F0]" />
+        )}
       </div>
 
       {/* Hero Content */}
@@ -223,15 +229,6 @@ function Hero() {
             />
           </a>
         </div>
-
-        {/* Time & Date Badge */}
-        {/* <div className="dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
-            <div className="flex items-center gap-4 text-primary-text/90">
-              <span className="font-mono text-lg font-semibold">{time}</span>
-              <div className="w-1 h-1 dark:bg-white/60 bg-black/60 rounded-full" />
-              <span className="text-sm font-medium">{date}</span>
-            </div>
-          </div> */}
       </div>
     </section>
   );

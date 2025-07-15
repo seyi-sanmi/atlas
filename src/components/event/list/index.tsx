@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { EventCard } from "./card";
 import { Event } from "@/lib/supabase";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -20,6 +20,16 @@ export function EventsList({
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     new Set()
   );
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Default colors for SSR to prevent hydration mismatch (using dark theme as default)
+  const fillColor = !mounted ? "#1E1E25" : theme === "dark" ? "#1E1E25" : "#ebebeb";
+  const strokeColor = !mounted ? "#565558" : theme === "dark" ? "#565558" : "#E0E0E0";
 
   // Group events by date and calculate global indices for color diversity
   const groupedEvents = useMemo(() => {
@@ -94,8 +104,6 @@ export function EventsList({
     );
   }
 
-  //
-  const { theme } = useTheme();
   return (
     <div className="w-full space-y-12">
       {groupedEvents.map(({ date, events: dateEvents }) => {
@@ -176,11 +184,11 @@ export function EventsList({
                     </mask>
                     <path
                       d="M0 1.02441H7.0783C14.772 1.02441 21.7836 5.43765 25.111 12.3746L33.8889 30.6743C37.2164 37.6112 44.228 42.0244 51.9217 42.0244H59H0L0 1.02441Z"
-                      fill={theme == "dark" ? "#1E1E25" : "#ebebeb"}
+                      fill={fillColor}
                     ></path>
                     <path
                       d="M0 1.02441L0 0.0244141H-1V1.02441H0ZM0 42.0244H-1V43.0244H0L0 42.0244ZM33.8889 30.6743L32.9873 31.1068L33.8889 30.6743ZM25.111 12.3746L26.0127 11.9421L25.111 12.3746ZM0 2.02441H7.0783V0.0244141H0L0 2.02441ZM59 41.0244H0L0 43.0244H59V41.0244ZM1 42.0244L1 1.02441H-1L-1 42.0244H1ZM24.2094 12.8071L32.9873 31.1068L34.7906 30.2418L26.0127 11.9421L24.2094 12.8071ZM51.9217 43.0244H59V41.0244H51.9217V43.0244ZM32.9873 31.1068C36.4811 38.3905 43.8433 43.0244 51.9217 43.0244V41.0244C44.6127 41.0244 37.9517 36.8318 34.7906 30.2418L32.9873 31.1068ZM7.0783 2.02441C14.3873 2.02441 21.0483 6.21699 24.2094 12.8071L26.0127 11.9421C22.5188 4.65831 15.1567 0.0244141 7.0783 0.0244141V2.02441Z"
-                      fill={theme == "dark" ? "#565558" : "#E0E0E0"}
+                      fill={strokeColor}
                       mask="url(#error_overlay_nav_path_3_outside_2_2667_14687)"
                     ></path>
                   </g>
@@ -226,3 +234,4 @@ export function EventsList({
     </div>
   );
 }
+

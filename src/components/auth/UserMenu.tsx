@@ -3,16 +3,18 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { LogOut, User, ChevronDown, Settings } from 'lucide-react'
+import Link from 'next/link'
 
 export function UserMenu() {
   const { user, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  if (!user) return null
-
-  // Close menu when clicking outside
+  // Move useEffect before any conditional returns to follow Rules of Hooks
   useEffect(() => {
+    // Only add event listener if menu is open
+    if (!isOpen) return
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false)
@@ -21,7 +23,10 @@ export function UserMenu() {
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [isOpen]) // Add isOpen as dependency
+
+  // Conditional return after all hooks
+  if (!user) return null
 
   const handleSignOut = async () => {
     try {
@@ -73,16 +78,14 @@ export function UserMenu() {
           
           {/* Menu Items */}
           <div className="py-1">
-            <button
-              onClick={() => {
-                // TODO: Open profile/settings
-                setIsOpen(false)
-              }}
+            <Link
+              href="/profile"
+              onClick={() => setIsOpen(false)}
               className="w-full flex items-center px-4 py-2 text-sm text-primary-text hover:bg-white/10 transition-colors"
             >
               <Settings className="w-4 h-4 mr-3" />
               Profile Settings
-            </button>
+            </Link>
             
             <button
               onClick={handleSignOut}

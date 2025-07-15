@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 
 import {
   DropdownMenu,
@@ -13,6 +14,21 @@ import {
 
 export function ModeToggle() {
   const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Only render theme-dependent content after mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Return null or placeholder during SSR and initial client render
+  if (!mounted) {
+    return (
+      <button className="w-6 h-6">
+        <span className="sr-only">Loading theme toggle</span>
+      </button>
+    );
+  }
 
   return (
     <DropdownMenu>

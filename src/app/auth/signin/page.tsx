@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2, Mail, Linkedin, Chrome, ArrowLeft, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function SignInPage() {
+function SignInContent() {
   const { signInWithGoogle, signInWithLinkedIn, signInWithEmail, signUpWithEmail, user } = useAuth()
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
@@ -288,5 +288,20 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-primary-bg flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span className="text-primary-text">Loading...</span>
+        </div>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 } 
