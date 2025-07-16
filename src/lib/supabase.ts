@@ -52,5 +52,7 @@ export type Event = {
   ai_excitement_hook: string;
   ai_summarized: boolean;
   ai_summarized_at: string;
+  is_starred?: boolean;
+  is_featured?: boolean;
   // Removing luma_synced, luma_sync_url, luma_sync_date fields
 }; 
