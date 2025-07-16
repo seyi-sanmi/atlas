@@ -265,3 +265,77 @@ export async function searchEventsForAdmin(options: {
 
   return data || []
 } 
+
+/**
+ * Toggle event starred state
+ */
+export async function toggleEventStarred(eventId: string): Promise<void> {
+  // First get current state
+  const { data: currentEvent, error: fetchError } = await supabase
+    .from('events')
+    .select('is_starred')
+    .eq('id', eventId)
+    .single()
+
+  if (fetchError) {
+    console.error('Error fetching event:', fetchError)
+    throw fetchError
+  }
+
+  // Toggle the state
+  const { error: updateError } = await supabase
+    .from('events')
+    .update({
+      is_starred: !currentEvent?.is_starred,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', eventId)
+
+  if (updateError) {
+    console.error('Error updating event starred state:', updateError)
+    throw updateError
+  }
+
+  // Log admin action
+  await logAdminAction('toggle_event_starred', { 
+    event_id: eventId,
+    new_state: !currentEvent?.is_starred
+  })
+}
+
+/**
+ * Toggle event featured state
+ */
+export async function toggleEventFeatured(eventId: string): Promise<void> {
+  // First get current state
+  const { data: currentEvent, error: fetchError } = await supabase
+    .from('events')
+    .select('is_featured')
+    .eq('id', eventId)
+    .single()
+
+  if (fetchError) {
+    console.error('Error fetching event:', fetchError)
+    throw fetchError
+  }
+
+  // Toggle the state
+  const { error: updateError } = await supabase
+    .from('events')
+    .update({
+      is_featured: !currentEvent?.is_featured,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', eventId)
+
+  if (updateError) {
+    console.error('Error updating event featured state:', updateError)
+    throw updateError
+  }
+
+  // Log admin action
+  await logAdminAction('toggle_event_featured', { 
+    event_id: eventId,
+    new_state: !currentEvent?.is_featured
+  })
+} 
