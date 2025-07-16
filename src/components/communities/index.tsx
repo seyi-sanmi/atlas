@@ -11,6 +11,7 @@ import PartnersHero from "../hero/partners";
 import { useTheme } from "next-themes";
 import { Header } from "../event/header";
 import CommunityDetailPane from "./detail-pane";
+import { X } from "lucide-react";
 
 // Randomized research areas list - stable across renders
 const RESEARCH_AREAS = [
@@ -146,6 +147,14 @@ function ClientCommunitiesPage({
     setSelectedCommunity(null);
   };
 
+  const handleTagClick = (tagType: 'communityType' | 'location', value: string) => {
+    if (tagType === 'communityType') {
+      setSelectedCategory(prev => prev === value ? "" : value);
+    } else if (tagType === 'location') {
+      setSelectedLocation(prev => prev === value ? "" : value);
+    }
+  };
+
   const { theme } = useTheme();
   return (
     <div className="min-h-screen w-full bg-primary-bg text-gray-100 font-sans">
@@ -178,8 +187,8 @@ function ClientCommunitiesPage({
             />
           </div>
           
-          {/* Conditional Layout: Both views sticky below filter */}
-          <div className="transition-all duration-700 ease-in-out">
+          {/* Desktop Layout: Split-pane view when community is selected */}
+          <div className="hidden md:block transition-all duration-700 ease-in-out">
             {!selectedCommunity ? (
               /* Grid View - Sticky below filter bar */
               <div className="sticky top-[calc(var(--header-height)+var(--filter-height))] bg-secondary-bg border border-primary-border rounded-lg overflow-hidden mt-4 h-[var(--content-height)] animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
@@ -200,6 +209,9 @@ function ClientCommunitiesPage({
                             onClick={() => handleCommunitySelect(community)}
                             isSelected={false}
                             communityIndex={communityIndex}
+                            onTagClick={handleTagClick}
+                            selectedCommunityTypes={selectedCategory ? [selectedCategory] : []}
+                            selectedLocations={selectedLocation ? [selectedLocation] : []}
                           />
                         ))}
                       </div>
@@ -241,6 +253,9 @@ function ClientCommunitiesPage({
                                 selectedCommunity?.name === community.name
                               }
                               communityIndex={communityIndex}
+                              onTagClick={handleTagClick}
+                              selectedCommunityTypes={selectedCategory ? [selectedCategory] : []}
+                              selectedLocations={selectedLocation ? [selectedLocation] : []}
                             />
                           ))}
                         </div>
@@ -260,11 +275,83 @@ function ClientCommunitiesPage({
                 </div>
 
                 {/* Right Pane: Community Details - Sticky within container */}
-                <div className="hidden md:block h-[var(--content-height)] border-l border-primary-border bg-secondary-bg overflow-hidden">
+                <div className="h-[var(--content-height)] border-l border-primary-border bg-secondary-bg overflow-hidden">
                   <CommunityDetailPane
                     community={selectedCommunity}
                     onClose={handleCloseDetailPane}
                   />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Layout: Always show grid, detail view as full-screen overlay */}
+          <div className="md:hidden">
+            {/* Grid View - Always visible on mobile */}
+            <div className="bg-secondary-bg border border-primary-border rounded-lg overflow-hidden mt-4">
+              <div className="p-4 overflow-y-auto">
+                <div className="w-full">
+                  {loading ? (
+                    <div className="text-center py-16">
+                      <div className="text-primary-text/60 text-lg font-medium mb-2">
+                        Loading communities...
+                      </div>
+                    </div>
+                  ) : communities.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      {communities.map((community, communityIndex) => (
+                        <CommunityCard
+                          key={community.name || communityIndex}
+                          community={community}
+                          onClick={() => handleCommunitySelect(community)}
+                          isSelected={false}
+                          communityIndex={communityIndex}
+                          onTagClick={handleTagClick}
+                          selectedCommunityTypes={selectedCategory ? [selectedCategory] : []}
+                          selectedLocations={selectedLocation ? [selectedLocation] : []}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <div className="text-primary-text/60 text-lg font-medium mb-2">
+                        No communities found
+                      </div>
+                      <div className="text-primary-text/40 text-sm">
+                        Check back later for new communities or clear your filters.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Detail Overlay */}
+            {selectedCommunity && (
+              <div className="fixed inset-0 z-[100] bg-primary-bg">
+                <div className="h-full flex flex-col pt-[var(--header-height)]">
+                  {/* Mobile Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-primary-border bg-secondary-bg flex-shrink-0">
+                    <h2 className="font-bold text-lg text-primary-text">
+                      {selectedCommunity.name}
+                    </h2>
+                    <button
+                      onClick={handleCloseDetailPane}
+                      className="p-2 rounded-full hover:bg-primary-bg transition-colors"
+                      aria-label="Close details"
+                    >
+                      <X className="w-6 h-6 text-primary-text/80" />
+                    </button>
+                  </div>
+
+                  {/* Mobile Detail Content */}
+                  <div className="flex-1 overflow-y-auto">
+                    <CommunityDetailPane
+                      community={selectedCommunity}
+                      onClose={handleCloseDetailPane}
+                      showHeader={false}
+                    />
+                  </div>
                 </div>
               </div>
             )}

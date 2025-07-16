@@ -15,6 +15,7 @@
     "@radix-ui/react-popover": "^1.1.14",
     "@sentry/nextjs": "^9.38.0",
     "@supabase/supabase-js": "^2.50.0",
+    "@types/puppeteer": "^5.4.7",
     "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -25,7 +26,7 @@
     "next-themes": "^0.4.6",
     "openai": "^5.8.4",
     "playwright-core": "^1.53.1",
-    "puppeteer": "^24.10.2",
+    "puppeteer": "^24.13.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.1"

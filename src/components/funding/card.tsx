@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { addUtmParameters } from "@/lib/utils";
 
 interface FundingOpportunity {
   name: string;
@@ -435,8 +436,9 @@ export function EventCard({
                 e.preventDefault();
                 e.stopPropagation();
                 if (funding.applicationLink) {
+                  const urlWithUtm = addUtmParameters(funding.applicationLink);
                   window.open(
-                    funding.applicationLink,
+                    urlWithUtm,
                     "_blank",
                     "noopener,noreferrer"
                   );

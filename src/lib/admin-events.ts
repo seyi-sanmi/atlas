@@ -114,8 +114,8 @@ export async function reScrapeEvent(eventId: string): Promise<EventWithAnalytics
   }
 
   try {
-    // Use the existing import function to re-scrape
-    const importResult = await importEvent(currentEvent.url)
+    // Use the existing import function to re-scrape with force update
+    const importResult = await importEvent(currentEvent.url, true)
     
     if (!importResult.success || !importResult.event) {
       throw new Error(importResult.error || 'Failed to re-scrape event')

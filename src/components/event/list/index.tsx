@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { EventCard } from "./card";
+import { FeaturedEventCard } from "./featured-card";
 import { Event } from "@/lib/supabase";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Pause, Play } from "lucide-react";
 import { useTheme } from "next-themes";
 
 interface EventsListProps {
@@ -9,6 +10,9 @@ interface EventsListProps {
   onEventSelect: (event: Event) => void;
   selectedEvent: Event | null;
   loading?: boolean;
+  onTagClick?: (tagType: 'interest' | 'eventType', value: string) => void;
+  selectedInterestAreas?: string[];
+  selectedEventTypes?: string[];
 }
 
 export function EventsList({
@@ -16,16 +20,40 @@ export function EventsList({
   onEventSelect,
   selectedEvent,
   loading = false,
+  onTagClick,
+  selectedInterestAreas = [],
+  selectedEventTypes = [],
 }: EventsListProps) {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     new Set()
   );
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [featuredEventIndex, setFeaturedEventIndex] = useState(0);
+  const [isRotationPaused, setIsRotationPaused] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Get starred/featured events
+  const starredEvents = useMemo(() => {
+    return events.filter(event => event.is_starred || event.is_featured);
+  }, [events]);
+
+  // Rotate featured event every 30 seconds
+  useEffect(() => {
+    if (starredEvents.length <= 1 || isRotationPaused) return;
+
+    const interval = setInterval(() => {
+      setFeaturedEventIndex(prev => (prev + 1) % starredEvents.length);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [starredEvents.length, isRotationPaused]);
+
+  // Get current featured event
+  const currentFeaturedEvent = starredEvents[featuredEventIndex];
 
   // Default colors for SSR to prevent hydration mismatch (using dark theme as default)
   const fillColor = !mounted ? "#1E1E25" : theme === "dark" ? "#1E1E25" : "#ebebeb";
@@ -106,6 +134,61 @@ export function EventsList({
 
   return (
     <div className="w-full space-y-12">
+      {/* Featured Event - Integrated seamlessly */}
+      {currentFeaturedEvent && (
+        <div className="mb-6">
+                      <div className={`${starredEvents.length > 1 && !isRotationPaused ? 'featured-event-rotate' : ''}`}>
+              <FeaturedEventCard
+                date={currentFeaturedEvent.date}
+                event={currentFeaturedEvent}
+                onClick={() => onEventSelect(currentFeaturedEvent)}
+                isSelected={selectedEvent?.id === currentFeaturedEvent.id}
+                eventIndex={featuredEventIndex}
+                onPrevious={() => setFeaturedEventIndex(prev => prev === 0 ? starredEvents.length - 1 : prev - 1)}
+                onNext={() => setFeaturedEventIndex(prev => (prev + 1) % starredEvents.length)}
+                hasMultiple={starredEvents.length > 1}
+                onTagClick={onTagClick}
+                selectedInterestAreas={selectedInterestAreas}
+                selectedEventTypes={selectedEventTypes}
+              />
+            </div>
+          
+          {/* Navigation dots and controls for multiple featured events */}
+          {starredEvents.length > 1 && (
+            <div className="flex flex-col items-center gap-3 mt-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsRotationPaused(!isRotationPaused)}
+                  className="p-2 rounded-full bg-primary-text/10 hover:bg-primary-text/20 transition-colors duration-200"
+                  aria-label={isRotationPaused ? "Resume rotation" : "Pause rotation"}
+                >
+                  {isRotationPaused ? (
+                    <Play className="w-4 h-4 text-primary-text/70" />
+                  ) : (
+                    <Pause className="w-4 h-4 text-primary-text/70" />
+                  )}
+                </button>
+                <div className="flex gap-2">
+                  {starredEvents.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setFeaturedEventIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === featuredEventIndex
+                          ? 'bg-[#AE3813] scale-125'
+                          : 'bg-primary-text/30 hover:bg-primary-text/50'
+                      }`}
+                      aria-label={`Go to featured event ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Regular Events */}
       {groupedEvents.map(({ date, events: dateEvents }) => {
         const formattedDate = formatDayDate(date);
         const isCollapsed = collapsedSections.has(date);
@@ -213,6 +296,9 @@ export function EventsList({
                     isFirstInGroup={eventIndex === 0}
                     isLastInGroup={eventIndex === dateEvents.length - 1}
                     eventIndex={(event as any).globalIndex}
+                    onTagClick={onTagClick}
+                    selectedInterestAreas={selectedInterestAreas}
+                    selectedEventTypes={selectedEventTypes}
                   />
                 ))}
               </div>

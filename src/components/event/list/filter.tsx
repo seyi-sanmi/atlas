@@ -13,6 +13,8 @@ interface EventFilterProps {
   onCategoryChange: (category: string) => void;
   selectedInterestAreas?: string[];
   onInterestAreasChange?: (areas: string[]) => void;
+  selectedEventTypes?: string[];
+  onEventTypesChange?: (types: string[]) => void;
   selectedDate?: Date | null;
   onDateChange: (date: Date | null) => void;
   refreshTrigger?: number; // Optional prop to trigger refresh of filter options
@@ -28,13 +30,15 @@ export default function EventFilter({
   onCategoryChange,
   selectedInterestAreas = [],
   onInterestAreasChange,
+  selectedEventTypes = [],
+  onEventTypesChange,
   selectedDate,
   onDateChange,
   refreshTrigger,
   onSubmitEvent,
 }: EventFilterProps) {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const [selectedEventTypesLocal, setSelectedEventTypesLocal] = useState<string[]>([]);
   const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // June 2025
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(
@@ -150,11 +154,16 @@ export default function EventFilter({
   // Sync local state with parent props for event types
   useEffect(() => {
     if (selectedCategory && selectedCategory !== "All Types") {
-      setSelectedEventTypes([selectedCategory]);
+      setSelectedEventTypesLocal([selectedCategory]);
     } else {
-      setSelectedEventTypes([]);
+      setSelectedEventTypesLocal([]);
     }
   }, [selectedCategory]);
+
+  // Sync local state with parent props for event types from cards
+  useEffect(() => {
+    setSelectedEventTypesLocal(selectedEventTypes || []);
+  }, [selectedEventTypes]);
 
   // Sync local state with parent props for interest areas
   useEffect(() => {
@@ -173,13 +182,13 @@ export default function EventFilter({
 
   const toggleEventType = (eventType: string) => {
     if (eventType === "All Types") {
-      setSelectedEventTypes([]);
+      setSelectedEventTypesLocal([]);
       onCategoryChange("");
-    } else if (selectedEventTypes.includes(eventType)) {
-      setSelectedEventTypes([]);
+    } else if (selectedEventTypesLocal.includes(eventType)) {
+      setSelectedEventTypesLocal([]);
       onCategoryChange("");
     } else {
-      setSelectedEventTypes([eventType]);
+      setSelectedEventTypesLocal([eventType]);
       onCategoryChange(eventType);
     }
   };
@@ -204,6 +213,19 @@ export default function EventFilter({
     setSelectedResearchAreas([]);
     onInterestAreasChange?.([]);
     setOpenDropdown(null);
+  };
+
+  const clearAllFilters = () => {
+    onSearchChange("");
+    onLocationChange("");
+    onCategoryChange("");
+    onInterestAreasChange?.([]);
+    onEventTypesChange?.([]);
+    onDateChange(null);
+    setSelectedCalendarDay(null);
+    setSelectedLocations([]);
+    setSelectedEventTypesLocal([]);
+    setSelectedResearchAreas([]);
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -326,9 +348,17 @@ export default function EventFilter({
           selectedResearchAreas.length > 0 ||
           selectedDate) && (
           <div className="bg-white/5 rounded-sm p-3 mb-4">
-            <h4 className="text-sm font-medium text-primary-text/80 mb-2">
-              Active Filters:
-            </h4>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-primary-text/80">
+                Active Filters:
+              </h4>
+              <button
+                onClick={clearAllFilters}
+                className="text-xs text-primary-text/60 hover:text-primary-text transition-colors underline"
+              >
+                Clear all
+              </button>
+            </div>
             <div className="flex flex-wrap gap-1 text-xs">
               {searchQuery && (
                 <span className="bg-[#AE3813] text-primary-text px-2 py-1 rounded-full">

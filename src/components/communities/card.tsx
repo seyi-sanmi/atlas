@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   MapPin,
   Clock,
@@ -19,7 +19,108 @@ interface CommunityCardProps {
   isLastInGroup?: boolean;
   isFirstInGroup?: boolean;
   communityIndex?: number;
+  onTagClick?: (tagType: 'communityType' | 'location', value: string) => void;
+  selectedCommunityTypes?: string[];
+  selectedLocations?: string[];
 }
+
+// AutoResizeText component that automatically reduces font size to fit content
+interface AutoResizeTextProps {
+  text: string;
+  className?: string;
+  minFontSize?: number;
+  maxFontSize?: number;
+  maxLines?: number;
+}
+
+const AutoResizeText: React.FC<AutoResizeTextProps> = ({
+  text,
+  className = "",
+  minFontSize = 10,
+  maxFontSize = 16,
+  maxLines = 2,
+}) => {
+  const textRef = useRef<HTMLDivElement>(null);
+  const [fontSize, setFontSize] = useState(maxFontSize);
+
+  useEffect(() => {
+    const resizeText = () => {
+      if (!textRef.current) return;
+
+      const element = textRef.current;
+      const parent = element.parentElement;
+      if (!parent) return;
+
+      // Only apply autoresize if text is over 65 characters
+      if (text.length <= 65) {
+        setFontSize(maxFontSize);
+        return;
+      }
+
+      // Reset to max font size
+      setFontSize(maxFontSize);
+
+      // Check if text overflows
+      const checkOverflow = () => {
+        const currentFontSize = parseFloat(getComputedStyle(element).fontSize);
+        
+        // Check if text overflows vertically (for line-clamp)
+        const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+        const maxHeight = lineHeight * maxLines;
+        
+        if (element.scrollHeight > maxHeight || element.scrollWidth > element.clientWidth) {
+          if (currentFontSize > minFontSize) {
+            setFontSize(currentFontSize - 0.5);
+            return false; // Not done yet
+          }
+        }
+        return true; // Done
+      };
+
+      // Gradually reduce font size until text fits
+      const interval = setInterval(() => {
+        if (checkOverflow()) {
+          clearInterval(interval);
+        }
+      }, 5);
+
+      // Cleanup
+      return () => clearInterval(interval);
+    };
+
+    // Initial resize with a small delay to ensure DOM is ready
+    const timeoutId = setTimeout(resizeText, 10);
+
+    // Resize on window resize
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      setTimeout(resizeText, 10);
+    };
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, [text, maxFontSize, minFontSize, maxLines]);
+
+  return (
+    <div
+      ref={textRef}
+      className={`${className} overflow-hidden`}
+      style={{ 
+        fontSize: `${fontSize}px`,
+        display: '-webkit-box',
+        WebkitLineClamp: maxLines,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }}
+    >
+      {text}
+    </div>
+  );
+};
 
 // Light color palette for hero cards - BRIGHT RAINBOW & VIBRANT
 const lightColors = [
@@ -84,6 +185,9 @@ export function CommunityCard({
   isLastInGroup = false,
   isFirstInGroup = false,
   communityIndex = 0,
+  onTagClick,
+  selectedCommunityTypes = [],
+  selectedLocations = [],
 }: CommunityCardProps) {
   const [isClicked, setIsClicked] = useState(false);
 
@@ -161,9 +265,13 @@ export function CommunityCard({
 
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-base sm:text-lg text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight">
-                  {community.name}
-                </div>
+                <AutoResizeText
+                  text={community.name}
+                  className="text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight"
+                  minFontSize={10}
+                  maxFontSize={18}
+                  maxLines={3}
+                />
                 <div className="text-xs mx-auto text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
                   {community.size}
                 </div>
@@ -177,38 +285,80 @@ export function CommunityCard({
       </div>
 
       {/* Content Side */}
-      <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-2 flex flex-col justify-between min-w-0">
-        {/* Meta Col */}
-        <div className="flex flex-col gap-2 text-sm text-primary-text/60">
-          <div className="flex items-center gap-1.5">
-            <Building className="w-4 h-4" />
-            <span className="font-sans">{community.community_type?.join(", ")}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4" />
-            <span className="font-sans truncate">
-              {community.location_names?.join(", ")}
-            </span>
-          </div>
-        </div>
+      <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-3 flex flex-col justify-between min-w-0">
+        {/* Interactive Tags with Visual Grouping */}
+        <div className="flex flex-col gap-3">
+          {/* Community Type Tags */}
+          {community.community_type && community.community_type.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Building className="w-4 h-4 text-[#AE3813]" />
+                <span className="text-xs font-medium text-primary-text/60 uppercase tracking-wide">
+                  Community Type
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {community.community_type.map((type) => {
+                  const isSelected = selectedCommunityTypes.includes(type);
+                  return (
+                    <button
+                      key={type}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onTagClick?.('communityType', type);
+                      }}
+                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
+                          : 'bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-        {/* Description Preview */}
-        <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-2 transition-all duration-300">
-          {community.purpose}
-        </p>
+          {/* About Community Section */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#AE3813]" />
+              <span className="text-xs font-medium text-primary-text/60 uppercase tracking-wide">
+                About Community
+              </span>
+            </div>
+            
+            {/* Description Preview - Exactly 3 lines */}
+            <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-3 transition-all duration-300">
+              {community.purpose}
+            </p>
 
-        {/* Contact */}
-        <div className="flex items-center gap-2 text-primary-text/60">
-          <Users className="w-4 h-4" />
-          <span className="font-sans text-sm truncate">
-            {community.target_members}
-          </span>
-        </div>
-
-        {/* View Details Link */}
-        <div className="transition-opacity duration-300 pt-0">
-          <div className="font-sans text-sm bg-gradient-to-r from-white/20 to-white/40 group-hover:from-[#AE3813] group-hover:to-[#D45E3C] bg-clip-text text-transparent hover:underline hover:decoration-2 hover:underline-offset-2 transition-all duration-150 hover:animate-underline-sweep cursor-pointer">
-            View Details →
+            {/* Location Tags - Under About Community */}
+            {community.location_names && community.location_names.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {community.location_names.map((location) => {
+                  const isSelected = selectedLocations.includes(location);
+                  return (
+                    <button
+                      key={location}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onTagClick?.('location', location);
+                      }}
+                      className={`inline-block px-1.5 py-0.5 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
+                          : 'bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30'
+                      }`}
+                    >
+                      {location}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

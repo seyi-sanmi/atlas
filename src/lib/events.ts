@@ -109,6 +109,7 @@ export async function searchAndFilterEvents(options: {
   location?: string
   category?: string
   interestAreas?: string[]
+  eventTypes?: string[]
   featured?: boolean
   starred?: boolean
   date?: Date | null
@@ -135,6 +136,13 @@ export async function searchAndFilterEvents(options: {
     // Filter events that have any of the selected interest areas
     const interestAreaFilters = options.interestAreas.map(area => `ai_interest_areas.cs.{${area}}`).join(',')
     queryBuilder = queryBuilder.or(interestAreaFilters)
+  }
+
+  // Apply event types filter (AI event types)
+  if (options.eventTypes && options.eventTypes.length > 0) {
+    // Filter events that have any of the selected event types
+    const eventTypeFilters = options.eventTypes.map(type => `ai_event_type.eq.${type}`).join(',')
+    queryBuilder = queryBuilder.or(eventTypeFilters)
   }
 
   // Apply featured filter

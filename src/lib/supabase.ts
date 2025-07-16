@@ -29,35 +29,27 @@ export interface Community {
 }
 
 // Database types based on your event structure
-export interface Event {
-  id: string
-  title: string
-  date: string // Format: "2025-06-15" for proper date sorting
-  time: string
-  location: string
-  city: string // City for location-based filtering
-  description: string
-  categories: string[]
-  organizer: string
-  presented_by?: string
-  is_featured?: boolean
-  is_starred?: boolean
-  url?: string // Optional URL to the original event page
-  image_url?: string // Optional URL to the event image
-  links?: string[] // Optional array of links extracted from the event page
-  
-  // AI Categorization fields
-  ai_event_type?: string // AI suggested event type
-  ai_interest_areas?: string[] // AI suggested interest areas
-  ai_categorized?: boolean // Whether AI categorization was successful
-  ai_categorized_at?: string // Timestamp of AI categorization
-  
-  // Import/platform fields
-  luma_id?: string
-  eventbrite_id?: string
-  imported_at?: string
-  platform?: string
-  
-  created_at?: string
-  updated_at?: string
-} 
+export type Event = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  city: string;
+  categories: string[];
+  organizer: string;
+  url: string;
+  imported_at: string;
+  platform: string;
+  ai_event_type: string;
+  ai_interest_areas: string[];
+  ai_categorized: boolean;
+  ai_categorized_at: string;
+  ai_summary: string;
+  ai_technical_keywords: string[];
+  ai_excitement_hook: string;
+  ai_summarized: boolean;
+  ai_summarized_at: string;
+  // Removing luma_synced, luma_sync_url, luma_sync_date fields
+}; 

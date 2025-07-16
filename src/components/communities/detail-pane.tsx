@@ -16,6 +16,7 @@ import {
 interface CommunityDetailPaneProps {
   community: Community;
   onClose: () => void;
+  showHeader?: boolean;
 }
 
 const DetailRow = ({
@@ -51,22 +52,25 @@ const DetailRow = ({
 const CommunityDetailPane: React.FC<CommunityDetailPaneProps> = ({
   community,
   onClose,
+  showHeader = true,
 }) => {
   return (
     <div className="h-full flex flex-col bg-secondary-bg">
       {/* Header */}
-      <div className="p-4 border-b border-primary-border flex justify-between items-center flex-shrink-0">
-        <h3 className="font-bold text-lg text-primary-text truncate">
-          {community.name}
-        </h3>
-        <button
-          onClick={onClose}
-          className="p-1 rounded-full hover:bg-primary-bg transition-colors"
-          aria-label="Close details"
-        >
-          <X className="w-5 h-5 text-primary-text/80" />
-        </button>
-      </div>
+      {showHeader && (
+        <div className="p-4 border-b border-primary-border flex justify-between items-center flex-shrink-0">
+          <h3 className="font-bold text-lg text-primary-text truncate">
+            {community.name}
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-full hover:bg-primary-bg transition-colors"
+            aria-label="Close details"
+          >
+            <X className="w-5 h-5 text-primary-text/80" />
+          </button>
+        </div>
+      )}
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

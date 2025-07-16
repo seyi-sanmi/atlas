@@ -31,6 +31,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedInterestAreas, setSelectedInterestAreas] = useState<string[]>([]);
+  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -53,6 +54,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
           location: selectedLocation,
           category: selectedCategory,
           interestAreas: selectedInterestAreas,
+          eventTypes: selectedEventTypes,
           date: selectedDate,
         });
         setEvents(filteredEvents);
@@ -73,6 +75,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
       !selectedLocation &&
       !selectedCategory &&
       selectedInterestAreas.length === 0 &&
+      selectedEventTypes.length === 0 &&
       !selectedDate
     ) {
       setEvents(cachedEvents);
@@ -88,6 +91,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
     selectedLocation,
     selectedCategory,
     selectedInterestAreas,
+    selectedEventTypes,
     selectedDate,
     cachedEvents,
   ]);
@@ -139,6 +143,26 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
       console.error("Failed to reload events:", error);
     } finally {
       setIsLoadingEvents(false);
+    }
+  };
+
+  const handleTagClick = (tagType: 'interest' | 'eventType', value: string) => {
+    if (tagType === 'interest') {
+      setSelectedInterestAreas(prev => {
+        if (prev.includes(value)) {
+          return prev.filter(area => area !== value);
+        } else {
+          return [...prev, value];
+        }
+      });
+    } else if (tagType === 'eventType') {
+      setSelectedEventTypes(prev => {
+        if (prev.includes(value)) {
+          return prev.filter(type => type !== value);
+        } else {
+          return [...prev, value];
+        }
+      });
     }
   };
 
@@ -194,6 +218,9 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onEventSelect={handleEventSelect}
                 selectedEvent={selectedEvent}
                 loading={isLoadingEvents}
+                onTagClick={handleTagClick}
+                selectedInterestAreas={selectedInterestAreas}
+                selectedEventTypes={selectedEventTypes}
               />
             </div>
           </div>
@@ -209,6 +236,8 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onCategoryChange={setSelectedCategory}
                 selectedInterestAreas={selectedInterestAreas}
                 onInterestAreasChange={setSelectedInterestAreas}
+                selectedEventTypes={selectedEventTypes}
+                onEventTypesChange={setSelectedEventTypes}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onSubmitEvent={handleOpenImportModal}
@@ -245,6 +274,8 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 onCategoryChange={setSelectedCategory}
                 selectedInterestAreas={selectedInterestAreas}
                 onInterestAreasChange={setSelectedInterestAreas}
+                selectedEventTypes={selectedEventTypes}
+                onEventTypesChange={setSelectedEventTypes}
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onSubmitEvent={handleOpenImportModal}

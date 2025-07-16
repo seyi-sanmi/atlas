@@ -6,7 +6,6 @@ import {
   Compass,
   Database,
   Bell,
-  Search,
   Plus,
   Download,
   Users,
@@ -138,13 +137,9 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            <button className="p-3 rounded-md text-primary-text/60 hover:text-primary-text hover:bg-secondary-bg/50 transition-all duration-200">
-              <Search className="w-5 h-5" />
-            </button>
-
             <button
               onClick={() => onOpenImportModal ? onOpenImportModal() : setShowImportModal(true)}
-              className="text-white dark:text-black sm:px-4 px-3 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+              className="text-white sm:px-4 px-3 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline-block ">Add Event</span>

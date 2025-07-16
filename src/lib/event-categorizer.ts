@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
 // Research areas from the communities component
-const RESEARCH_AREAS = [
+export const INTEREST_AREAS = [
   "Biotechnology & Synthetic Biology",
   "Genetics & Genomics",
   "Healthcare & Medicine",
@@ -54,9 +54,25 @@ export interface EventCategorizationResult {
   event_interest_areas: string[];
 }
 
+export interface EventSummaryResult {
+  summary: string;
+  technicalKeywords: string[];
+  excitementHook: string;
+}
+
 export interface EventToCategotize {
   title: string;
   description: string;
+}
+
+export interface EventToSummarize {
+  eventName: string;
+  eventDescription: string;
+  targetAudience?: string[];
+  keyActivities?: string[];
+  keyTechnologies?: string[];
+  mainIncentive?: string;
+  fullText: string;
 }
 
 export async function categorizeEvent(event: EventToCategotize): Promise<EventCategorizationResult> {
@@ -100,7 +116,7 @@ Analyze the provided event text, which includes a title and description, and gen
 - Base your selection on the event title, description, speaker specializations, and listed topics.
 
 List of Allowed \`event_interest_areas\` (Alphabetical Order):
-${RESEARCH_AREAS.map(area => `- "${area}"`).join('\n')}
+${INTEREST_AREAS.map(area => `- "${area}"`).join('\n')}
 
 ---
 
@@ -148,7 +164,7 @@ You must provide your response ONLY as a valid JSON object, with no explanatory 
     } else {
       // Filter out invalid interest areas
       result.event_interest_areas = result.event_interest_areas.filter(area => 
-        RESEARCH_AREAS.includes(area)
+        INTEREST_AREAS.includes(area)
       );
     }
 
@@ -162,6 +178,118 @@ You must provide your response ONLY as a valid JSON object, with no explanatory 
       event_interest_areas: []
     };
   }
+}
+
+export async function generateEventSummary(event: EventToSummarize): Promise<EventSummaryResult> {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
+  }
+
+  // Initialize OpenAI client inside the function (server-side only)
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const prompt = `### ROLE AND GOAL ###
+You are an expert AI assistant for technical event summarization, part of an automated web scraping pipeline. Your goal is to receive a JSON object with structured data about an event and return a JSON object containing a concise, high-impact summary and related metadata. The output must be tailored for a scientifically and technically-minded audience (engineers, researchers, founders).
+
+### INPUT FORMAT ###
+You will receive a JSON object with the following schema. Some fields may be null or incomplete.
+- \`eventName\`: string - The official title of the event.
+- \`eventDescription\`: string - The primary descriptive text.
+- \`targetAudience\`: string[] - A list of intended participant types.
+- \`keyActivities\`: string[] - A list of primary activities (e.g., "Hackathon", "Demos").
+- \`keyTechnologies\`: string[] - The core technologies or scientific concepts featured.
+- \`mainIncentive\`: string - The primary prize or value proposition.
+- \`fullText\`: string - The complete raw text as a fallback.
+
+### TASK ###
+Process the input JSON and generate a new JSON object with the following schema.
+
+### OUTPUT SCHEMA ###
+- \`summary\`: string - A single, compelling sentence (30-45 words). This summary MUST synthesize the core innovation (\`keyTechnologies\`) with the main action (\`keyActivities\`) and audience. It should answer "Why is this event technically exciting?"
+- \`technicalKeywords\`: string[] - A list of 5-7 key technical terms suitable for use as website tags. Extract from \`keyTechnologies\` and the \`fullText\`.
+- \`excitementHook\`: string - A very short (under 10 words), punchy phrase that captures the event's core promise.
+
+### INSTRUCTIONS & CONSTRAINTS ###
+1.  **Prioritize Innovation:** The \`summary\`'s main subject must be the technology or scientific breakthrough. Use the \`keyTechnologies\` field as your primary source. If it's empty, infer from \`eventName\` and \`eventDescription\`.
+2.  **Be Factual and Dense:** The \`summary\` should be packed with information, not fluff. Avoid marketing jargon like "amazing," "incredible," or "don't miss."
+3.  **Strict JSON Output:** Your entire response must be a single, valid JSON object conforming to the specified \`OUTPUT SCHEMA\`. Do not add any text before or after the JSON.
+4.  **Keyword Quality:** The \`technicalKeywords\` should be specific (e.g., "Agentic PCB Design," not "Design").
+5.  **Hook Quality:** The \`excitementHook\` should be a call to action or a bold statement of purpose.
+
+### INPUT JSON: ###
+${JSON.stringify(event, null, 2)}`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.3, // Slightly higher temperature for creative summaries
+      max_tokens: 500, // More tokens for detailed summaries
+      response_format: { type: "json_object" }
+    });
+
+    const responseContent = completion.choices[0]?.message?.content;
+    if (!responseContent) {
+      throw new Error('No response from OpenAI');
+    }
+
+    // Parse and validate the response
+    const result = JSON.parse(responseContent) as EventSummaryResult;
+    
+    // Validate required fields
+    if (!result.summary || !result.technicalKeywords || !result.excitementHook) {
+      throw new Error('Invalid summary response format');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error generating event summary:', error);
+    
+    // Return default summary on error
+    return {
+      summary: event.eventDescription || event.eventName,
+      technicalKeywords: [],
+      excitementHook: "Join us for this exciting event"
+    };
+  }
+}
+
+// Utility function to retry summary generation with exponential backoff
+export async function generateEventSummaryWithRetry(
+  event: EventToSummarize, 
+  maxRetries: number = 3
+): Promise<EventSummaryResult> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await generateEventSummary(event);
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`Summary generation attempt ${attempt} failed:`, error);
+      
+      if (attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  // If all retries failed, return default summary
+  console.error(`All summary generation attempts failed:`, lastError);
+  return {
+    summary: event.eventDescription || event.eventName,
+    technicalKeywords: [],
+    excitementHook: "Join us for this exciting event"
+  };
 }
 
 // Utility function to retry categorization with exponential backoff
