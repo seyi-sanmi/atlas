@@ -17,6 +17,8 @@ import { SlidersHorizontal } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 import { ImportEventModal } from "@/components/ImportEventModal";
 import Hero from "./hero";
+import { RefreshCw } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface ClientHomePageProps {
   initialEvents: Event[];
@@ -35,10 +37,49 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Simple cache to avoid repeated queries
   const [cachedEvents, setCachedEvents] = useState<Event[]>(initialEvents);
   const [lastCacheTime, setLastCacheTime] = useState<number>(Date.now());
+
+  // Set up real-time subscription
+  useEffect(() => {
+    // Subscribe to events table changes
+    const subscription = supabase
+      .channel('events-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'events' 
+        }, 
+        async () => {
+          // Refresh events when changes occur
+          await refreshEvents();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Refresh events function
+  const refreshEvents = async () => {
+    setIsRefreshing(true);
+    try {
+      const eventsData = await getAllEvents();
+      setEvents(eventsData);
+      setCachedEvents(eventsData);
+      setLastCacheTime(Date.now());
+    } catch (error) {
+      console.error('Failed to refresh events:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Handle search and filtering (client-side filtering for better UX)
   useEffect(() => {
@@ -186,7 +227,16 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
 
   return (
     <>
-      <Header onEventImported={handleEventImported} onOpenImportModal={handleOpenImportModal} />
+      <Header onEventImported={handleEventImported} onOpenImportModal={handleOpenImportModal}>
+        <button
+          onClick={refreshEvents}
+          className={`p-2 rounded-lg hover:bg-secondary-bg/80 transition-all duration-200 ${isRefreshing ? 'animate-spin' : ''}`}
+          disabled={isRefreshing}
+          title="Refresh events"
+        >
+          <RefreshCw className="w-5 h-5 text-primary-text/70" />
+        </button>
+      </Header>
 
       {/* Search Modal */}
       <SearchModal
