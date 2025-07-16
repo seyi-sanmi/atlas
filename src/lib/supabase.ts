@@ -40,6 +40,7 @@ export type Event = {
   categories: string[];
   organizer: string;
   url: string;
+  image_url?: string;
   imported_at: string;
   platform: string;
   ai_event_type: string;
