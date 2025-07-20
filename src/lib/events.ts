@@ -12,12 +12,7 @@ export async function getAllEvents(): Promise<Event[]> {
     throw error
   }
 
-  // Ensure is_starred and is_featured are properly set
-  return (data || []).map(event => ({
-    ...event,
-    is_starred: !!event.is_starred,  // Convert to boolean
-    is_featured: !!event.is_featured // Convert to boolean
-  }))
+  return data || []
 }
 
 // Search events by title, description, location, city, organizer, or categories
@@ -177,12 +172,7 @@ export async function searchAndFilterEvents(options: {
     throw error
   }
 
-  // Convert is_starred and is_featured to proper booleans
-  return (data || []).map(event => ({
-    ...event,
-    is_starred: !!event.is_starred,
-    is_featured: !!event.is_featured
-  }))
+  return data || []
 }
 
 // Get unique cities from all events

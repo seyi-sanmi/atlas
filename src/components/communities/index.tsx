@@ -171,8 +171,8 @@ function ClientCommunitiesPage({
       {/* Main Content */}
       <main className="relative -mt-48 z-10">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl ">
-          {/* Sticky Filter Bar - Only sticky when reached */}
-          <div className="sticky top-[var(--header-height)] z-20 bg-primary-bg/95 backdrop-blur-sm py-4 mt-20 border-b border-primary-border/30">
+          {/* Filter Bar - Only sticky on desktop */}
+          <div className="md:sticky md:top-[var(--header-height)] z-20 bg-primary-bg/95 backdrop-blur-sm py-4 mt-20 border-b border-primary-border/30">
             <CommunitiesFilter
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}

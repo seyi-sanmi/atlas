@@ -17,8 +17,6 @@ import { SlidersHorizontal } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 import { ImportEventModal } from "@/components/ImportEventModal";
 import Hero from "./hero";
-import { RefreshCw } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 
 interface ClientHomePageProps {
   initialEvents: Event[];
@@ -37,49 +35,10 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Simple cache to avoid repeated queries
   const [cachedEvents, setCachedEvents] = useState<Event[]>(initialEvents);
   const [lastCacheTime, setLastCacheTime] = useState<number>(Date.now());
-
-  // Set up real-time subscription
-  useEffect(() => {
-    // Subscribe to events table changes
-    const subscription = supabase
-      .channel('events-changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'events' 
-        }, 
-        async () => {
-          // Refresh events when changes occur
-          await refreshEvents();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // Refresh events function
-  const refreshEvents = async () => {
-    setIsRefreshing(true);
-    try {
-      const eventsData = await getAllEvents();
-      setEvents(eventsData);
-      setCachedEvents(eventsData);
-      setLastCacheTime(Date.now());
-    } catch (error) {
-      console.error('Failed to refresh events:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
 
   // Handle search and filtering (client-side filtering for better UX)
   useEffect(() => {
@@ -227,16 +186,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
 
   return (
     <>
-      <Header onEventImported={handleEventImported} onOpenImportModal={handleOpenImportModal}>
-        <button
-          onClick={refreshEvents}
-          className={`p-2 rounded-lg hover:bg-secondary-bg/80 transition-all duration-200 ${isRefreshing ? 'animate-spin' : ''}`}
-          disabled={isRefreshing}
-          title="Refresh events"
-        >
-          <RefreshCw className="w-5 h-5 text-primary-text/70" />
-        </button>
-      </Header>
+      <Header onEventImported={handleEventImported} onOpenImportModal={handleOpenImportModal} />
 
       {/* Search Modal */}
       <SearchModal
@@ -301,8 +251,8 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
       <div className="lg:hidden fixed bottom-6 right-6 z-50">
         <Sheet>
           <SheetTrigger asChild>
-            <button className="bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#D45E3C] hover:to-[#AE3813] text-primary-text p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 backdrop-blur-sm border border-white/10">
-              <SlidersHorizontal className="w-6 h-6" />
+            <button className="bg-secondary-bg/80 hover:bg-secondary-bg text-primary-text/70 hover:text-primary-text p-3 rounded-lg shadow-lg transition-all duration-300 backdrop-blur-sm border border-primary-border/30">
+              <SlidersHorizontal className="w-5 h-5" />
             </button>
           </SheetTrigger>
           <SheetContent

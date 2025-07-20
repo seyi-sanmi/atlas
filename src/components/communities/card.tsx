@@ -221,18 +221,18 @@ export function CommunityCard({
   return (
     <div
       onClick={handleClick}
-      className={` group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] animate-pulse-scale `}
+      className={` group relative transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[180px] sm:min-h-[200px] animate-pulse-scale `}
       tabIndex={0}
       role="button"
       aria-label={`View details for ${community.name}`}
     >
       {/* Hero Image Side - Always show with DiceBear patterns */}
-      <div className="z-0 p-4 pb-4 pt-4 sm:pr-0 h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
+      <div className="z-0 p-3 sm:p-4 pb-3 sm:pb-4 pt-3 sm:pt-4 sm:pr-0 h-40 sm:h-48 bg-secondary-bg w-full sm:w-2/5 sm:h-auto relative">
         {/* Starred indicator */}
         {community.starred_on_website && (
-          <div className="absolute top-[5px] -right-2 z-10">
-            <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
-              <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
+          <div className="absolute top-2 -right-1 sm:top-[5px] sm:-right-2 z-10">
+            <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1 sm:p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
+              <Star className="w-[0.8rem] sm:w-[0.9rem] h-[0.8rem] sm:h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
             </div>
           </div>
         )}
@@ -269,13 +269,13 @@ export function CommunityCard({
                   text={community.name}
                   className="text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight"
                   minFontSize={10}
-                  maxFontSize={18}
+                  maxFontSize={16}
                   maxLines={3}
                 />
                 <div className="text-xs mx-auto text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
                   {community.size}
                 </div>
-                <div className="text-xs text-primary-text/60 font-medium">
+                <div className="text-[10px] sm:text-xs text-primary-text/60 font-medium">
                   Members
                 </div>
               </div>
@@ -285,7 +285,7 @@ export function CommunityCard({
       </div>
 
       {/* Content Side */}
-      <div className="flex-1 p-6 pt-2 sm:pt-6 space-y-3 flex flex-col justify-between min-w-0">
+      <div className="flex-1 p-4 sm:p-6 pt-2 sm:pt-6 space-y-2 sm:space-y-3 flex flex-col justify-between min-w-0">
         {/* Interactive Tags with Visual Grouping */}
         <div className="flex flex-col gap-3">
           {/* Community Type Tags */}

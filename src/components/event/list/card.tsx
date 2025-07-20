@@ -244,7 +244,7 @@ export function EventCard({
                       className={`inline-block px-2 py-1 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                          : 'bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30'
+                          : 'bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30'
                       }`}
                     >
                       {area}
@@ -277,10 +277,10 @@ export function EventCard({
                     e.stopPropagation();
                     onTagClick?.('eventType', event.ai_event_type!);
                   }}
-                  className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded-sm border transition-all duration-200 cursor-pointer ${
+                  className={`inline-block px-2 py-0.5 text-[10px] font-medium rounded-sm border transition-all duration-200 cursor-pointer ${
                     selectedEventTypes.includes(event.ai_event_type!)
                       ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                      : 'bg-white/5 dark:bg-white/5 text-primary-text/50 dark:text-primary-text/50 border-white/10 dark:border-white/10 hover:bg-white/10 dark:hover:bg-white/10 hover:border-[#AE3813]/30'
+                      : 'bg-primary-text/5 text-primary-text/60 border-primary-text/10 hover:bg-primary-text/10 hover:border-[#AE3813]/20'
                   }`}
                 >
                   {event.ai_event_type}

@@ -16,15 +16,13 @@ import { SignInButton } from "@/components/auth/SignInButton";
 import { UserMenu } from "@/components/auth/UserMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode } from 'react';
 
-export interface HeaderProps {
-  onEventImported: () => Promise<void>;
-  onOpenImportModal: () => void;
-  children?: ReactNode;
+interface HeaderProps {
+  onEventImported?: () => void; // Callback to refresh events list
+  onOpenImportModal?: () => void; // Optional callback to open import modal externally
 }
 
-export function Header({ onEventImported, onOpenImportModal, children }: HeaderProps) {
+export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const pathname = usePathname();
 
@@ -81,6 +79,7 @@ export function Header({ onEventImported, onOpenImportModal, children }: HeaderP
               }`}
             >
               <Calendar className="w-5 h-5" />
+
               <span className="hidden sm:inline-block">Events</span>
             </Link>
 
@@ -138,7 +137,6 @@ export function Header({ onEventImported, onOpenImportModal, children }: HeaderP
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {children}
             <button
               onClick={() => onOpenImportModal ? onOpenImportModal() : setShowImportModal(true)}
               className="text-white sm:px-4 px-3 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"

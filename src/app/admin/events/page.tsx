@@ -15,11 +15,9 @@ import {
   Clock,
   Tag,
   AlertTriangle,
-  CheckCircle,
-  Star,
-  Crown
+  CheckCircle
 } from 'lucide-react'
-import { getEventsForAdmin, deleteEvent, bulkDeleteEvents, reScrapeEvent, EventWithAnalytics, toggleEventStarred, toggleEventFeatured } from '@/lib/admin-events'
+import { getEventsForAdmin, deleteEvent, bulkDeleteEvents, reScrapeEvent, EventWithAnalytics } from '@/lib/admin-events'
 
 interface BulkDeleteModalProps {
   isOpen: boolean
@@ -210,32 +208,6 @@ export default function AdminEventsPage() {
       await loadEvents()
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to re-scrape event' })
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  const handleToggleStarred = async (eventId: string) => {
-    try {
-      setActionLoading(eventId)
-      await toggleEventStarred(eventId)
-      setMessage({ type: 'success', text: 'Event starred state updated successfully' })
-      await loadEvents()
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update event starred state' })
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  const handleToggleFeatured = async (eventId: string) => {
-    try {
-      setActionLoading(eventId)
-      await toggleEventFeatured(eventId)
-      setMessage({ type: 'success', text: 'Event featured state updated successfully' })
-      await loadEvents()
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update event featured state' })
     } finally {
       setActionLoading(null)
     }
@@ -456,25 +428,7 @@ export default function AdminEventsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleToggleStarred(event.id)}
-                          className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                            event.is_starred ? 'text-yellow-500' : 'text-gray-400'
-                          }`}
-                          title={event.is_starred ? 'Unstar event' : 'Star event'}
-                        >
-                          <Star className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleFeatured(event.id)}
-                          className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                            event.is_featured ? 'text-yellow-500' : 'text-gray-400'
-                          }`}
-                          title={event.is_featured ? 'Unfeature event' : 'Feature event'}
-                        >
-                          <Crown className="w-4 h-4" />
-                        </button>
+                      <div className="flex items-center gap-1">
                         {event.url && (
                           <button
                             onClick={() => handleReScrapeEvent(event.id)}
