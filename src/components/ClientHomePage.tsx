@@ -17,6 +17,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 import { ImportEventModal } from "@/components/ImportEventModal";
 import Hero from "./hero";
+import { trackEventView, trackEventClick } from "@/lib/user-tracking";
 
 interface ClientHomePageProps {
   initialEvents: Event[];
@@ -116,9 +117,33 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const handleEventSelect = (event: Event) => {
+  const handleEventSelect = async (event: Event) => {
     console.log("Selected event:", event);
     setSelectedEvent(event);
+    
+    // Track event view when user opens event details
+    try {
+      await trackEventView(
+        event.id,
+        event.title,
+        event.ai_interest_areas || []
+      );
+    } catch (error) {
+      console.error("Failed to track event view:", error);
+    }
+  };
+
+  const handleEventClick = async (event: Event) => {
+    // Track event click when user clicks "View Event" button
+    try {
+      await trackEventClick(
+        event.id,
+        event.title,
+        event.ai_interest_areas || []
+      );
+    } catch (error) {
+      console.error("Failed to track event click:", error);
+    }
   };
 
   const handleOpenImportModal = () => {
@@ -216,6 +241,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
               <EventsList
                 events={events}
                 onEventSelect={handleEventSelect}
+                onEventClick={handleEventClick}
                 selectedEvent={selectedEvent}
                 loading={isLoadingEvents}
                 onTagClick={handleTagClick}

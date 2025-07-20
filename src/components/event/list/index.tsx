@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 interface EventsListProps {
   events: Event[];
   onEventSelect: (event: Event) => void;
+  onEventClick?: (event: Event) => void; // New prop for tracking event clicks
   selectedEvent: Event | null;
   loading?: boolean;
   onTagClick?: (tagType: 'interest' | 'eventType', value: string) => void;
@@ -18,6 +19,7 @@ interface EventsListProps {
 export function EventsList({
   events,
   onEventSelect,
+  onEventClick,
   selectedEvent,
   loading = false,
   onTagClick,
@@ -142,6 +144,7 @@ export function EventsList({
                 date={currentFeaturedEvent.date}
                 event={currentFeaturedEvent}
                 onClick={() => onEventSelect(currentFeaturedEvent)}
+                onEventClick={() => onEventClick?.(currentFeaturedEvent)}
                 isSelected={selectedEvent?.id === currentFeaturedEvent.id}
                 eventIndex={featuredEventIndex}
                 onPrevious={() => setFeaturedEventIndex(prev => prev === 0 ? starredEvents.length - 1 : prev - 1)}
@@ -288,6 +291,7 @@ export function EventsList({
                     date={event.date}
                     event={event}
                     onClick={() => onEventSelect(event)}
+                    onEventClick={() => onEventClick?.(event)}
                     isSelected={selectedEvent?.id === event.id}
                     showTime={
                       eventIndex === 0 ||

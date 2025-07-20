@@ -23,6 +23,7 @@ import { addUtmParameters } from "@/lib/utils";
 interface EventCardProps {
   event: Event;
   onClick: () => void;
+  onEventClick?: () => void; // New prop for tracking event clicks
   isSelected?: boolean;
   showTime?: boolean;
   isLastInGroup?: boolean;
@@ -93,6 +94,7 @@ export function EventCard({
   date,
   event,
   onClick,
+  onEventClick,
   isSelected = false,
   showTime = true,
   isLastInGroup = false,
@@ -440,6 +442,9 @@ export function EventCard({
                 e.preventDefault();
                 e.stopPropagation();
                 if (event.url) {
+                  // Track the event click
+                  onEventClick?.();
+                  
                   const urlWithUtm = addUtmParameters(event.url);
                   window.open(urlWithUtm, "_blank", "noopener,noreferrer");
                 }

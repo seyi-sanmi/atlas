@@ -26,6 +26,7 @@ import { addUtmParameters } from "@/lib/utils";
 interface FeaturedEventCardProps {
   event: Event;
   onClick: () => void;
+  onEventClick?: () => void; // New prop for tracking event clicks
   isSelected?: boolean;
   date: string;
   eventIndex?: number;
@@ -96,6 +97,7 @@ export function FeaturedEventCard({
   date,
   event,
   onClick,
+  onEventClick,
   isSelected = false,
   eventIndex = 0,
   onPrevious,
@@ -421,6 +423,9 @@ export function FeaturedEventCard({
                 e.preventDefault();
                 e.stopPropagation();
                 if (event.url) {
+                  // Track the event click
+                  onEventClick?.();
+                  
                   const urlWithUtm = addUtmParameters(event.url);
                   window.open(urlWithUtm, "_blank", "noopener,noreferrer");
                 }
