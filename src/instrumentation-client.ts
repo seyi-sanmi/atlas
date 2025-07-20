@@ -9,7 +9,42 @@ Sentry.init({
 
   // Add optional integrations for additional features
   integrations: [
-    Sentry.replayIntegration(),
+    Sentry.replayIntegration({
+      // Privacy configuration - only mask sensitive information on specific pages
+      maskAllText: false,
+      maskAllInputs: false,
+      blockAllMedia: false,
+      
+      // Mask sensitive elements that should always be protected
+      mask: [
+        // Always mask password fields regardless of page
+        'input[type="password"]',
+        // Mask any elements with sensitive data classes
+        '.sensitive-data',
+        '.api-key',
+        '.credit-card',
+        '.ssn',
+        '.personal-info'
+      ],
+      
+      // Block sensitive elements that should never be recorded
+      block: [
+        // Always block password fields
+        'input[type="password"]',
+        // Block any elements marked as sensitive
+        '[data-sentry-block]',
+        '.sentry-block'
+      ],
+      
+      // Ignore events on sensitive input fields
+      ignore: [
+        // Ignore events on password fields
+        'input[type="password"]',
+        // Ignore events on any elements marked as sensitive
+        '[data-sentry-ignore]',
+        '.sentry-ignore'
+      ]
+    }),
   ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.

@@ -231,7 +231,7 @@ function SignInContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-secondary-bg/50 border border-primary-border rounded-lg text-primary-text placeholder-primary-text/40 focus:outline-none focus:border-[#AE3813] transition-colors"
+                  className="sentry-mask w-full px-4 py-3 bg-secondary-bg/50 border border-primary-border rounded-lg text-primary-text placeholder-primary-text/40 focus:outline-none focus:border-[#AE3813] transition-colors"
                 />
               </div>
               
@@ -247,7 +247,7 @@ function SignInContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={mode === 'signup' ? 6 : undefined}
-                  className="w-full px-4 py-3 bg-secondary-bg/50 border border-primary-border rounded-lg text-primary-text placeholder-primary-text/40 focus:outline-none focus:border-[#AE3813] transition-colors"
+                  className="sentry-block w-full px-4 py-3 bg-secondary-bg/50 border border-primary-border rounded-lg text-primary-text placeholder-primary-text/40 focus:outline-none focus:border-[#AE3813] transition-colors"
                 />
               </div>
 
@@ -263,7 +263,8 @@ function SignInContent() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-secondary-bg/50 border border-primary-border rounded-lg text-primary-text placeholder-primary-text/40 focus:outline-none focus:border-[#AE3813] transition-colors"
+                    minLength={6}
+                    className="sentry-block w-full px-4 py-3 bg-secondary-bg/50 border border-primary-border rounded-lg text-primary-text placeholder-primary-text/40 focus:outline-none focus:border-[#AE3813] transition-colors"
                   />
                 </div>
               )}
