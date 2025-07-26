@@ -11,7 +11,7 @@ interface EventsListProps {
   onEventClick?: (event: Event) => void; // New prop for tracking event clicks
   selectedEvent: Event | null;
   loading?: boolean;
-  onTagClick?: (tagType: 'interest' | 'eventType', value: string) => void;
+  onTagClick?: (tagType: "interest" | "eventType", value: string) => void;
   selectedInterestAreas?: string[];
   selectedEventTypes?: string[];
 }
@@ -40,7 +40,7 @@ export function EventsList({
 
   // Get starred/featured events
   const starredEvents = useMemo(() => {
-    return events.filter(event => event.is_starred || event.is_featured);
+    return events.filter((event) => event.is_starred || event.is_featured);
   }, [events]);
 
   // Rotate featured event every 30 seconds
@@ -48,7 +48,7 @@ export function EventsList({
     if (starredEvents.length <= 1 || isRotationPaused) return;
 
     const interval = setInterval(() => {
-      setFeaturedEventIndex(prev => (prev + 1) % starredEvents.length);
+      setFeaturedEventIndex((prev) => (prev + 1) % starredEvents.length);
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
@@ -58,8 +58,16 @@ export function EventsList({
   const currentFeaturedEvent = starredEvents[featuredEventIndex];
 
   // Default colors for SSR to prevent hydration mismatch (using dark theme as default)
-  const fillColor = !mounted ? "#1E1E25" : theme === "dark" ? "#1E1E25" : "#ebebeb";
-  const strokeColor = !mounted ? "#565558" : theme === "dark" ? "#565558" : "#E0E0E0";
+  const fillColor = !mounted
+    ? "#1E1E25"
+    : theme === "dark"
+    ? "#1E1E25"
+    : "#ebebeb";
+  const strokeColor = !mounted
+    ? "#565558"
+    : theme === "dark"
+    ? "#565558"
+    : "#C6C6C6";
 
   // Group events by date and calculate global indices for color diversity
   const groupedEvents = useMemo(() => {
@@ -68,7 +76,7 @@ export function EventsList({
     events.forEach((event) => {
       // Parse date string directly to avoid timezone issues
       // event.date is in format "2025-07-08", so split and create date safely
-      const [year, month, day] = event.date.split('-').map(Number);
+      const [year, month, day] = event.date.split("-").map(Number);
       const date = new Date(year, month - 1, day); // month is 0-indexed
       const dateKey = date.toDateString();
 
@@ -139,23 +147,37 @@ export function EventsList({
       {/* Featured Event - Integrated seamlessly */}
       {currentFeaturedEvent && (
         <div className="mb-6">
-                      <div className={`${starredEvents.length > 1 && !isRotationPaused ? 'featured-event-rotate' : ''}`}>
-              <FeaturedEventCard
-                date={currentFeaturedEvent.date}
-                event={currentFeaturedEvent}
-                onClick={() => onEventSelect(currentFeaturedEvent)}
-                onEventClick={() => onEventClick?.(currentFeaturedEvent)}
-                isSelected={selectedEvent?.id === currentFeaturedEvent.id}
-                eventIndex={featuredEventIndex}
-                onPrevious={() => setFeaturedEventIndex(prev => prev === 0 ? starredEvents.length - 1 : prev - 1)}
-                onNext={() => setFeaturedEventIndex(prev => (prev + 1) % starredEvents.length)}
-                hasMultiple={starredEvents.length > 1}
-                onTagClick={onTagClick}
-                selectedInterestAreas={selectedInterestAreas}
-                selectedEventTypes={selectedEventTypes}
-              />
-            </div>
-          
+          <div
+            className={`${
+              starredEvents.length > 1 && !isRotationPaused
+                ? "featured-event-rotate"
+                : ""
+            }`}
+          >
+            <FeaturedEventCard
+              date={currentFeaturedEvent.date}
+              event={currentFeaturedEvent}
+              onClick={() => onEventSelect(currentFeaturedEvent)}
+              onEventClick={() => onEventClick?.(currentFeaturedEvent)}
+              isSelected={selectedEvent?.id === currentFeaturedEvent.id}
+              eventIndex={featuredEventIndex}
+              onPrevious={() =>
+                setFeaturedEventIndex((prev) =>
+                  prev === 0 ? starredEvents.length - 1 : prev - 1
+                )
+              }
+              onNext={() =>
+                setFeaturedEventIndex(
+                  (prev) => (prev + 1) % starredEvents.length
+                )
+              }
+              hasMultiple={starredEvents.length > 1}
+              onTagClick={onTagClick}
+              selectedInterestAreas={selectedInterestAreas}
+              selectedEventTypes={selectedEventTypes}
+            />
+          </div>
+
           {/* Navigation dots and controls for multiple featured events */}
           {starredEvents.length > 1 && (
             <div className="flex flex-col items-center gap-3 mt-4">
@@ -163,7 +185,9 @@ export function EventsList({
                 <button
                   onClick={() => setIsRotationPaused(!isRotationPaused)}
                   className="p-2 rounded-full bg-primary-text/10 hover:bg-primary-text/20 transition-colors duration-200"
-                  aria-label={isRotationPaused ? "Resume rotation" : "Pause rotation"}
+                  aria-label={
+                    isRotationPaused ? "Resume rotation" : "Pause rotation"
+                  }
                 >
                   {isRotationPaused ? (
                     <Play className="w-4 h-4 text-primary-text/70" />
@@ -178,8 +202,8 @@ export function EventsList({
                       onClick={() => setFeaturedEventIndex(index)}
                       className={`w-2 h-2 rounded-full transition-all duration-300 ${
                         index === featuredEventIndex
-                          ? 'bg-[#AE3813] scale-125'
-                          : 'bg-primary-text/30 hover:bg-primary-text/50'
+                          ? "bg-[#AE3813] scale-125"
+                          : "bg-primary-text/30 hover:bg-primary-text/50"
                       }`}
                       aria-label={`Go to featured event ${index + 1}`}
                     />
@@ -324,4 +348,3 @@ export function EventsList({
     </div>
   );
 }
-

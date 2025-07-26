@@ -10,6 +10,8 @@ import {
   Download,
   Users,
   Briefcase,
+  Menu,
+  X,
 } from "lucide-react";
 import { ImportEventModal } from "@/components/ImportEventModal";
 import { SignInButton } from "@/components/auth/SignInButton";
@@ -24,10 +26,11 @@ interface HeaderProps {
 
 export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
   const [showImportModal, setShowImportModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-primary-bg/80 backdrop-blur-xl border-b border-white/20">
+    <header className="fixed top-0 w-full z-50 bg-primary-bg/80 backdrop-blur-xl border-b border-primary-border/90">
       <div className="container mx-auto px-6">
         <div className="h-16 flex items-center justify-between">
           {/* Logo Section */}
@@ -68,8 +71,8 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
             </div>
           </div>
 
-          {/* Navigation Icons */}
-          <nav className="flex items-center gap-2 pl-4">
+          {/* Desktop Navigation - Hidden on Mobile */}
+          <nav className="hidden sm:flex items-center gap-2 pl-4">
             <Link
               href={"/"}
               className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 rounded-full ${
@@ -79,7 +82,6 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
               }`}
             >
               <Calendar className="w-5 h-5" />
-
               <span className="hidden sm:inline-block">Events</span>
             </Link>
 
@@ -138,7 +140,11 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
           {/* Right Actions */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => onOpenImportModal ? onOpenImportModal() : setShowImportModal(true)}
+              onClick={() =>
+                onOpenImportModal
+                  ? onOpenImportModal()
+                  : setShowImportModal(true)
+              }
               className="text-white sm:px-4 px-3 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] font-medium font-sans rounded-md hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -148,9 +154,97 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
             {/* Authentication */}
             <SignInButton />
             <UserMenu />
+
+            {/* Mobile Hamburger Menu Button - Visible on Mobile Only */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="sm:hidden flex items-center justify-center p-2 text-primary-text/60 hover:text-primary-text transition-colors"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Menu - Only visible on mobile when open */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden bg-primary-bg/95 backdrop-blur-xl border-b border-primary-border/90">
+          <div className="container mx-auto px-6 py-4">
+            <nav className="flex flex-col gap-2">
+              <Link
+                href={"/"}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`font-sans flex items-center space-x-3 transition-colors text-sm px-3 py-3 rounded-lg ${
+                  pathname === "/"
+                    ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md"
+                    : "text-primary-text/60 hover:text-primary-text hover:bg-white/5"
+                }`}
+              >
+                <Calendar className="w-5 h-5" />
+                <span>Events</span>
+              </Link>
+
+              <Link
+                href={"/communities"}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`font-sans flex items-center space-x-3 transition-colors text-sm px-3 py-3 rounded-lg ${
+                  pathname.startsWith("/communities")
+                    ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md"
+                    : "text-primary-text/60 hover:text-primary-text hover:bg-white/5"
+                }`}
+              >
+                <Users
+                  className={`w-5 h-5 ${
+                    pathname.startsWith("/communities")
+                      ? "text-primary-text"
+                      : "text-primary-text/50"
+                  }`}
+                />
+                <span
+                  className={`${
+                    pathname.startsWith("/communities")
+                      ? "text-primary-text"
+                      : "text-primary-text/60"
+                  }`}
+                >
+                  Communities
+                </span>
+              </Link>
+
+              <Link
+                href={"/funding"}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`font-sans flex items-center space-x-3 transition-colors text-sm px-3 py-3 rounded-lg ${
+                  pathname.startsWith("/funding")
+                    ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md"
+                    : "text-primary-text/60 hover:text-primary-text hover:bg-white/5"
+                }`}
+              >
+                <Briefcase
+                  className={`w-5 h-5 ${
+                    pathname.startsWith("/funding")
+                      ? "text-primary-text"
+                      : "text-primary-text/50"
+                  }`}
+                />
+                <span
+                  className={`${
+                    pathname.startsWith("/funding")
+                      ? "text-primary-text"
+                      : "text-primary-text/60"
+                  }`}
+                >
+                  Funding
+                </span>
+              </Link>
+            </nav>
+          </div>
+        </div>
+      )}
 
       {/* Import Modal - only render if no external modal handler */}
       {!onOpenImportModal && (

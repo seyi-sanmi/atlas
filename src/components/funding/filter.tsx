@@ -395,7 +395,7 @@ export default function FundingFilter({
                   (focusArea !== "All Focus Areas" &&
                     selectedFocusArea === focusArea)
                     ? "bg-white text-black"
-                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
+                    : "dark:bg-white/10 bg-black/5 dark:text-gray-300 text-black/50 hover:bg-white/20"
                 }`}
               >
                 {focusArea}
@@ -417,7 +417,7 @@ export default function FundingFilter({
                     (!selectedAmountRange || selectedAmountRange === "")) ||
                   (range !== "All Amounts" && selectedAmountRange === range)
                     ? "bg-white text-black"
-                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
+                    : "dark:bg-white/10 bg-black/5 dark:text-gray-300 text-black/50 hover:bg-white/20"
                 }`}
               >
                 {range}
@@ -439,7 +439,7 @@ export default function FundingFilter({
                     (!selectedFunder || selectedFunder === "")) ||
                   (funder !== "All Funders" && selectedFunder === funder)
                     ? "bg-white text-black"
-                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/30"
+                    : "dark:bg-white/10 bg-black/5 dark:text-gray-300 text-black/50 hover:bg-white/30"
                 }`}
               >
                 {funder}

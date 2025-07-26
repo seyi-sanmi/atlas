@@ -174,7 +174,7 @@ function Hero() {
 
         {/* Animated Gradient Overlay */}
         {mounted && (
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent dark:to-[#131318] to-[#F0F0F0]" />
+          <div className="absolute inset-0 bg-gradient-to-b dark:from-transparent dark:via-transparent dark:to-[#131318] to-[#F0F0F0]" />
         )}
       </div>
 

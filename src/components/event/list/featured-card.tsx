@@ -33,7 +33,7 @@ interface FeaturedEventCardProps {
   onPrevious?: () => void;
   onNext?: () => void;
   hasMultiple?: boolean;
-  onTagClick?: (tagType: 'interest' | 'eventType', value: string) => void;
+  onTagClick?: (tagType: "interest" | "eventType", value: string) => void;
   selectedInterestAreas?: string[];
   selectedEventTypes?: string[];
 }
@@ -111,7 +111,7 @@ export function FeaturedEventCard({
 
   // Helper function to safely parse ISO date string (YYYY-MM-DD)
   const parseEventDate = (dateString: string) => {
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day); // month is 0-indexed
   };
 
@@ -128,15 +128,15 @@ export function FeaturedEventCard({
       <SheetTrigger asChild>
         <div
           onClick={handleClick}
-          className={`group relative bg-secondary-bg rounded-lg border-2 border-primary-border transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] hover:border-[#AE3813] hover:shadow-[0_12px_24px_rgba(0,0,0,0.3)] ${
-            isSelected ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.3)]" : ""
+          className={`group relative bg-secondary-bg rounded-lg border-1 border-primary-border transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] hover:border-[#AE3813] hover:shadow-[0_12px_24px_rgba(0,0,0,0.3)] ${
+            isSelected
+              ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.3)]"
+              : ""
           }`}
           tabIndex={0}
           role="button"
           aria-label={`View details for featured event: ${event.title}`}
         >
-
-
           {/* Carousel Navigation - Improved positioning and contrast */}
           {hasMultiple && (
             <>
@@ -167,12 +167,14 @@ export function FeaturedEventCard({
           <div className="p-3 pt-3 sm:pr-0 pb-3 h-46 bg-secondary-bg w-full sm:w-1/3 relative">
             {/* Featured Badge - Positioned on the image */}
             <div className="absolute top-2 left-2 z-20">
-              <div className="bg-white/95 dark:bg-secondary-bg/95 px-2 py-1 rounded-full border border-[#AE3813]/60 backdrop-blur-sm flex items-center gap-1 shadow-sm">
-                <Sparkles className="w-3 h-3 text-[#AE3813]" />
-                <span className="text-[#AE3813] font-medium text-xs">Featured</span>
+              <div className="bg-white/95 dark:bg-secondary-bg/95 px-2 py-1 rounded-full border border-[#F3B83F]/60 backdrop-blur-sm flex items-center gap-1 shadow-sm">
+                <Sparkles className="w-3 h-3 text-[#F3B83F]" />
+                <span className="text-[#F3B83F] font-medium text-xs">
+                  Featured
+                </span>
               </div>
             </div>
-            
+
             <div className="rounded-lg overflow-hidden h-full p-[3px] bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500">
               <div
                 className={`w-full h-full rounded-lg group-hover:border-[#AE3813] group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] focus:outline-none focus:border-[#AE3813] focus:border-2 transition-transform duration-300 ease-in-out group-hover:scale-110 relative ${
@@ -191,20 +193,20 @@ export function FeaturedEventCard({
                 }}
               >
                 {/* Dark overlay for better text readability */}
-                <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
+                <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg" />
 
                 {/* Date overlay - same as normal event card */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-5xl sm:text-6xl font-bold text-white font-display tracking-tight">
+                    <div className="text-3xl sm:text-3xl font-bold text-white font-display tracking-tight">
                       {eventDate.getDate().toString().padStart(2, "0")}
                     </div>
-                    <div className="text-lg text-white/80 font-medium uppercase tracking-wider">
+                    <div className="sm:text-lg text-base text-white/80 font-medium uppercase tracking-wider">
                       {eventDate.toLocaleDateString("en-US", {
                         month: "short",
                       })}
                     </div>
-                    <div className="text-base text-white/60 font-medium">
+                    <div className="sm:text-base text-sm text-white/60 font-medium">
                       {eventDate.getFullYear()}
                     </div>
                   </div>
@@ -247,12 +249,12 @@ export function FeaturedEventCard({
                       key={index}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onTagClick?.('interest', area);
+                        onTagClick?.("interest", area);
                       }}
                       className={`text-xs px-2 py-1 rounded-full border flex-shrink-0 whitespace-nowrap transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                          : 'bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30'
+                          ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                          : "bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30"
                       }`}
                     >
                       {area}
@@ -273,8 +275,6 @@ export function FeaturedEventCard({
                 {event.ai_summary || event.description}
               </p>
             </div>
-
-
           </div>
         </div>
       </SheetTrigger>
@@ -302,7 +302,7 @@ export function FeaturedEventCard({
                           backgroundRepeat: "no-repeat",
                         }}
                       >
-                        <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
+                        <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
                             <div className="text-4xl sm:text-5xl font-bold text-white font-display tracking-tight">
@@ -386,26 +386,27 @@ export function FeaturedEventCard({
                   )}
 
                   {/* Research Area Tags */}
-                  {event.ai_interest_areas && event.ai_interest_areas.length > 0 && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Research Areas
-                        </h4>
+                  {event.ai_interest_areas &&
+                    event.ai_interest_areas.length > 0 && (
+                      <div className="mt-2 rounded-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                          <h4 className="font-semibold font-display text-secondary-text text-base">
+                            Research Areas
+                          </h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {event.ai_interest_areas.map((area) => (
+                            <span
+                              key={area}
+                              className="inline-block px-3 py-1.5 text-sm font-medium bg-white/10 dark:bg-white/10 text-primary-text/90 dark:text-primary-text/90 rounded-full border border-primary-border/90 dark:border-primary-border/90 hover:bg-white/20 dark:hover:bg-white/20 transition-colors duration-200"
+                            >
+                              {area}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {event.ai_interest_areas.map((area) => (
-                          <span
-                            key={area}
-                            className="inline-block px-3 py-1.5 text-sm font-medium bg-white/10 dark:bg-white/10 text-primary-text/90 dark:text-primary-text/90 rounded-full border border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 transition-colors duration-200"
-                          >
-                            {area}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
             </SheetHeader>
@@ -425,7 +426,7 @@ export function FeaturedEventCard({
                 if (event.url) {
                   // Track the event click
                   onEventClick?.();
-                  
+
                   const urlWithUtm = addUtmParameters(event.url);
                   window.open(urlWithUtm, "_blank", "noopener,noreferrer");
                 }
@@ -441,4 +442,4 @@ export function FeaturedEventCard({
       </SheetContent>
     </Sheet>
   );
-} 
+}

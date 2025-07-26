@@ -44,10 +44,7 @@ export default function NewFundingFilter({
   const amountRangesRef = useRef<HTMLDivElement>(null);
 
   const hasActiveFilters =
-    searchQuery ||
-    selectedFunder ||
-    selectedFocusArea ||
-    selectedAmountRange;
+    searchQuery || selectedFunder || selectedFocusArea || selectedAmountRange;
 
   // Handle Cmd+K keyboard shortcut
   useEffect(() => {
@@ -251,7 +248,7 @@ export default function NewFundingFilter({
               <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg min-w-[280px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-primary-text/60">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
+                    <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading funders...
                   </div>
                 ) : (
@@ -305,7 +302,7 @@ export default function NewFundingFilter({
               <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[220px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-primary-text/60">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
+                    <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading focus areas...
                   </div>
                 ) : (
@@ -356,7 +353,7 @@ export default function NewFundingFilter({
               <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[160px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-primary-text/60">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
+                    <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading amount ranges...
                   </div>
                 ) : (

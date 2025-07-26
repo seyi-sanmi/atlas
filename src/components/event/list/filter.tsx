@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getUniqueLocations, getUniqueAIEventTypes, getUniqueAIInterestAreas } from "@/lib/events";
+import {
+  getUniqueLocations,
+  getUniqueAIEventTypes,
+  getUniqueAIInterestAreas,
+} from "@/lib/events";
 import { EVENT_TYPES } from "@/lib/event-categorizer";
 
 interface EventFilterProps {
@@ -38,8 +42,12 @@ export default function EventFilter({
   onSubmitEvent,
 }: EventFilterProps) {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [selectedEventTypesLocal, setSelectedEventTypesLocal] = useState<string[]>([]);
-  const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>([]);
+  const [selectedEventTypesLocal, setSelectedEventTypesLocal] = useState<
+    string[]
+  >([]);
+  const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>(
+    []
+  );
   const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // June 2025
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(
     null
@@ -111,21 +119,23 @@ export default function EventFilter({
     const loadFilterOptions = async () => {
       try {
         setIsLoadingFilters(true);
-        
+
         // Load cities, AI event types, and AI interest areas
-        const [uniqueCities, aiEventTypesFromDB, aiInterestAreasFromDB] = await Promise.all([
-          getUniqueLocations(),
-          getUniqueAIEventTypes(),
-          getUniqueAIInterestAreas()
-        ]);
+        const [uniqueCities, aiEventTypesFromDB, aiInterestAreasFromDB] =
+          await Promise.all([
+            getUniqueLocations(),
+            getUniqueAIEventTypes(),
+            getUniqueAIInterestAreas(),
+          ]);
 
         setLocations(["All Locations", ...uniqueCities]);
-        
+
         // Use AI event types from database if available, fallback to predefined types
-        const availableEventTypes = aiEventTypesFromDB.length > 0 
-          ? aiEventTypesFromDB 
-          : EVENT_TYPES.slice(); // Remove 'as const' constraint
-          
+        const availableEventTypes =
+          aiEventTypesFromDB.length > 0
+            ? aiEventTypesFromDB
+            : EVENT_TYPES.slice(); // Remove 'as const' constraint
+
         setEventTypes(["All Types", ...availableEventTypes]);
         setInterestAreas(aiInterestAreasFromDB);
       } catch (error) {
@@ -195,7 +205,7 @@ export default function EventFilter({
 
   const toggleInterestArea = (area: string) => {
     if (selectedResearchAreas.includes(area)) {
-      const updatedAreas = selectedResearchAreas.filter(a => a !== area);
+      const updatedAreas = selectedResearchAreas.filter((a) => a !== area);
       setSelectedResearchAreas(updatedAreas);
       onInterestAreasChange?.(updatedAreas);
     } else {
@@ -411,7 +421,7 @@ export default function EventFilter({
         </div>
 
         {/* Submit Event Button */}
-        <button 
+        <button
           onClick={onSubmitEvent}
           className="w-full bg-white/30 text-primary-text/90 font-medium py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors"
         >
@@ -486,7 +496,7 @@ export default function EventFilter({
           <div className="flex flex-wrap gap-2">
             {isLoadingFilters ? (
               <div className="flex items-center gap-2 text-primary-text/60">
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin"></div>
                 <span className="text-sm">Loading cities...</span>
               </div>
             ) : (
@@ -500,7 +510,7 @@ export default function EventFilter({
                     (location !== "All Locations" &&
                       selectedLocation === location)
                       ? "bg-white text-black"
-                      : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/30"
+                      : "dark:bg-white/10 bg-black/5 dark:text-gray-300 text-black/50 hover:bg-white/30"
                   }`}
                 >
                   {location}
@@ -523,7 +533,7 @@ export default function EventFilter({
                     (!selectedCategory || selectedCategory === "")) ||
                   (eventType !== "All Types" && selectedCategory === eventType)
                     ? "bg-white text-black"
-                    : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
+                    : "dark:bg-white/10 bg-black/5 dark:text-gray-300 text-black/50 hover:bg-white/20"
                 }`}
               >
                 {eventType}
@@ -538,7 +548,7 @@ export default function EventFilter({
           <div className="flex flex-wrap gap-2">
             {isLoadingFilters ? (
               <div className="flex items-center gap-2 text-primary-text/60">
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin"></div>
                 <span className="text-sm">Loading areas...</span>
               </div>
             ) : (
@@ -549,7 +559,7 @@ export default function EventFilter({
                   className={`cursor-pointer px-3 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedResearchAreas.includes(area)
                       ? "bg-white text-black"
-                      : "bg-white/10 dark:text-gray-300 text-black/50 hover:bg-white/20"
+                      : "dark:bg-white/10 bg-black/5 dark:text-gray-300 text-black/50 hover:bg-white/20"
                   }`}
                 >
                   {area}

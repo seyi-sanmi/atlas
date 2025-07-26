@@ -19,7 +19,7 @@ interface CommunityCardProps {
   isLastInGroup?: boolean;
   isFirstInGroup?: boolean;
   communityIndex?: number;
-  onTagClick?: (tagType: 'communityType' | 'location', value: string) => void;
+  onTagClick?: (tagType: "communityType" | "location", value: string) => void;
   selectedCommunityTypes?: string[];
   selectedLocations?: string[];
 }
@@ -63,12 +63,15 @@ const AutoResizeText: React.FC<AutoResizeTextProps> = ({
       // Check if text overflows
       const checkOverflow = () => {
         const currentFontSize = parseFloat(getComputedStyle(element).fontSize);
-        
+
         // Check if text overflows vertically (for line-clamp)
         const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
         const maxHeight = lineHeight * maxLines;
-        
-        if (element.scrollHeight > maxHeight || element.scrollWidth > element.clientWidth) {
+
+        if (
+          element.scrollHeight > maxHeight ||
+          element.scrollWidth > element.clientWidth
+        ) {
           if (currentFontSize > minFontSize) {
             setFontSize(currentFontSize - 0.5);
             return false; // Not done yet
@@ -96,10 +99,10 @@ const AutoResizeText: React.FC<AutoResizeTextProps> = ({
       clearTimeout(timeoutId);
       setTimeout(resizeText, 10);
     };
-    window.addEventListener('resize', handleResize);
-    
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       clearTimeout(timeoutId);
     };
   }, [text, maxFontSize, minFontSize, maxLines]);
@@ -108,13 +111,13 @@ const AutoResizeText: React.FC<AutoResizeTextProps> = ({
     <div
       ref={textRef}
       className={`${className} overflow-hidden`}
-      style={{ 
+      style={{
         fontSize: `${fontSize}px`,
-        display: '-webkit-box',
+        display: "-webkit-box",
         WebkitLineClamp: maxLines,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        WebkitBoxOrient: "vertical",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       }}
     >
       {text}
@@ -165,10 +168,11 @@ const generateLightHeroPattern = (
   const seed = community.name
     .split("")
     .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  
+
   // Use hash to select base color, but offset by index to avoid consecutive duplicates
   const baseColorIndex = Math.abs(seed) % lightColors.length;
-  const offsetColorIndex = (baseColorIndex + communityIndex) % lightColors.length;
+  const offsetColorIndex =
+    (baseColorIndex + communityIndex) % lightColors.length;
 
   const selectedColor = lightColors[offsetColorIndex];
   const seedString = `${community.name}-community-light`;
@@ -261,21 +265,21 @@ export function CommunityCard({
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
+            <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg" />
 
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <AutoResizeText
                   text={community.name}
-                  className="text-pretty font-bold text-primary-text font-display tracking-tight px-2 text-center leading-tight"
+                  className="text-white text-pretty font-bold dark:text-primary-text font-display tracking-tight px-2 text-center leading-tight"
                   minFontSize={10}
                   maxFontSize={16}
                   maxLines={3}
                 />
-                <div className="text-xs mx-auto text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
+                <div className="text-xs mx-auto text-white dark:text-primary-text/80 font-medium uppercase tracking-wider max-w-20 text-center mt-1">
                   {community.size}
                 </div>
-                <div className="text-[10px] sm:text-xs text-primary-text/60 font-medium">
+                <div className="text-[10px] sm:text-xs text-white dark:text-primary-text/60 font-medium">
                   Members
                 </div>
               </div>
@@ -305,12 +309,12 @@ export function CommunityCard({
                       key={type}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onTagClick?.('communityType', type);
+                        onTagClick?.("communityType", type);
                       }}
                       className={`inline-block px-2 py-1 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                          : 'bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30'
+                          ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                          : "bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-primary-border/90 dark:border-primary-border/90 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30"
                       }`}
                     >
                       {type}
@@ -329,36 +333,37 @@ export function CommunityCard({
                 About Community
               </span>
             </div>
-            
+
             {/* Description Preview - Exactly 3 lines */}
             <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-3 transition-all duration-300">
               {community.purpose}
             </p>
 
             {/* Location Tags - Under About Community */}
-            {community.location_names && community.location_names.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {community.location_names.map((location) => {
-                  const isSelected = selectedLocations.includes(location);
-                  return (
-                    <button
-                      key={location}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTagClick?.('location', location);
-                      }}
-                      className={`inline-block px-1.5 py-0.5 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                          : 'bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30'
-                      }`}
-                    >
-                      {location}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            {community.location_names &&
+              community.location_names.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {community.location_names.map((location) => {
+                    const isSelected = selectedLocations.includes(location);
+                    return (
+                      <button
+                        key={location}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onTagClick?.("location", location);
+                        }}
+                        className={`inline-block px-1.5 py-0.5 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
+                          isSelected
+                            ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                            : "bg-white/10 dark:bg-white/10 text-primary-text/80 dark:text-primary-text/80 border-primary-border/90 dark:border-primary-border/90 hover:bg-white/20 dark:hover:bg-white/20 hover:border-[#AE3813]/30"
+                        }`}
+                      >
+                        {location}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
           </div>
         </div>
       </div>

@@ -202,7 +202,7 @@ function PartnersHero({
   // Use only the typewriter text, no fallback during animation
   const currentCityName = cityText;
 
-  const partnerLogos = [
+  const lightPartnerLogos = [
     <img
       key="partner-1"
       src="/images/partners/1.png"
@@ -242,6 +242,50 @@ function PartnersHero({
     <img
       key="partner-7"
       src="/images/partners/7.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+  ];
+  const darkPartnerLogos = [
+    <img
+      key="partner-1"
+      src="/images/partners/1-dark.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+    <img
+      key="partner-2"
+      src="/images/partners/2-dark.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+    <img
+      key="partner-3"
+      src="/images/partners/3-dark.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+    <img
+      key="partner-4"
+      src="/images/partners/4-dark.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+    <img
+      key="partner-5"
+      src="/images/partners/5-dark.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+    <img
+      key="partner-6"
+      src="/images/partners/6-dark.png"
+      alt="Partners Logo"
+      className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
+    />,
+    <img
+      key="partner-7"
+      src="/images/partners/7-dark.png"
       alt="Partners Logo"
       className="h-6 sm:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity block"
     />,
@@ -296,11 +340,11 @@ function PartnersHero({
           speed={40}
           className="max-w-[700px] mb-12 sm:mb-20 mask-fade"
         >
-          {partnerLogos}
+          {theme == "dark" ? lightPartnerLogos : darkPartnerLogos}
         </ParallaxText>
 
         {/* Time & Date Badge */}
-        {/* <div className="dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
+        {/* <div className="dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full px-6 py-3 border border-primary-border/90">
             <div className="flex items-center gap-4 text-primary-text/90">
               <span className="font-mono text-lg font-semibold">{time}</span>
               <div className="w-1 h-1 dark:bg-white/60 bg-black/60 rounded-full" />

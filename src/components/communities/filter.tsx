@@ -108,11 +108,12 @@ export default function CommunitiesFilter({
         setIsLoadingFilters(true);
 
         // Fetch unique community types, locations, and research areas from Supabase
-        const [uniqueCommunityTypes, uniqueLocations, uniqueResearchAreas] = await Promise.all([
-          getUniqueCommunityTypes(),
-          getUniqueCommunityLocations(),
-          getUniqueResearchAreas(),
-        ]);
+        const [uniqueCommunityTypes, uniqueLocations, uniqueResearchAreas] =
+          await Promise.all([
+            getUniqueCommunityTypes(),
+            getUniqueCommunityLocations(),
+            getUniqueResearchAreas(),
+          ]);
 
         setLocations(["All Locations", ...uniqueLocations.sort()]);
         setCommunityTypes(["All Types", ...uniqueCommunityTypes.sort()]);
@@ -188,7 +189,7 @@ export default function CommunitiesFilter({
 
   const toggleResearchArea = (area: string) => {
     if (selectedResearchAreas.includes(area)) {
-      onResearchAreasChange(selectedResearchAreas.filter(a => a !== area));
+      onResearchAreasChange(selectedResearchAreas.filter((a) => a !== area));
     } else {
       onResearchAreasChange([...selectedResearchAreas, area]);
     }
@@ -223,7 +224,7 @@ export default function CommunitiesFilter({
               placeholder="Search communities..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-60 pl-9 pr-9 py-3 bg-white/10 backdrop-blur-sm text-primary-text placeholder-primary-text/60 border border-white/20 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#AE3813] focus:border-transparent text-sm"
+              className="w-60 pl-9 pr-9 py-3 bg-white/10 backdrop-blur-sm text-primary-text placeholder-primary-text/60 border border-primary-border/90 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#AE3813] focus:border-transparent text-sm"
             />
             {searchQuery && (
               <button
@@ -262,7 +263,7 @@ export default function CommunitiesFilter({
               <div className="z-[9999999] absolute isolate top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg min-w-[220px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-primary-text/60">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
+                    <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading locations...
                   </div>
                 ) : (
@@ -316,7 +317,7 @@ export default function CommunitiesFilter({
               <div className="absolute top-full left-0 mt-1 bg-secondary-bg border border-white/10 rounded-sm shadow-lg z-[9999999] min-w-[260px] max-h-60 overflow-y-auto">
                 {isLoadingFilters ? (
                   <div className="p-3 text-center text-primary-text/60">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
+                    <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white/60 rounded-full animate-spin mx-auto mb-2"></div>
                     Loading types...
                   </div>
                 ) : (
@@ -328,8 +329,7 @@ export default function CommunitiesFilter({
                       }}
                       className={`w-full text-left px-4 py-2 hover:dark:bg-white/10 bg-black/5 backdrop-blur-xs transition-colors ${
                         (type === "All Types" && !selectedCategory) ||
-                        (type !== "All Types" &&
-                          selectedCategory === type)
+                        (type !== "All Types" && selectedCategory === type)
                           ? "bg-white/20 text-primary-text"
                           : "dark:text-gray-300 text-black/50"
                       }`}
@@ -347,7 +347,9 @@ export default function CommunitiesFilter({
             <button
               onClick={() => toggleDropdown("research")}
               className={`dark:bg-white/10 bg-black/5 backdrop-blur-xs text-primary-text px-4 py-3 rounded-sm hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[160px] justify-between ${
-                selectedResearchAreas.length > 0 ? 'border-blue-500/50' : 'border-white/10'
+                selectedResearchAreas.length > 0
+                  ? "border-blue-500/50"
+                  : "border-white/10"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -407,7 +409,7 @@ export default function CommunitiesFilter({
                         className={`w-4 h-4 rounded-sm border-2 flex-shrink-0 ${
                           selectedResearchAreas.includes(area)
                             ? "bg-blue-500 border-blue-500"
-                            : "border-white/20"
+                            : "border-primary-border/90"
                         }`}
                       >
                         {selectedResearchAreas.includes(area) && (
@@ -435,7 +437,10 @@ export default function CommunitiesFilter({
           </div>
 
           {/* Clear Filters Button */}
-          {(searchQuery || selectedLocation || selectedCategory || selectedResearchAreas.length > 0) && (
+          {(searchQuery ||
+            selectedLocation ||
+            selectedCategory ||
+            selectedResearchAreas.length > 0) && (
             <button
               onClick={clearAllFilters}
               className="text-sm text-primary-text/60 hover:text-primary-text underline"
@@ -446,7 +451,10 @@ export default function CommunitiesFilter({
         </div>
 
         {/* Active Filters Indicator - Compact */}
-        {(searchQuery || selectedLocation || selectedCategory || selectedResearchAreas.length > 0) && (
+        {(searchQuery ||
+          selectedLocation ||
+          selectedCategory ||
+          selectedResearchAreas.length > 0) && (
           <div className="mt-3 text-center">
             <div className="inline-flex flex-wrap gap-2 text-xs">
               {searchQuery && (

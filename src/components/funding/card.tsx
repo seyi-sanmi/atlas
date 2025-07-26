@@ -192,7 +192,7 @@ export function EventCard({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
+                <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg" />
 
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center px-4">
@@ -306,7 +306,7 @@ export function EventCard({
                           backgroundRepeat: "no-repeat",
                         }}
                       >
-                        <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
+                        <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center px-4">
                             <div className="text-2xl sm:text-3xl font-bold text-primary-text font-display tracking-tight mb-1">
@@ -437,11 +437,7 @@ export function EventCard({
                 e.stopPropagation();
                 if (funding.applicationLink) {
                   const urlWithUtm = addUtmParameters(funding.applicationLink);
-                  window.open(
-                    urlWithUtm,
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
+                  window.open(urlWithUtm, "_blank", "noopener,noreferrer");
                 }
               }}
               disabled={!funding.applicationLink}

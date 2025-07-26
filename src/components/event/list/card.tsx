@@ -30,7 +30,7 @@ interface EventCardProps {
   isFirstInGroup?: boolean;
   date: string; // ISO date string for the event
   eventIndex?: number; // Index position to prevent consecutive colors
-  onTagClick?: (tagType: 'interest' | 'eventType', value: string) => void;
+  onTagClick?: (tagType: "interest" | "eventType", value: string) => void;
   selectedInterestAreas?: string[];
   selectedEventTypes?: string[];
 }
@@ -108,7 +108,7 @@ export function EventCard({
 
   // Helper function to safely parse ISO date string (YYYY-MM-DD)
   const parseEventDate = (dateString: string) => {
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day); // month is 0-indexed
   };
 
@@ -188,7 +188,7 @@ export function EventCard({
                 }}
               >
                 {/* Dark overlay for better text readability */}
-                <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg" />
+                <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg" />
 
                 {/* Date overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -241,12 +241,12 @@ export function EventCard({
                       key={area}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onTagClick?.('interest', area);
+                        onTagClick?.("interest", area);
                       }}
                       className={`inline-block px-2 py-1 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                          : 'bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30'
+                          ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                          : "bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30"
                       }`}
                     >
                       {area}
@@ -277,12 +277,12 @@ export function EventCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onTagClick?.('eventType', event.ai_event_type!);
+                    onTagClick?.("eventType", event.ai_event_type!);
                   }}
                   className={`inline-block px-2 py-0.5 text-[10px] font-medium rounded-sm border transition-all duration-200 cursor-pointer ${
                     selectedEventTypes.includes(event.ai_event_type!)
-                      ? 'bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30'
-                      : 'bg-primary-text/5 text-primary-text/60 border-primary-text/10 hover:bg-primary-text/10 hover:border-[#AE3813]/20'
+                      ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                      : "bg-primary-text/5 text-primary-text/60 border-primary-text/10 hover:bg-primary-text/10 hover:border-[#AE3813]/20"
                   }`}
                 >
                   {event.ai_event_type}
@@ -321,7 +321,7 @@ export function EventCard({
                           backgroundRepeat: "no-repeat",
                         }}
                       >
-                        <div className="absolute inset-0 dark:bg-black/40 bg-white/40 rounded-lg"></div>
+                        <div className="absolute inset-0 dark:bg-black/40 bg-black/10 rounded-lg"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
                             <div className="text-4xl sm:text-5xl font-bold text-white font-display tracking-tight">
@@ -405,26 +405,27 @@ export function EventCard({
                   )}
 
                   {/* Research Area Tags */}
-                  {event.ai_interest_areas && event.ai_interest_areas.length > 0 && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          Research Areas
-                        </h4>
+                  {event.ai_interest_areas &&
+                    event.ai_interest_areas.length > 0 && (
+                      <div className="mt-2 rounded-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                          <h4 className="font-semibold font-display text-secondary-text text-base">
+                            Research Areas
+                          </h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {event.ai_interest_areas.map((area) => (
+                            <span
+                              key={area}
+                              className="inline-block px-3 py-1.5 text-sm font-medium bg-white/10 dark:bg-white/10 text-primary-text/90 dark:text-primary-text/90 rounded-full border border-primary-border/90 dark:border-primary-border/90 hover:bg-white/20 dark:hover:bg-white/20 transition-colors duration-200"
+                            >
+                              {area}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {event.ai_interest_areas.map((area) => (
-                          <span
-                            key={area}
-                            className="inline-block px-3 py-1.5 text-sm font-medium bg-white/10 dark:bg-white/10 text-primary-text/90 dark:text-primary-text/90 rounded-full border border-white/20 dark:border-white/20 hover:bg-white/20 dark:hover:bg-white/20 transition-colors duration-200"
-                          >
-                            {area}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
             </SheetHeader>
@@ -444,7 +445,7 @@ export function EventCard({
                 if (event.url) {
                   // Track the event click
                   onEventClick?.();
-                  
+
                   const urlWithUtm = addUtmParameters(event.url);
                   window.open(urlWithUtm, "_blank", "noopener,noreferrer");
                 }

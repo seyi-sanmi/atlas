@@ -31,7 +31,9 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedInterestAreas, setSelectedInterestAreas] = useState<string[]>([]);
+  const [selectedInterestAreas, setSelectedInterestAreas] = useState<string[]>(
+    []
+  );
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -120,7 +122,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const handleEventSelect = async (event: Event) => {
     console.log("Selected event:", event);
     setSelectedEvent(event);
-    
+
     // Track event view when user opens event details
     try {
       await trackEventView(
@@ -153,7 +155,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const handleEventImported = async () => {
     // Close the import modal
     setIsImportModalOpen(false);
-    
+
     // Clear cache and reload events
     setCachedEvents([]);
     setLastCacheTime(0);
@@ -171,19 +173,19 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
     }
   };
 
-  const handleTagClick = (tagType: 'interest' | 'eventType', value: string) => {
-    if (tagType === 'interest') {
-      setSelectedInterestAreas(prev => {
+  const handleTagClick = (tagType: "interest" | "eventType", value: string) => {
+    if (tagType === "interest") {
+      setSelectedInterestAreas((prev) => {
         if (prev.includes(value)) {
-          return prev.filter(area => area !== value);
+          return prev.filter((area) => area !== value);
         } else {
           return [...prev, value];
         }
       });
-    } else if (tagType === 'eventType') {
-      setSelectedEventTypes(prev => {
+    } else if (tagType === "eventType") {
+      setSelectedEventTypes((prev) => {
         if (prev.includes(value)) {
-          return prev.filter(type => type !== value);
+          return prev.filter((type) => type !== value);
         } else {
           return [...prev, value];
         }
@@ -211,7 +213,10 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
 
   return (
     <>
-      <Header onEventImported={handleEventImported} onOpenImportModal={handleOpenImportModal} />
+      <Header
+        onEventImported={handleEventImported}
+        onOpenImportModal={handleOpenImportModal}
+      />
 
       {/* Search Modal */}
       <SearchModal
@@ -235,7 +240,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
 
       {/* Main Content */}
       <main className="relative -mt-40 z-20">
-        <div className="container mx-auto px-2 sm:px-4 max-w-6xl sm:flex">
+        <div className="container mx-auto px-4 sm:px-4 max-w-6xl sm:flex">
           <div className=" min-h-screen lg:w-2/3">
             <div className="p-2 sm:p-8 sm:pt-4">
               <EventsList
