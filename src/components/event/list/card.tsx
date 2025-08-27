@@ -257,9 +257,9 @@ export function EventCard({
             )}
 
             {/* Description Preview */}
-            {event.description && (
+            {(event.ai_summary || event.description) && (
               <p className="font-sans text-sm text-primary-text/60 leading-relaxed line-clamp-3 transition-all duration-300">
-                {event.description}
+                {event.ai_summary || event.description}
               </p>
             )}
 
@@ -390,19 +390,29 @@ export function EventCard({
                   </div>
 
                   {/* About Section */}
-                  {event.description && (
-                    <div className="mt-2 rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
-                        <h4 className="font-semibold font-display text-secondary-text text-base">
-                          About this Event
-                        </h4>
-                      </div>
-                      <p className="font-sans text-primary-text/80 leading-relaxed whitespace-pre-line text-sm">
-                        {event.description}
-                      </p>
+                  <div className="mt-2 rounded-lg">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] rounded-full"></div>
+                      <h4 className="font-semibold font-display text-secondary-text text-base">
+                        About this Event
+                      </h4>
                     </div>
-                  )}
+                    {event.ai_summary && (
+                      <div className="mb-4">
+                        <p className="font-sans text-primary-text/90 leading-relaxed whitespace-pre-line text-sm font-medium">
+                          {event.ai_summary}
+                        </p>
+                      </div>
+                    )}
+                    {event.description && event.description !== event.ai_summary && (
+                      <div className="mt-4 pt-4 border-t border-primary-border/10">
+                        <div className="mb-2 text-xs text-primary-text/50 uppercase tracking-wider font-medium">Full Description</div>
+                        <p className="font-sans text-primary-text/70 leading-relaxed whitespace-pre-line text-sm">
+                          {event.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Research Area Tags */}
                   {event.ai_interest_areas &&

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { importEvent, saveImportedEvent } from "@/app/actions/import-event";
+import { importEventProgressive, enhanceEventWithCategories, enhanceEventWithSummary, saveImportedEvent } from "@/app/actions/import-event";
 import {
   X,
   Download,
@@ -18,7 +18,14 @@ import {
   MapPin,
   FileText,
   Tag,
+  ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EVENT_TYPES, INTEREST_AREAS } from "@/lib/event-categorizer";
 
 interface ImportEventModalProps {
@@ -34,6 +41,8 @@ export function ImportEventModal({
 }: ImportEventModalProps) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [categorizationProcessing, setCategorizationProcessing] = useState(false);
+  const [summaryProcessing, setSummaryProcessing] = useState(false);
   const [preview, setPreview] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -51,17 +60,60 @@ export function ImportEventModal({
     setSuccess("");
 
     try {
-      const result = await importEvent(url.trim());
+      // Phase 1: Get basic event data (fast!)
+      const result = await importEventProgressive(url.trim());
 
       if (result.success) {
-        setPreview(result.event);
-        setSuccess(result.message || "Event imported successfully!");
+        const successResult = result as { success: true; event: any; message?: string; aiProcessing?: boolean };
+        setPreview(successResult.event);
+        setSuccess(successResult.message || "Event imported successfully!");
+        setLoading(false);
+
+        // Phase 2: Staged AI enhancement (categorization first, then summary)
+        if (successResult.aiProcessing) {
+          // Stage 1: AI Categorization (faster)
+          setCategorizationProcessing(true);
+          try {
+            const categoryResult = await enhanceEventWithCategories(successResult.event);
+            if (categoryResult.success) {
+              setPreview(categoryResult.event);
+              setSuccess(categoryResult.message || "Event categorized! Summary in progress...");
+              
+              // Stage 2: AI Summary (slower)
+              setCategorizationProcessing(false);
+              setSummaryProcessing(true);
+              
+              try {
+                const summaryResult = await enhanceEventWithSummary(categoryResult.event);
+                if (summaryResult.success) {
+                  setPreview(summaryResult.event);
+                  setSuccess("Event imported with full AI analysis completed!");
+                } else {
+                  setSuccess("Event imported with categorization! Summary generation had issues.");
+                }
+              } catch (summaryError) {
+                console.error("AI summary generation failed:", summaryError);
+                setSuccess("Event imported with categorization! Summary generation failed.");
+              } finally {
+                setSummaryProcessing(false);
+              }
+            } else {
+              setSuccess("Event imported! AI categorization had issues but basic data is available.");
+              setCategorizationProcessing(false);
+            }
+          } catch (categoryError) {
+            console.error("AI categorization failed:", categoryError);
+            setSuccess("Event imported! AI categorization failed but basic data is available.");
+            setCategorizationProcessing(false);
+          }
+        }
       } else {
-        setError(result.error || "Failed to import event");
+        const errorResult = result as { success: false; error: string };
+        setError(errorResult.error || "Failed to import event");
+        setLoading(false);
       }
     } catch (error) {
       setError("An unexpected error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -98,6 +150,8 @@ export function ImportEventModal({
     setError("");
     setSuccess("");
     setLoading(false);
+    setCategorizationProcessing(false);
+    setSummaryProcessing(false);
     setSaving(false);
     setEditingInterestArea("");
   };
@@ -188,8 +242,76 @@ export function ImportEventModal({
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
                 <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                  Supports Luma (lu.ma) and Eventbrite events
+                  Supports Luma (lu.ma, luma.com) and Eventbrite events
                 </div>
+                
+                {/* Loading Progress Steps */}
+                {(loading || categorizationProcessing || summaryProcessing) && (
+                  <div className="flex items-center justify-between mb-4 text-xs">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mb-1 ${
+                        loading ? 'border-[#AE3813] text-[#AE3813]' : 
+                        preview ? 'border-green-500 text-green-500' : 'border-gray-600 text-gray-600'
+                      }`}>
+                        {preview ? <CheckCircle className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+                      </div>
+                      <span className={
+                        loading ? 'text-[#AE3813]' : 
+                        preview ? 'text-green-500' : 'text-gray-600'
+                      }>Fetching</span>
+                    </div>
+                    <div className={`h-[2px] flex-1 mx-2 mt-[-24px] ${
+                      preview ? 'bg-green-500' : 
+                      loading ? 'bg-gradient-to-r from-[#AE3813] to-[#D45E3C]' : 'bg-gray-700'
+                    }`} />
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mb-1 ${
+                        categorizationProcessing ? 'border-[#AE3813] text-[#AE3813] animate-pulse' : 
+                        preview && preview.ai_categorized ? 'border-green-500 text-green-500' :
+                        preview ? 'border-yellow-500 text-yellow-500' : 'border-gray-600 text-gray-600'
+                      }`}>
+                        {preview && preview.ai_categorized ? <CheckCircle className="w-4 h-4" /> : <Tag className="w-4 h-4" />}
+                      </div>
+                      <span className={
+                        categorizationProcessing ? 'text-[#AE3813]' : 
+                        preview && preview.ai_categorized ? 'text-green-500' :
+                        preview ? 'text-yellow-500' : 'text-gray-600'
+                      }>Categories</span>
+                    </div>
+                    <div className={`h-[2px] flex-1 mx-2 mt-[-24px] ${
+                      preview && preview.ai_categorized ? 'bg-green-500' :
+                      categorizationProcessing ? 'bg-gradient-to-r from-[#AE3813] to-[#D45E3C]' : 'bg-gray-700'
+                    }`} />
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mb-1 ${
+                        summaryProcessing ? 'border-[#AE3813] text-[#AE3813] animate-pulse' : 
+                        preview && preview.ai_summarized ? 'border-green-500 text-green-500' :
+                        preview && preview.ai_categorized ? 'border-yellow-500 text-yellow-500' : 'border-gray-600 text-gray-600'
+                      }`}>
+                        {preview && preview.ai_summarized ? <CheckCircle className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+                      </div>
+                      <span className={
+                        summaryProcessing ? 'text-[#AE3813]' : 
+                        preview && preview.ai_summarized ? 'text-green-500' :
+                        preview && preview.ai_categorized ? 'text-yellow-500' : 'text-gray-600'
+                      }>Summary</span>
+                    </div>
+                    <div className={`h-[2px] flex-1 mx-2 mt-[-24px] ${
+                      preview && preview.ai_summarized ? 'bg-green-500' :
+                      summaryProcessing ? 'bg-gradient-to-r from-[#AE3813] to-[#D45E3C]' : 'bg-gray-700'
+                    }`} />
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mb-1 ${
+                        preview && preview.ai_summarized ? 'border-green-500 text-green-500' : 'border-gray-600 text-gray-600'
+                      }`}>
+                        <CheckCircle className="w-4 h-4" />
+                      </div>
+                      <span className={
+                        preview && preview.ai_summarized ? 'text-green-500' : 'text-gray-600'
+                      }>Ready</span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-3">
                   <div className="flex-1 relative">
@@ -212,7 +334,12 @@ export function ImportEventModal({
                     {loading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-primary-border/90 border-t-white rounded-full animate-spin" />
-                        Importing...
+                        <span className="relative">
+                          Importing
+                          <span className="absolute -right-4 animate-[bounce_1.5s_infinite]">.</span>
+                          <span className="absolute -right-7 animate-[bounce_1.5s_infinite_.2s]">.</span>
+                          <span className="absolute -right-10 animate-[bounce_1.5s_infinite_.4s]">.</span>
+                        </span>
                       </>
                     ) : (
                       <>
@@ -243,6 +370,16 @@ export function ImportEventModal({
                       {preview?.platform === "luma-scraped" && (
                         <p className="text-green-300 text-xs mt-1">
                           ✨ Data extracted using web scraping
+                        </p>
+                      )}
+                      {categorizationProcessing && (
+                        <p className="text-blue-300 text-xs mt-1">
+                          🎯 AI categorization in progress - you can review basic details below
+                        </p>
+                      )}
+                      {summaryProcessing && (
+                        <p className="text-blue-300 text-xs mt-1">
+                          📝 AI summary generation in progress - categories complete!
                         </p>
                       )}
                     </div>
@@ -323,9 +460,14 @@ export function ImportEventModal({
                         AI-Enhanced Content
                       </h4>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full">
+                    <div className={`flex items-center gap-2 text-xs px-3 py-1 rounded-full ${
+                      categorizationProcessing || summaryProcessing
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 animate-pulse' 
+                        : 'bg-white/5 text-gray-400'
+                    }`}>
                       <Sparkles className="w-3 h-3" />
-                      AI-powered
+                      {categorizationProcessing ? 'Categorizing...' : 
+                       summaryProcessing ? 'Summarizing...' : 'AI-powered'}
                     </div>
                   </div>
 
@@ -336,19 +478,25 @@ export function ImportEventModal({
                         <Tag className="w-4 h-4" />
                         Event Type
                       </label>
-                      <select
-                        value={preview.ai_event_type}
-                        onChange={(e) =>
-                          updatePreview("ai_event_type", e.target.value)
-                        }
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200"
-                      >
-                        {EVENT_TYPES.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200 flex items-center justify-between hover:bg-white/10">
+                            <span>{preview.ai_event_type || "Select event type..."}</span>
+                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-gray-900 border-gray-700">
+                          {EVENT_TYPES.map((type) => (
+                            <DropdownMenuItem
+                              key={type}
+                              onClick={() => updatePreview("ai_event_type", type)}
+                              className="text-primary-text hover:bg-white/10 cursor-pointer"
+                            >
+                              {type}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
 
                     {/* Research Areas */}
@@ -387,24 +535,35 @@ export function ImportEventModal({
 
                       {/* Add Research Area */}
                       <div className="flex gap-3">
-                        <select
-                          value={editingInterestArea}
-                          onChange={(e) =>
-                            setEditingInterestArea(e.target.value)
-                          }
-                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200"
-                        >
-                          <option value="">
-                            Select a research area to add...
-                          </option>
-                          {INTEREST_AREAS.filter(
-                            (area) => !preview.ai_interest_areas?.includes(area)
-                          ).map((area) => (
-                            <option key={area} value={area}>
-                              {area}
-                            </option>
-                          ))}
-                        </select>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200 flex items-center justify-between hover:bg-white/10">
+                              <span className="text-left">
+                                {editingInterestArea || "Select a research area to add..."}
+                              </span>
+                              <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-gray-900 border-gray-700 max-h-60 overflow-y-auto">
+                            <DropdownMenuItem
+                              onClick={() => setEditingInterestArea("")}
+                              className="text-gray-400 hover:bg-white/10 cursor-pointer"
+                            >
+                              Select a research area to add...
+                            </DropdownMenuItem>
+                            {INTEREST_AREAS.filter(
+                              (area) => !preview.ai_interest_areas?.includes(area)
+                            ).map((area) => (
+                              <DropdownMenuItem
+                                key={area}
+                                onClick={() => setEditingInterestArea(area)}
+                                className="text-primary-text hover:bg-white/10 cursor-pointer"
+                              >
+                                {area}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <button
                           onClick={addInterestArea}
                           disabled={!editingInterestArea}
@@ -433,21 +592,11 @@ export function ImportEventModal({
                       />
                     </div>
 
-                    {/* Full Description */}
-                    <div className="space-y-3">
-                      <label className="block text-sm font-medium text-gray-300">
-                        Full Description
-                      </label>
-                      <textarea
-                        value={preview.description}
-                        onChange={(e) =>
-                          updatePreview("description", e.target.value)
-                        }
-                        rows={6}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text placeholder-gray-400 focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200 resize-none"
-                        placeholder="Complete event description..."
-                      />
-                    </div>
+                    {/* Full Description - Hidden but still stored */}
+                    <input 
+                      type="hidden" 
+                      value={preview.description} 
+                    />
                   </div>
                 </div>
               </div>

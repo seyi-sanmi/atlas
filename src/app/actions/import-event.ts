@@ -9,25 +9,24 @@ async function addAIAnalysis(eventData: any) {
   try {
     console.log('🤖 Starting AI analysis for event:', eventData.title?.substring(0, 50) + '...');
     
-    // AI Categorization
-    const aiResult = await categorizeEventWithRetry({
-      title: eventData.title || '',
-      description: eventData.description || ''
-    });
+    // Run AI categorization and summary generation in parallel for speed
+    const [aiResult, summaryResult] = await Promise.all([
+      categorizeEventWithRetry({
+        title: eventData.title || '',
+        description: eventData.description || ''
+      }),
+      generateEventSummaryWithRetry({
+        eventName: eventData.title || '',
+        eventDescription: eventData.description || '',
+        targetAudience: [], // Will be inferred from description
+        keyActivities: [], // Will be inferred from description
+        keyTechnologies: [], // Will be inferred from description
+        mainIncentive: '', // Will be inferred from description
+        fullText: eventData.description || ''
+      })
+    ]);
     
     console.log('✅ AI categorization completed:', aiResult);
-    
-    // AI Summary Generation
-    const summaryResult = await generateEventSummaryWithRetry({
-      eventName: eventData.title || '',
-      eventDescription: eventData.description || '',
-      targetAudience: [], // Will be inferred from description
-      keyActivities: [], // Will be inferred from description
-      keyTechnologies: [], // Will be inferred from description
-      mainIncentive: '', // Will be inferred from description
-      fullText: eventData.description || ''
-    });
-    
     console.log('✅ AI summary generation completed:', summaryResult);
     
     return {
@@ -61,12 +60,39 @@ async function addAIAnalysis(eventData: any) {
   }
 }
 
+// Helper function to return basic event data without AI analysis
+function createBasicEventData(scrapedData: any, eventId: string, originalUrl: string, platform: string) {
+  return {
+    title: scrapedData.title,
+    description: scrapedData.description,
+    date: scrapedData.date,
+    time: scrapedData.time,
+    location: scrapedData.location,
+    city: scrapedData.city,
+    categories: platform === 'luma-scraped' ? ['Scraped'] : ['Imported'],
+    organizer: scrapedData.organizer,
+    url: originalUrl,
+    luma_id: platform.includes('luma') ? eventId : null,
+    eventbrite_id: platform.includes('eventbrite') ? eventId : null,
+    imported_at: new Date().toISOString(),
+    platform: platform,
+    // Default AI values that will be updated later
+    ai_event_type: 'Other',
+    ai_interest_areas: [],
+    ai_categorized: false,
+    ai_summary: scrapedData.description || scrapedData.title || '',
+    ai_technical_keywords: [],
+    ai_excitement_hook: 'Join us for this exciting event',
+    ai_summarized: false
+  };
+}
+
 // Platform detection and URL parsing
 function detectPlatform(url: string): 'luma' | 'eventbrite' | null {
   try {
     const urlObj = new URL(url);
     
-    if (urlObj.hostname === 'lu.ma') {
+    if (urlObj.hostname === 'lu.ma' || urlObj.hostname === 'luma.com') {
       return 'luma';
     }
     
@@ -84,8 +110,8 @@ function detectPlatform(url: string): 'luma' | 'eventbrite' | null {
 function extractLumaEventId(url: string): string | null {
   try {
     const urlObj = new URL(url);
-    if (urlObj.hostname !== 'lu.ma') {
-      throw new Error('Invalid Luma URL');
+    if (urlObj.hostname !== 'lu.ma' && urlObj.hostname !== 'luma.com') {
+      throw new Error('Invalid Luma URL - must be from lu.ma or luma.com');
     }
     
     const pathSegments = urlObj.pathname.split('/').filter(Boolean);
@@ -124,6 +150,126 @@ function extractEventbriteEventId(url: string): string | null {
   } catch (error) {
     return null;
   }
+}
+
+// Import basic Luma event data without AI analysis (fast)
+async function importFromLumaBasic(eventId: string, originalUrl: string) {
+  console.log('🔍 Starting basic Luma import with:', { eventId, originalUrl });
+  
+  // First, try the API if available
+  if (process.env.LUMA_API_KEY) {
+    console.log('🔑 Luma API key found, attempting API import...');
+    try {
+      const response = await fetch(`https://api.lu.ma/public/v1/event/${eventId}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'x-luma-api-key': process.env.LUMA_API_KEY,
+        },
+      });
+
+      console.log('📡 API response status:', response.status);
+
+      if (response.ok) {
+        const lumaEventData = await response.json();
+        console.log('✅ Successfully imported basic data from Luma API');
+        
+        return createBasicEventData({
+          title: lumaEventData.name || 'Untitled Event',
+          description: lumaEventData.description || '',
+          date: lumaEventData.start_at ? new Date(lumaEventData.start_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          time: lumaEventData.start_at ? formatTime(lumaEventData.start_at, lumaEventData.end_at) : 'TBD',
+          location: lumaEventData.location?.name || lumaEventData.location || 'TBD',
+          city: await getLumaCity(lumaEventData),
+          organizer: lumaEventData.organizer?.name || 'Luma Event'
+        }, eventId, originalUrl, 'luma');
+      } else {
+        console.log(`⚠️ Luma API failed with status ${response.status}, falling back to scraper`);
+      }
+    } catch (apiError) {
+      console.log('❌ Luma API error, falling back to scraper:', apiError);
+    }
+  } else {
+    console.log('🔓 No Luma API key found, using scraper');
+  }
+
+  // Fallback to scraper
+  try {
+    console.log('🕷️ Attempting to scrape Luma event:', originalUrl);
+    const scrapedData = await scrapeLumaEvent(originalUrl);
+    
+    if (scrapedData) {
+      console.log('✅ Successfully scraped basic Luma event data');
+      
+      return createBasicEventData({
+        title: scrapedData.title,
+        description: scrapedData.description,
+        date: scrapedData.date,
+        time: scrapedData.time,
+        location: scrapedData.location,
+        city: scrapedData.city,
+        organizer: scrapedData.organizer
+      }, eventId, originalUrl, 'luma-scraped');
+    } else {
+      console.error('❌ Scraper returned null/undefined data');
+    }
+  } catch (scrapeError) {
+    console.error('❌ Scraper error details:', scrapeError);
+  }
+
+  // If both API and scraper fail
+  console.error('💥 Both API and scraper methods failed for event:', eventId);
+  return {
+    success: false,
+    error: 'Unable to import event. Both API and scraper methods failed.'
+  };
+}
+
+// Import basic Eventbrite event data without AI analysis (fast)
+async function importFromEventbriteBasic(eventId: string, originalUrl: string) {
+  if (!process.env.EVENTBRITE_API_KEY) {
+    return {
+      success: false,
+      error: 'Eventbrite API key not configured. Please contact an administrator.'
+    };
+  }
+
+  // Fetch event details with expanded venue and organizer information
+  const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,organizer`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${process.env.EVENTBRITE_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return {
+        success: false,
+        error: 'Event not found. Please check the URL or ensure the event is public.'
+      };
+    }
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: 'Unauthorized access to Eventbrite API. Please check API key configuration.'
+      };
+    }
+    throw new Error(`Eventbrite API error: ${response.status}`);
+  }
+
+  const eventbriteEventData = await response.json();
+
+  return createBasicEventData({
+    title: eventbriteEventData.name?.text || 'Untitled Event',
+    description: eventbriteEventData.description?.html || eventbriteEventData.description?.text || '',
+    date: eventbriteEventData.start?.utc ? new Date(eventbriteEventData.start.utc).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    time: eventbriteEventData.start?.utc ? formatEventbriteTime(eventbriteEventData.start.utc, eventbriteEventData.end?.utc) : 'TBD',
+    location: getEventbriteLocation(eventbriteEventData),
+    city: getEventbriteCity(eventbriteEventData),
+    organizer: getEventbriteOrganizer(eventbriteEventData)
+  }, eventId, originalUrl, 'eventbrite');
 }
 
 // Import from Luma API with scraper fallback
@@ -753,6 +899,183 @@ function formatTime(startAt: string, endAt?: string): string {
   }
 }
 
+// Progressive import function - returns basic data first, then AI-enhanced data
+export async function importEventProgressive(eventUrl: string, forceUpdate: boolean = false) {
+  try {
+    // 1. Detect platform and validate URL
+    const platform = detectPlatform(eventUrl);
+    if (!platform) {
+      return { 
+        success: false, 
+        error: 'Unsupported URL. Please provide a valid Luma (lu.ma or luma.com) or Eventbrite URL.' 
+      };
+    }
+
+    // 2. Extract event ID based on platform
+    let eventId: string | null = null;
+    if (platform === 'luma') {
+      eventId = extractLumaEventId(eventUrl);
+    } else if (platform === 'eventbrite') {
+      eventId = extractEventbriteEventId(eventUrl);
+    }
+
+    if (!eventId) {
+      return { 
+        success: false, 
+        error: `Invalid ${platform} URL format. Please check the URL and try again.` 
+      };
+    }
+
+    // 3. Check if event already exists (only if not forcing update)
+    if (!forceUpdate) {
+      const { data: existingEvent } = await supabase
+        .from('events')
+        .select('id, title')
+        .or(`url.eq.${eventUrl},luma_id.eq.${eventId},eventbrite_id.eq.${eventId}`)
+        .single();
+
+      if (existingEvent) {
+        return {
+          success: false,
+          error: `Event "${existingEvent.title}" has already been imported.`
+        };
+      }
+    }
+
+    // 4. Get basic event data first (fast)
+    let basicEventData;
+    if (platform === 'luma') {
+      const result = await importFromLumaBasic(eventId, eventUrl);
+      if (result && typeof result === 'object' && 'success' in result && result.success === false) {
+        return result;
+      }
+      basicEventData = result;
+    } else if (platform === 'eventbrite') {
+      const result = await importFromEventbriteBasic(eventId, eventUrl);
+      if (result && typeof result === 'object' && 'success' in result && result.success === false) {
+        return result;
+      }
+      basicEventData = result;
+    }
+
+    if (!basicEventData) {
+      return { success: false, error: 'Failed to import basic event data' };
+    }
+
+    // 5. Return basic data immediately for UI display
+    return { 
+      success: true, 
+      event: basicEventData,
+      message: `Event details imported successfully from ${platform.charAt(0).toUpperCase() + platform.slice(1)}. AI analysis in progress...`,
+      aiProcessing: true
+    };
+
+  } catch (error) {
+    console.error('Progressive import error:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to import event. Please try again.' 
+    };
+  }
+}
+
+// Function to get AI categorization (fast)
+export async function enhanceEventWithCategories(basicEventData: any) {
+  try {
+    console.log('🎯 Starting AI categorization for event:', basicEventData.title?.substring(0, 50) + '...');
+    
+    const aiResult = await categorizeEventWithRetry({
+      title: basicEventData.title || '',
+      description: basicEventData.description || ''
+    });
+    
+    console.log('✅ AI categorization completed:', aiResult);
+    
+    const categorizedData = {
+      ...basicEventData,
+      ai_event_type: aiResult.event_type,
+      ai_interest_areas: aiResult.event_interest_areas,
+      ai_categorized: true,
+      ai_categorized_at: new Date().toISOString()
+    };
+    
+    return {
+      success: true,
+      event: categorizedData,
+      message: 'Event categorized! Summary generation in progress...'
+    };
+  } catch (error) {
+    console.error('AI categorization error:', error);
+    return {
+      success: false,
+      error: 'AI categorization failed',
+      event: basicEventData
+    };
+  }
+}
+
+// Function to add AI summary to already categorized data (slower)
+export async function enhanceEventWithSummary(categorizedEventData: any) {
+  try {
+    console.log('📝 Starting AI summary generation for event:', categorizedEventData.title?.substring(0, 50) + '...');
+    
+    const summaryResult = await generateEventSummaryWithRetry({
+      eventName: categorizedEventData.title || '',
+      eventDescription: categorizedEventData.description || '',
+      targetAudience: [],
+      keyActivities: [],
+      keyTechnologies: [],
+      mainIncentive: '',
+      fullText: categorizedEventData.description || ''
+    });
+    
+    console.log('✅ AI summary generation completed:', summaryResult);
+    
+    const fullyEnhancedData = {
+      ...categorizedEventData,
+      ai_summary: summaryResult.summary,
+      ai_technical_keywords: summaryResult.technicalKeywords,
+      ai_excitement_hook: summaryResult.excitementHook,
+      ai_summarized: true,
+      ai_summarized_at: new Date().toISOString()
+    };
+    
+    return {
+      success: true,
+      event: fullyEnhancedData,
+      message: 'AI analysis completed!'
+    };
+  } catch (error) {
+    console.error('AI summary generation error:', error);
+    return {
+      success: false,
+      error: 'AI summary generation failed, but categorization is available',
+      event: categorizedEventData
+    };
+  }
+}
+
+// Function to get AI-enhanced event data (legacy - now runs staged)
+export async function enhanceEventWithAI(basicEventData: any) {
+  try {
+    console.log('🚀 Starting full AI enhancement for event:', basicEventData.title?.substring(0, 50) + '...');
+    const enhancedData = await addAIAnalysis(basicEventData);
+    
+    return {
+      success: true,
+      event: enhancedData,
+      message: 'AI analysis completed!'
+    };
+  } catch (error) {
+    console.error('AI enhancement error:', error);
+    return {
+      success: false,
+      error: 'AI analysis failed, but basic event data is available',
+      event: basicEventData // Return basic data as fallback
+    };
+  }
+}
+
 // Main import function that handles both platforms
 export async function importEvent(eventUrl: string, forceUpdate: boolean = false) {
   try {
@@ -761,7 +1084,7 @@ export async function importEvent(eventUrl: string, forceUpdate: boolean = false
     if (!platform) {
       return { 
         success: false, 
-        error: 'Unsupported URL. Please provide a valid Luma (lu.ma) or Eventbrite URL.' 
+        error: 'Unsupported URL. Please provide a valid Luma (lu.ma or luma.com) or Eventbrite URL.' 
       };
     }
 

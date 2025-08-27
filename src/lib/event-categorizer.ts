@@ -207,16 +207,17 @@ You will receive a JSON object with the following schema. Some fields may be nul
 Process the input JSON and generate a new JSON object with the following schema.
 
 ### OUTPUT SCHEMA ###
-- \`summary\`: string - A single, compelling sentence (30-45 words). This summary MUST synthesize the core innovation (\`keyTechnologies\`) with the main action (\`keyActivities\`) and audience. It should answer "Why is this event technically exciting?"
+- \`summary\`: string - A compelling 2-3 sentence summary (50-75 words). Start with speaker credentials in SF style, then synthesize the core innovation (\`keyTechnologies\`) with the main action (\`keyActivities\`) and audience. Answer "Who are the impressive speakers?" and "Why is this event technically exciting?"
 - \`technicalKeywords\`: string[] - A list of 5-7 key technical terms suitable for use as website tags. Extract from \`keyTechnologies\` and the \`fullText\`.
 - \`excitementHook\`: string - A very short (under 10 words), punchy phrase that captures the event's core promise.
 
 ### INSTRUCTIONS & CONSTRAINTS ###
-1.  **Prioritize Innovation:** The \`summary\`'s main subject must be the technology or scientific breakthrough. Use the \`keyTechnologies\` field as your primary source. If it's empty, infer from \`eventName\` and \`eventDescription\`.
-2.  **Be Factual and Dense:** The \`summary\` should be packed with information, not fluff. Avoid marketing jargon like "amazing," "incredible," or "don't miss."
-3.  **Strict JSON Output:** Your entire response must be a single, valid JSON object conforming to the specified \`OUTPUT SCHEMA\`. Do not add any text before or after the JSON.
-4.  **Keyword Quality:** The \`technicalKeywords\` should be specific (e.g., "Agentic PCB Design," not "Design").
-5.  **Hook Quality:** The \`excitementHook\` should be a call to action or a bold statement of purpose.
+1.  **Speaker-First Summary:** The \`summary\` MUST start by highlighting the most impressive speakers in a concise, SF startup style format. Example: "Join Sarah (AI Lead @ DeepMind) and John (Stanford ML PhD, 3x Founder) for..." Extract real titles and affiliations from the description.
+2.  **Prioritize Innovation:** After introducing speakers, focus on the technology or scientific breakthrough. Use the \`keyTechnologies\` field as your primary source. If it's empty, infer from \`eventName\` and \`eventDescription\`.
+3.  **Be Factual and Dense:** The \`summary\` should be packed with information, not fluff. Avoid marketing jargon like "amazing," "incredible," or "don't miss."
+4.  **Strict JSON Output:** Your entire response must be a single, valid JSON object conforming to the specified \`OUTPUT SCHEMA\`. Do not add any text before or after the JSON.
+5.  **Keyword Quality:** The \`technicalKeywords\` should be specific (e.g., "Agentic PCB Design," not "Design").
+6.  **Hook Quality:** The \`excitementHook\` should highlight the most impressive speaker credential or breakthrough. Example: "Learn from DeepMind's AI Architect" or "Stanford's Latest ML Breakthrough"
 
 ### INPUT JSON: ###
 ${JSON.stringify(event, null, 2)}`;
