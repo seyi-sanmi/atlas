@@ -39,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null)
       setLoading(false)
       
-      // Link session data when user signs up or signs in for first time
-      if (event === 'SIGNED_UP' && session?.user) {
+      // Link session data when user signs in (covers both sign up and sign in)
+      if (event === 'SIGNED_IN' && session?.user) {
         try {
           await linkSessionToUser(session.user.id)
         } catch (error) {
