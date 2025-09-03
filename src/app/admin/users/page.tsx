@@ -35,6 +35,27 @@ interface UserProfile {
   event_clicks_count?: number
 }
 
+interface AdminUserDataResponse {
+  id: string
+  email: string
+  full_name?: string
+  avatar_url?: string
+  organization?: string
+  job_title?: string
+  location?: string
+  linkedin_url?: string
+  research_interests?: string[]
+  preferred_categories?: string[]
+  last_activity_at?: string
+  onboarding_completed?: boolean
+  created_at: string
+  updated_at?: string
+  role?: string
+  last_sign_in_at?: string
+  event_views_count?: number
+  event_clicks_count?: number
+}
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserProfile[]>([])
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([])
@@ -62,7 +83,7 @@ export default function AdminUsersPage() {
       if (error) throw error
 
       // Data is already processed by the secure function
-      const processedUsers = profiles?.map(profile => ({
+      const processedUsers = (profiles as AdminUserDataResponse[])?.map((profile: AdminUserDataResponse) => ({
         id: profile.id,
         email: profile.email || 'No email',
         full_name: profile.full_name,
