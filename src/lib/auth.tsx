@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
+import { linkSessionToUser } from './event-tracking'
 
 interface AuthContextType {
   user: User | null
@@ -33,10 +34,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
+      
+      // Link session data when user signs up or signs in for first time
+      if (event === 'SIGNED_UP' && session?.user) {
+        try {
+          await linkSessionToUser(session.user.id)
+        } catch (error) {
+          console.error('Failed to link session data:', error)
+        }
+      }
     })
 
     return () => subscription.unsubscribe()

@@ -1,6 +1,7 @@
 import React from "react";
-import { Twitter, Instagram, Linkedin, Mail } from "lucide-react";
+import { Twitter, Instagram, Linkedin } from "lucide-react";
 import { ModeToggle } from "../mode-toggle";
+import { NewsletterSignup } from "../newsletter/NewsletterSignup";
 
 export function Footer() {
   return (
@@ -15,15 +16,12 @@ export function Footer() {
             Get notified about the latest science events and opportunities in
             the UK
           </p>
-          <div className="flex max-w-md mx-auto">
-            <input
-              type="email"
+          <div className="max-w-md mx-auto">
+            <NewsletterSignup 
               placeholder="Enter your email"
-              className="flex-1 px-3 py-2 bg-secondary-bg/50 border border-white/30 rounded-l-lg text-primary-text placeholder-black/40 dark:placeholder-white/40 focus:outline-none focus:border-[#AE3813] transition-colors text-sm"
+              buttonText="Subscribe"
+              showGDPRNote={false}
             />
-            <button className="px-4 py-2 bg-gradient-to-r from-[#AE3813] to-[#D45E3C] text-primary-text font-semibold rounded-r-lg hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transition-all duration-200 flex items-center">
-              <Mail className="w-4 h-4" />
-            </button>
           </div>
         </div>
 

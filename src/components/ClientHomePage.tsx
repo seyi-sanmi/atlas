@@ -17,7 +17,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 import { ImportEventModal } from "@/components/ImportEventModal";
 import Hero from "./hero";
-import { trackEventView, trackEventClick } from "@/lib/user-tracking";
+import { trackEventView, trackEventClick, trackEventDetailView } from "@/lib/event-tracking";
 
 interface ClientHomePageProps {
   initialEvents: Event[];
@@ -123,26 +123,18 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
     console.log("Selected event:", event);
     setSelectedEvent(event);
 
-    // Track event view when user opens event details
+    // Track event detail view when user opens event details modal
     try {
-      await trackEventView(
-        event.id,
-        event.title,
-        event.ai_interest_areas || []
-      );
+      await trackEventDetailView(event);
     } catch (error) {
-      console.error("Failed to track event view:", error);
+      console.error("Failed to track event detail view:", error);
     }
   };
 
   const handleEventClick = async (event: Event) => {
-    // Track event click when user clicks "View Event" button
+    // Track event click when user clicks "View Event" button  
     try {
-      await trackEventClick(
-        event.id,
-        event.title,
-        event.ai_interest_areas || []
-      );
+      await trackEventClick(event);
     } catch (error) {
       console.error("Failed to track event click:", error);
     }

@@ -11,6 +11,7 @@ import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth";
+import { GDPRBanner } from "@/components/privacy/GDPRBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
+            <GDPRBanner />
             <Analytics />
           </AuthProvider>
         </ThemeProvider>

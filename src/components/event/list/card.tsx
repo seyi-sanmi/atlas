@@ -19,6 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { addUtmParameters } from "@/lib/utils";
+import { trackEventView, trackEventClick, trackEventDetailView } from "@/lib/event-tracking";
 
 interface EventCardProps {
   event: Event;
@@ -114,9 +115,13 @@ export function EventCard({
 
   const eventDate = parseEventDate(date);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 300);
+    
+    // Track event detail view
+    await trackEventDetailView(event);
+    
     onClick();
   };
 
@@ -449,11 +454,14 @@ export function EventCard({
                   ? "bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#AE3813]/80 hover:to-[#D45E3C]/80 transform hover:scale-105 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
               }`}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (event.url) {
-                  // Track the event click
+                  // Track the event click with our new system
+                  await trackEventClick(event);
+                  
+                  // Also call the existing callback if provided
                   onEventClick?.();
 
                   const urlWithUtm = addUtmParameters(event.url);

@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   LogOut,
-  Shield
+  Shield,
+  BarChart3
 } from 'lucide-react'
 import { getAdminUser, AdminUser } from '@/lib/admin'
 import { supabase } from '@/lib/supabase'
@@ -30,6 +31,12 @@ const navigationItems = [
     href: '/admin/dashboard',
     icon: LayoutDashboard,
     description: 'Overview and analytics'
+  },
+  {
+    name: 'Event Analytics',
+    href: '/admin/analytics',
+    icon: BarChart3,
+    description: 'User tracking & research interests'
   },
   {
     name: 'Events',

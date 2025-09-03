@@ -1,9 +1,10 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { EventCard } from "./card";
 import { FeaturedEventCard } from "./featured-card";
 import { Event } from "@/lib/supabase";
 import { ChevronDown, ChevronUp, Pause, Play } from "lucide-react";
 import { useTheme } from "next-themes";
+import { trackEventView } from "@/lib/event-tracking";
 
 interface EventsListProps {
   events: Event[];
@@ -33,6 +34,10 @@ export function EventsList({
   const [mounted, setMounted] = useState(false);
   const [featuredEventIndex, setFeaturedEventIndex] = useState(0);
   const [isRotationPaused, setIsRotationPaused] = useState(false);
+  
+  // Track events that have been viewed
+  const [viewedEvents, setViewedEvents] = useState<Set<string>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -53,6 +58,39 @@ export function EventsList({
 
     return () => clearInterval(interval);
   }, [starredEvents.length, isRotationPaused]);
+
+  // Set up intersection observer for view tracking
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const eventId = entry.target.getAttribute('data-event-id');
+            if (eventId && !viewedEvents.has(eventId)) {
+              const event = events.find(e => e.id === eventId);
+              if (event) {
+                // Track the view
+                trackEventView(event).catch(console.error);
+                
+                // Mark as viewed to prevent duplicate tracking
+                setViewedEvents(prev => new Set([...prev, eventId]));
+              }
+            }
+          }
+        });
+      },
+      {
+        rootMargin: '0px 0px -20% 0px', // Trigger when 80% visible
+        threshold: 0.8
+      }
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [events, viewedEvents]);
 
   // Get current featured event
   const currentFeaturedEvent = starredEvents[featuredEventIndex];
@@ -310,24 +348,33 @@ export function EventsList({
             {!isCollapsed && (
               <div className="grid grid-cols-1 gap-0">
                 {dateEvents.map((event, eventIndex) => (
-                  <EventCard
+                  <div
                     key={event.id}
-                    date={event.date}
-                    event={event}
-                    onClick={() => onEventSelect(event)}
-                    onEventClick={() => onEventClick?.(event)}
-                    isSelected={selectedEvent?.id === event.id}
-                    showTime={
-                      eventIndex === 0 ||
-                      event.time !== dateEvents[eventIndex - 1]?.time
-                    }
-                    isFirstInGroup={eventIndex === 0}
-                    isLastInGroup={eventIndex === dateEvents.length - 1}
-                    eventIndex={(event as any).globalIndex}
-                    onTagClick={onTagClick}
-                    selectedInterestAreas={selectedInterestAreas}
-                    selectedEventTypes={selectedEventTypes}
-                  />
+                    data-event-id={event.id}
+                    ref={(el) => {
+                      if (el && observerRef.current) {
+                        observerRef.current.observe(el);
+                      }
+                    }}
+                  >
+                    <EventCard
+                      date={event.date}
+                      event={event}
+                      onClick={() => onEventSelect(event)}
+                      onEventClick={() => onEventClick?.(event)}
+                      isSelected={selectedEvent?.id === event.id}
+                      showTime={
+                        eventIndex === 0 ||
+                        event.time !== dateEvents[eventIndex - 1]?.time
+                      }
+                      isFirstInGroup={eventIndex === 0}
+                      isLastInGroup={eventIndex === dateEvents.length - 1}
+                      eventIndex={(event as any).globalIndex}
+                      onTagClick={onTagClick}
+                      selectedInterestAreas={selectedInterestAreas}
+                      selectedEventTypes={selectedEventTypes}
+                    />
+                  </div>
                 ))}
               </div>
             )}

@@ -55,25 +55,16 @@ export default function AdminUsersPage() {
     try {
       setLoading(true)
       
-      // Get users with their profiles
+      // Get users with their profiles using secure function
       const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          auth_users:id (
-            email,
-            created_at,
-            last_sign_in_at
-          )
-        `)
-        .order('created_at', { ascending: false })
+        .rpc('get_admin_user_data')
 
       if (error) throw error
 
-      // Process and combine user data
+      // Data is already processed by the secure function
       const processedUsers = profiles?.map(profile => ({
         id: profile.id,
-        email: profile.auth_users?.email || 'No email',
+        email: profile.email || 'No email',
         full_name: profile.full_name,
         avatar_url: profile.avatar_url,
         organization: profile.organization,
@@ -86,8 +77,8 @@ export default function AdminUsersPage() {
         onboarding_completed: profile.onboarding_completed,
         created_at: profile.created_at,
         role: profile.role || 'user',
-        event_views_count: Array.isArray(profile.event_views) ? profile.event_views.length : 0,
-        event_clicks_count: Array.isArray(profile.event_clicks) ? profile.event_clicks.length : 0
+        event_views_count: profile.event_views_count || 0,
+        event_clicks_count: profile.event_clicks_count || 0
       })) || []
 
       setUsers(processedUsers)

@@ -72,12 +72,10 @@ export default function AdminDashboard() {
     async function loadDashboardStats() {
       try {
         const { data, error } = await supabase
-          .from('admin_dashboard_stats')
-          .select('*')
-          .single()
+          .rpc('get_admin_dashboard_stats')
 
         if (error) throw error
-        setStats(data)
+        setStats(data?.[0] || null)
       } catch (err) {
         console.error('Error loading dashboard stats:', err)
         setError('Failed to load dashboard statistics')
