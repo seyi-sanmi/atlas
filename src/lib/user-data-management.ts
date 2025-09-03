@@ -88,7 +88,7 @@ export async function exportUserData(
       },
       interactions: interactions || [],
       research_interests: researchInterests || [],
-      newsletter_data: newsletterData
+      newsletter_data: newsletterData || undefined
     }
   } catch (error) {
     console.error('Error exporting user data:', error)
