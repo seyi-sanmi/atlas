@@ -155,14 +155,14 @@ export async function captureNewsletterEmail(email: string, sourcePage: string):
     // Store in newsletter_subscribers table
     const { error } = await supabase
       .from('newsletter_subscribers')
-      .insert([{
+      .upsert({
         email,
         session_id,
         source_page: sourcePage,
         gdpr_consent: getGDPRConsent()
-      }])
-      .onConflict('email')
-      .ignoreDuplicates()
+      }, {
+        onConflict: 'email'
+      })
 
     if (error) {
       console.error('Error capturing newsletter email:', error)
