@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { importEventProgressive, enhanceEventWithCategories, enhanceEventWithSummary, saveImportedEvent } from "@/app/actions/import-event";
+import { normalizeEventUrl, getUrlFormatHelp } from '@/lib/url-utils';
 import {
   X,
   Download,
@@ -60,8 +61,18 @@ export function ImportEventModal({
     setSuccess("");
 
     try {
+      // Normalize the URL to handle various input formats
+      let normalizedUrl: string;
+      try {
+        normalizedUrl = normalizeEventUrl(url.trim());
+      } catch (urlError) {
+        setError(urlError instanceof Error ? urlError.message : getUrlFormatHelp(url.trim()));
+        setLoading(false);
+        return;
+      }
+
       // Phase 1: Get basic event data (fast!)
-      const result = await importEventProgressive(url.trim());
+      const result = await importEventProgressive(normalizedUrl);
 
       if (result.success) {
         const successResult = result as { success: true; event: any; message?: string; aiProcessing?: boolean };
@@ -320,7 +331,7 @@ export function ImportEventModal({
                       type="url"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      placeholder="https://lu.ma/your-event or https://www.eventbrite.com/e/..."
+                      placeholder="lu.ma/your-event, www.eventbrite.com/e/event-name, or just 'event-id'"
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-11 text-primary-text placeholder-gray-400 focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200"
                       disabled={loading || saving}
                     />
