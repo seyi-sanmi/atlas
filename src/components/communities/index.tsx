@@ -73,6 +73,7 @@ function ClientCommunitiesPage({
   const [selectedResearchAreas, setSelectedResearchAreas] = useState<string[]>(
     []
   );
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -184,21 +185,41 @@ function ClientCommunitiesPage({
               onResearchAreasChange={setSelectedResearchAreas}
               selectedDate={null}
               onDateChange={() => {}}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
             />
           </div>
           
           {/* Desktop Layout: Split-pane view when community is selected */}
           <div className="hidden md:block transition-all duration-700 ease-in-out">
             {!selectedCommunity ? (
-              /* Grid View - Sticky below filter bar */
+              /* Grid/Map View - Sticky below filter bar */
               <div className="sticky top-[calc(var(--header-height)+var(--filter-height))] bg-secondary-bg border border-primary-border rounded-lg overflow-hidden mt-4 h-[var(--content-height)] animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-                <div className="p-4 sm:p-6 overflow-y-auto h-full">
-                  <div className="w-full">
-                    {loading ? (
-                      <div className="text-center py-16">
-                        <div className="text-primary-text/60 text-lg font-medium mb-2">
-                          Loading communities...
-                        </div>
+                {viewMode === "map" ? (
+                  /* Map View Content - No padding to maximize space */
+                  <div className="w-full h-full">
+                    <iframe
+                      style={{ 
+                        border: "1px solid rgba(0, 0, 0, 0.1)",
+                        width: "100%",
+                        height: "100%",
+                        minHeight: "600px"
+                      }}
+                      width="100%"
+                      height="600"
+                      src="https://www.pampam.city/atlas-XiqWeDFwiAEME5CkC7CG"
+                      allowFullScreen
+                      title="Communities Map"
+                    />
+                  </div>
+                ) : (
+                  <div className="p-4 sm:p-6 overflow-y-auto h-full">
+                    <div className="w-full">
+                      {loading ? (
+                        <div className="text-center py-16">
+                          <div className="text-primary-text/60 text-lg font-medium mb-2">
+                            Loading communities...
+                          </div>
                       </div>
                     ) : communities.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -225,8 +246,9 @@ function ClientCommunitiesPage({
                         </div>
                       </div>
                     )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ) : (
               /* Split-Pane View - Also sticky below filter bar */
@@ -291,7 +313,23 @@ function ClientCommunitiesPage({
             <div className="bg-secondary-bg border border-primary-border rounded-lg overflow-hidden mt-4">
               <div className="p-4 overflow-y-auto">
                 <div className="w-full">
-                  {loading ? (
+                  {viewMode === "map" ? (
+                    /* Mobile Map View */
+                    <div className="w-full h-[60vh] min-h-[450px]">
+                      <iframe
+                        style={{ 
+                          border: "1px solid rgba(0, 0, 0, 0.1)",
+                          width: "100%",
+                          height: "100%"
+                        }}
+                        width="100%"
+                        height="450"
+                        src="https://www.pampam.city/atlas-XiqWeDFwiAEME5CkC7CG"
+                        allowFullScreen
+                        title="Communities Map"
+                      />
+                    </div>
+                  ) : loading ? (
                     <div className="text-center py-16">
                       <div className="text-primary-text/60 text-lg font-medium mb-2">
                         Loading communities...

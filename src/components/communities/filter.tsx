@@ -20,6 +20,8 @@ interface CommunitiesFilterProps {
   selectedDate?: Date | null;
   onDateChange: (date: Date | null) => void;
   refreshTrigger?: number;
+  viewMode?: "list" | "map";
+  onViewModeChange?: (mode: "list" | "map") => void;
 }
 
 export default function CommunitiesFilter({
@@ -34,6 +36,8 @@ export default function CommunitiesFilter({
   selectedDate,
   onDateChange,
   refreshTrigger,
+  viewMode = "list",
+  onViewModeChange,
 }: CommunitiesFilterProps) {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedCommunityTypes, setSelectedCommunityTypes] = useState<
@@ -213,6 +217,32 @@ export default function CommunitiesFilter({
       <div className="max-w-6xl mx-auto font-sans">
         {/* Search and Filters in Single Row */}
         <div className="flex flex-wrap gap-4 items-center justify-center mx-auto">
+          {/* View Toggle */}
+          {onViewModeChange && (
+            <div className="flex bg-white/10 backdrop-blur-sm border border-primary-border/90 rounded-sm overflow-hidden">
+              <button
+                onClick={() => onViewModeChange("list")}
+                className={`px-4 py-3 text-sm font-medium transition-colors ${
+                  viewMode === "list"
+                    ? "bg-[#AE3813] text-white"
+                    : "text-primary-text/80 hover:text-primary-text hover:bg-white/10"
+                }`}
+              >
+                List
+              </button>
+              <button
+                onClick={() => onViewModeChange("map")}
+                className={`px-4 py-3 text-sm font-medium transition-colors ${
+                  viewMode === "map"
+                    ? "bg-[#AE3813] text-white"
+                    : "text-primary-text/80 hover:text-primary-text hover:bg-white/10"
+                }`}
+              >
+                Map
+              </button>
+            </div>
+          )}
+
           {/* Search Input - Smaller */}
           <div className="relative flex-shrink-0">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
