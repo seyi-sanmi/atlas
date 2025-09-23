@@ -796,6 +796,19 @@ function extractCityRuleBased(locationStr: string): string {
     }
   }
   
+  // Special handling for UK address formats with postal codes
+  // Pattern: "Street, Area, London SW7 2BU, UK"
+  const ukAddressMatch = locationStr.match(/,\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+[A-Z]{1,2}\d{1,2}\s*\d?[A-Z]{2}/i);
+  if (ukAddressMatch) {
+    const potentialCity = ukAddressMatch[1];
+    // Check if it's a known UK city
+    for (const city of ukCities) {
+      if (potentialCity.toLowerCase() === city.toLowerCase()) {
+        return city;
+      }
+    }
+  }
+  
   // If no exact match, try to extract from comma-separated format
   const parts = locationStr.split(',').map(part => part.trim());
   
@@ -1032,12 +1045,33 @@ async function parseJsonLdData(jsonLd: any, eventUrl: string, platform: string =
         } else if (address.city && !isPlaceholderLocation(address.city)) {
           city = address.city;
           console.log('✅ Found city in city field:', city);
-        } else if (address.addressRegion && !isPlaceholderLocation(address.addressRegion)) {
-          city = address.addressRegion;
-          console.log('✅ Found city in addressRegion:', city);
-        } else if (address.addressCountry && !isPlaceholderLocation(address.addressCountry)) {
-          // Sometimes country is used when city is not available
-          console.log('⚠️ Only country found in address:', address.addressCountry);
+        } else if (address.streetAddress && !isPlaceholderLocation(address.streetAddress)) {
+          // Try to extract city from street address (e.g., "Imperial College Rd, South Kensington, London SW7 2BU, UK")
+          console.log('🔍 Trying to extract city from streetAddress:', address.streetAddress);
+          const extractedCity = await extractCityFromString(address.streetAddress);
+          if (extractedCity !== 'TBD') {
+            city = extractedCity;
+            console.log('✅ Found city in streetAddress:', city);
+          } else {
+            // If AI extraction fails, use simple parsing for UK addresses
+            const ukCityMatch = address.streetAddress.match(/,\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+[A-Z]{1,2}\d/);
+            if (ukCityMatch) {
+              city = ukCityMatch[1];
+              console.log('✅ Found UK city in streetAddress via regex:', city);
+            }
+          }
+        }
+        
+        // Only use addressRegion as a last resort and check if it's actually a city
+        if (city === 'TBD' && address.addressRegion && !isPlaceholderLocation(address.addressRegion)) {
+          // Don't use region names like "England", "Scotland", etc. as cities
+          const regionName = address.addressRegion.toLowerCase();
+          if (!['england', 'scotland', 'wales', 'northern ireland', 'uk', 'united kingdom', 'gb', 'great britain'].includes(regionName)) {
+            city = address.addressRegion;
+            console.log('✅ Found city in addressRegion:', city);
+          } else {
+            console.log('⚠️ Skipping addressRegion as it\'s a country/region, not a city:', address.addressRegion);
+          }
         }
       }
       
