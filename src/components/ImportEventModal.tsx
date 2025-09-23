@@ -50,6 +50,7 @@ export function ImportEventModal({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [editingInterestArea, setEditingInterestArea] = useState("");
+  const [forceUpdate, setForceUpdate] = useState(false);
 
   const handleImport = async () => {
     if (!url.trim()) {
@@ -73,7 +74,7 @@ export function ImportEventModal({
       }
 
       // Phase 1: Get basic event data (fast!)
-      const result = await importEventProgressive(normalizedUrl);
+      const result = await importEventProgressive(normalizedUrl, forceUpdate);
 
       if (result.success) {
         const successResult = result as { success: true; event: any; message?: string; aiProcessing?: boolean };
@@ -265,8 +266,19 @@ export function ImportEventModal({
               </div>
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                  Supports Luma, Humanitix, Partiful, and Eventbrite events
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    Supports Luma, Humanitix, Partiful, and Eventbrite events
+                  </div>
+                  <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={forceUpdate}
+                      onChange={(e) => setForceUpdate(e.target.checked)}
+                      className="w-3 h-3 text-[#AE3813] bg-white/5 border-white/20 rounded focus:ring-[#AE3813] focus:ring-2"
+                    />
+                    Force re-import
+                  </label>
                 </div>
                 
                 {/* Loading Progress Steps */}
