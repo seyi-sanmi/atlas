@@ -20,6 +20,7 @@ import {
   FileText,
   Tag,
   ChevronDown,
+  User,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -132,13 +133,23 @@ export function ImportEventModal({
   const handleSave = async () => {
     if (!preview) return;
 
+    console.log('🎯 Starting save process for event:', preview.title);
     setSaving(true);
     setError("");
 
     try {
+      console.log('📤 Calling saveImportedEvent with data:', {
+        title: preview.title,
+        ai_event_types: preview.ai_event_types,
+        platform: preview.platform
+      });
+      
       const result = await saveImportedEvent(preview);
+      
+      console.log('📥 Save result:', result);
 
       if (result.success) {
+        console.log('✅ Save successful, closing modal');
         setSuccess("Event saved successfully!");
         onEventImported();
         setTimeout(() => {
@@ -146,9 +157,11 @@ export function ImportEventModal({
           resetForm();
         }, 1500);
       } else {
+        console.error('❌ Save failed:', result.error);
         setError(result.error || "Failed to save event");
       }
     } catch (error) {
+      console.error('❌ Save exception:', error);
       setError("An unexpected error occurred while saving.");
     } finally {
       setSaving(false);
@@ -214,7 +227,7 @@ export function ImportEventModal({
                   Import Event
                 </h2>
                 <p className="text-sm text-gray-400">
-                  Import and customize events from Luma and Eventbrite
+                  Import and customize events from Luma, Humanitix, Partiful, and Eventbrite
                 </p>
               </div>
             </div>
@@ -253,7 +266,7 @@ export function ImportEventModal({
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
                 <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                  Supports Luma (lu.ma, luma.com) and Eventbrite events
+                  Supports Luma, Humanitix, Partiful, and Eventbrite events
                 </div>
                 
                 {/* Loading Progress Steps */}
@@ -331,7 +344,7 @@ export function ImportEventModal({
                       type="url"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      placeholder="lu.ma/your-event, www.eventbrite.com/e/event-name, or just 'event-id'"
+                      placeholder="Paste event URL here"
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-11 text-primary-text placeholder-gray-400 focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200"
                       disabled={loading || saving}
                     />
@@ -459,6 +472,20 @@ export function ImportEventModal({
                         {preview.city}
                       </div>
                     </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Organizer
+                      </label>
+                      <input
+                        type="text"
+                        value={preview.organizer || ''}
+                        onChange={(e) => updatePreview("organizer", e.target.value)}
+                        placeholder="Organising Team"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text placeholder-gray-400 focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -483,31 +510,70 @@ export function ImportEventModal({
                   </div>
 
                   <div className="space-y-6">
-                    {/* Event Type */}
+                    {/* Event Types (Multi-select) */}
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-gray-300 flex items-center gap-2">
                         <Tag className="w-4 h-4" />
-                        Event Type
+                        Event Types (max 2) {preview.ai_categorized && <span className="text-[#AE3813] text-xs ml-2">(AI suggested)</span>}
                       </label>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200 flex items-center justify-between hover:bg-white/10">
-                            <span>{preview.ai_event_type || "Select event type..."}</span>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-gray-900 border-gray-700">
-                          {EVENT_TYPES.map((type) => (
-                            <DropdownMenuItem
-                              key={type}
-                              onClick={() => updatePreview("ai_event_type", type)}
-                              className="text-primary-text hover:bg-white/10 cursor-pointer"
-                            >
-                              {type}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      
+                      {/* Selected Event Types Display */}
+                      <div className="space-y-2">
+                        {(preview.ai_event_types || []).length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {(preview.ai_event_types || []).map((type: string, index: number) => (
+                              <div
+                                key={`${type}-${index}`}
+                                className="flex items-center gap-2 bg-[#AE3813]/20 border border-[#AE3813]/40 rounded-full px-3 py-1 text-sm"
+                              >
+                                <span className="text-primary-text">{type}</span>
+                                <button
+                                  onClick={() => {
+                                    const newTypes = (preview.ai_event_types || []).filter((_: string, i: number) => i !== index);
+                                    updatePreview("ai_event_types", newTypes);
+                                    // Also update legacy field
+                                    updatePreview("ai_event_type", newTypes[0] || "Other");
+                                  }}
+                                  className="text-gray-400 hover:text-red-400 transition-colors"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 text-sm">No event types selected</div>
+                        )}
+                      </div>
+
+                      {/* Add Event Type Dropdown */}
+                      {(!preview.ai_event_types || preview.ai_event_types.length < 2) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text focus:outline-none focus:border-[#AE3813] focus:ring-2 focus:ring-[#AE3813]/20 transition-all duration-200 flex items-center justify-between hover:bg-white/10">
+                              <span>Add event type...</span>
+                              <Plus className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-gray-900 border-gray-700">
+                            {EVENT_TYPES.filter(type => !(preview.ai_event_types || []).includes(type)).map((type) => (
+                              <DropdownMenuItem
+                                key={type}
+                                onClick={() => {
+                                  const currentTypes = preview.ai_event_types || [];
+                                  const newTypes = [...currentTypes, type];
+                                  updatePreview("ai_event_types", newTypes);
+                                  // Also update legacy field
+                                  updatePreview("ai_event_type", newTypes[0] || "Other");
+                                }}
+                                className="text-primary-text hover:bg-white/10 cursor-pointer"
+                              >
+                                {type}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
 
                     {/* Research Areas */}

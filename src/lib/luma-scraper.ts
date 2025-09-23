@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 
-
+export type SupportedPlatform = 'luma' | 'humanitix' | 'partiful' | 'unknown';
 
 export interface LumaEventData {
   name: string;
@@ -22,6 +22,14 @@ export interface LumaEventData {
   }[];
 }
 
+export interface ScrapingError {
+  platform: SupportedPlatform;
+  url: string;
+  error: string;
+  userMessage: string;
+  shouldNotifyTeam: boolean;
+}
+
 export interface ScrapedEventData {
   title: string;
   description: string;
@@ -37,10 +45,31 @@ export interface ScrapedEventData {
 }
 
 /**
- * Simple HTTP fetch approach to get Luma event data
- * This works in serverless environments without browser dependencies
+ * Detect the event platform from URL
  */
-async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | null> {
+export function detectEventPlatform(url: string): SupportedPlatform {
+  const normalizedUrl = url.toLowerCase();
+  
+  if (normalizedUrl.includes('lu.ma/') || normalizedUrl.includes('luma.com/')) {
+    return 'luma';
+  }
+  
+  if (normalizedUrl.includes('events.humanitix.com/') || normalizedUrl.includes('humanitix.com/events/')) {
+    return 'humanitix';
+  }
+  
+  if (normalizedUrl.includes('partiful.com/e/')) {
+    return 'partiful';
+  }
+  
+  return 'unknown';
+}
+
+/**
+ * Simple HTTP fetch approach to get event data from JSON-LD
+ * Works for Luma and Humanitix (both use structured data)
+ */
+async function fetchStructuredEventData(eventUrl: string, platform: SupportedPlatform): Promise<ScrapedEventData | null> {
   try {
     console.log('🌐 Attempting HTTP fetch approach...');
     
@@ -64,6 +93,24 @@ async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | 
     const html = await response.text();
     console.log('✅ Successfully fetched HTML content');
 
+    // Handle different platform-specific extraction methods
+    if (platform === 'humanitix') {
+      return await extractHumanitixData(html, eventUrl);
+    } else {
+      // Default Luma extraction
+      return await extractLumaData(html, eventUrl);
+    }
+
+  } catch (error) {
+    console.error('❌ HTTP fetch approach failed:', error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
+/**
+ * Extract Luma event data from HTML
+ */
+async function extractLumaData(html: string, eventUrl: string): Promise<ScrapedEventData | null> {
     // Extract JSON-LD data from HTML
     const jsonLdMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>(.*?)<\/script>/g);
     
@@ -80,7 +127,7 @@ async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | 
         
         if (data['@type'] === 'Event') {
           console.log('✅ Found Event JSON-LD data via HTTP fetch');
-          return await parseJsonLdData(data, eventUrl);
+        return await parseJsonLdData(data, eventUrl, 'luma');
         }
       } catch (e) {
         continue;
@@ -89,11 +136,51 @@ async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | 
 
     console.log('❌ No Event schema found in JSON-LD data');
     return null;
+}
 
-  } catch (error) {
-    console.error('❌ HTTP fetch approach failed:', error instanceof Error ? error.message : String(error));
-    return null;
+/**
+ * Extract Humanitix event data from HTML
+ */
+async function extractHumanitixData(html: string, eventUrl: string): Promise<ScrapedEventData | null> {
+  // First try JSON-LD script tags
+  const jsonLdMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>(.*?)<\/script>/g);
+  
+  if (jsonLdMatch) {
+    for (const scriptMatch of jsonLdMatch) {
+      try {
+        const jsonContent = scriptMatch.replace(/<script[^>]*>/, '').replace(/<\/script>/, '').trim();
+        const data = JSON.parse(jsonContent);
+        
+        if (data['@type'] === 'Event') {
+          console.log('✅ Found Humanitix Event JSON-LD data');
+          return await parseJsonLdData(data, eventUrl, 'humanitix');
+        }
+      } catch (e) {
+        continue;
+      }
+    }
   }
+
+  // Try Humanitix-specific embedded JSON (like eventJsonSchema)
+  const jsonSchemaMatch = html.match(/"eventJsonSchema":"([^"]+)"/);
+  
+  if (jsonSchemaMatch && jsonSchemaMatch[1]) {
+    try {
+      // Unescape the JSON string
+      const jsonString = jsonSchemaMatch[1].replace(/\\"/g, '"');
+      const data = JSON.parse(jsonString);
+      
+      if (data['@type'] === 'Event') {
+        console.log('✅ Found Humanitix Event schema data');
+        return await parseJsonLdData(data, eventUrl, 'humanitix');
+      }
+    } catch (e) {
+      console.log('❌ Failed to parse Humanitix event schema');
+    }
+  }
+
+  console.log('❌ No Humanitix Event data found');
+  return null;
 }
 
 /**
@@ -229,26 +316,400 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
 }
 
 /**
- * Main scraping function with multiple fallback strategies
+ * Scrape Partiful event data using browser automation
  */
-export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventData | null> {
-  console.log('🚀 Starting Luma event scraping with hybrid approach...');
+async function scrapePartifulEvent(eventUrl: string): Promise<ScrapedEventData | null> {
+  let browser;
   
-  // Strategy 1: Simple HTTP fetch (fastest, works in serverless)
-  let result = await fetchLumaEventData(eventUrl);
-  if (result) {
+  try {
+    console.log('🎉 Starting Partiful event scraping...');
+    
+    // Try Playwright if available, fallback to Puppeteer
+    let playwright;
+    try {
+      playwright = await import('playwright-core');
+      browser = await playwright.chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+      });
+    } catch (e) {
+      console.log('❌ Playwright not available, trying Puppeteer...');
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+      });
+    }
+
+    const page = await browser.newPage();
+    
+    // Handle both Playwright and Puppeteer user agent setting
+    if ('setUserAgent' in page) {
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    } else {
+      await page.setExtraHTTPHeaders({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      });
+    }
+    
+    console.log(`🎉 Navigating to Partiful: ${eventUrl}`);
+    
+    // Use any to avoid browser-specific typing issues
+    await (page as any).goto(eventUrl, { 
+      waitUntil: playwright ? 'networkidle' : 'networkidle2', 
+      timeout: 30000 
+    });
+
+    // Extract data using DOM selectors
+    const eventData = await (page as any).evaluate(() => {
+      // Extract title
+      const titleElement = document.querySelector('h1.EventPage_title__3tXXf, h1[class*="title"], h1');
+      const title = titleElement?.textContent?.trim() || '';
+
+      // Extract date and time
+      const dateElement = document.querySelector('time.dtstart, time[datetime], [class*="date"], [class*="time"]');
+      const dateText = dateElement?.textContent?.trim() || '';
+      
+      // Extract location
+      const locationElements = document.querySelectorAll('[class*="location"], [class*="Location"]');
+      let location = '';
+      for (const el of locationElements) {
+        const text = el.textContent?.trim();
+        if (text && text.length > 3 && !text.includes('Get on the list')) {
+          location = text;
+          break;
+        }
+      }
+
+      // Extract description - look for paragraphs or description containers
+      const descriptionElements = document.querySelectorAll('p, [class*="description"], [class*="Description"], [class*="content"]');
+      let description = '';
+      for (const el of descriptionElements) {
+        const text = el.textContent?.trim();
+        if (text && text.length > 50 && (text.includes('partnership') || text.includes('join') || text.includes('event'))) {
+          description = text;
+          break;
+        }
+      }
+
+      // Extract attendee count
+      const attendeeElements = document.querySelectorAll('[class*="guest"], [class*="Guest"], [class*="list"]');
+      let attendeeCount = '';
+      for (const el of attendeeElements) {
+        const text = el.textContent?.trim();
+        if (text && /\d+/.test(text) && (text.includes('On The List') || text.includes('guest'))) {
+          const match = text.match(/(\d+)/);
+          if (match) attendeeCount = match[1];
+          break;
+        }
+      }
+
+      return {
+        title,
+        dateText,
+        location,
+        description,
+        attendeeCount
+      };
+    });
+
+    if (!eventData.title) {
+      throw new Error('Could not extract event title from Partiful page');
+    }
+
+    // Parse date and time
+    const { date, time } = parsePartifulDateTime(eventData.dateText);
+
+    // Extract organizer from description
+    const organizer = extractPartifulOrganizer(eventData.description);
+
+    const result: ScrapedEventData = {
+      title: eventData.title,
+      description: eventData.description || 'Event details available on Partiful',
+      date,
+      time,
+      location: eventData.location || 'Location available on Partiful',
+      city: extractCityFromLocation(eventData.location),
+      organizer,
+      url: eventUrl,
+      image_url: undefined,
+      categories: inferCategories(eventData.title, eventData.description),
+      platform: 'partiful-scraped'
+    };
+
+    console.log('✅ Successfully scraped Partiful event');
     return result;
+
+  } catch (error) {
+    console.error('❌ Partiful scraping failed:', error instanceof Error ? error.message : String(error));
+    return null;
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}
+
+/**
+ * Parse Partiful date/time format
+ */
+function parsePartifulDateTime(dateText: string): { date: string; time: string } {
+  if (!dateText) return { date: 'TBD', time: 'TBD' };
+
+  // Handle formats like "Tuesday, Oct 7" and "5:00pm"
+  const currentYear = new Date().getFullYear();
+  
+  // Extract time if present
+  const timeMatch = dateText.match(/(\d{1,2}:\d{2}\s*(?:am|pm|AM|PM))/);
+  let time = timeMatch ? timeMatch[1] : 'TBD';
+
+  // Extract date
+  const dateMatch = dateText.match(/(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s*(\w+)\s*(\d{1,2})/i);
+  
+  if (dateMatch) {
+    const [, , month, day] = dateMatch;
+    const monthNum = getMonthNumber(month);
+    if (monthNum) {
+      // Format as YYYY-MM-DD
+      const date = `${currentYear}-${monthNum.toString().padStart(2, '0')}-${day.padStart(2, '0')}`;
+      return { date, time };
+    }
   }
 
-  // Strategy 2: Browser fallback (Playwright or Puppeteer)
+  return { date: 'TBD', time };
+}
+
+/**
+ * Extract organizer from description
+ */
+function extractPartifulOrganizer(description: string): string {
+  if (!description) return 'Organising Team';
+
+  // Look for common patterns
+  const patterns = [
+    /In partnership with ([^,\.]+)/i,
+    /hosted by ([^,\.]+)/i,
+    /presented by ([^,\.]+)/i,
+    /organized by ([^,\.]+)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = description.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return 'Organising Team';
+}
+
+/**
+ * Extract organizer from event description using AI
+ */
+async function extractOrganizerFromDescription(description: string, platform: string): Promise<string> {
+  try {
+    console.log('🤖 Attempting AI organizer extraction from description...');
+    
+    // Simple patterns to try first
+    const patterns = [
+      /(?:organized by|organised by|hosted by|presented by|brought to you by)\s+([^,\.\!\?]+)/i,
+      /([A-Z]{2,4})\s+organizers?/i, // LSN organizers - check this first
+      /([A-Z][A-Za-z\s&]+(?:Network|Foundation|Society|Association|Group|Community|Lab|Institute|University|College|Organization|Organisation))/g,
+      /Join\s+(?:the\s+)?([A-Z][A-Za-z\s&]+(?:Network|Foundation|Society|Association|Group|Community|Lab|Institute|University|College))\s+(?:for|at|with)/i,
+      /([A-Z][A-Za-z\s]+)\s+(?:is back|returns|presents|invites)/i,
+    ];
+
+    for (const pattern of patterns) {
+      const matches = description.match(pattern);
+      if (matches) {
+        for (let i = 1; i < matches.length; i++) {
+          const match = matches[i]?.trim();
+          if (match && match.length > 2 && match.length < 50) {
+            // Clean up the match
+            let cleaned = match
+              .replace(/\s+/g, ' ')
+              .replace(/\.$/, '')
+              .trim();
+            
+            // Special case: if we find LSN, try to expand it to the full name if it appears in the description
+            if (cleaned === 'LSN' && description.toLowerCase().includes('london synbio network')) {
+              cleaned = 'London SynBio Network';
+            }
+            
+            if (cleaned && !cleaned.toLowerCase().includes('event') && !cleaned.toLowerCase().includes('this')) {
+              console.log(`✅ Found organizer pattern: "${cleaned}"`);
+              return cleaned;
+            }
+          }
+        }
+      }
+    }
+
+    // If patterns fail, try a more sophisticated approach
+    // Look for capitalized words that might be organization names
+    const words = description.split(/[\s,\.\!\?]+/);
+    const potentialOrgs = [];
+    
+    for (let i = 0; i < words.length - 1; i++) {
+      const word = words[i];
+      const nextWord = words[i + 1];
+      
+      // Look for capitalized words followed by "Network", "Group", etc.
+      if (word && word[0] === word[0].toUpperCase() && 
+          nextWord && ['Network', 'Group', 'Society', 'Association', 'Community', 'Lab', 'Institute'].includes(nextWord)) {
+        potentialOrgs.push(`${word} ${nextWord}`);
+      }
+    }
+
+    if (potentialOrgs.length > 0) {
+      console.log(`✅ Found potential organizer: "${potentialOrgs[0]}"`);
+      return potentialOrgs[0];
+    }
+
+    console.log('❌ No organizer patterns found in description');
+    return '';
+    
+  } catch (error) {
+    console.error('❌ AI organizer extraction failed:', error);
+    return '';
+  }
+}
+
+/**
+ * Extract city from location string
+ */
+function extractCityFromLocation(location: string): string {
+  if (!location) return 'TBD';
+  
+  // Common city patterns
+  const cityMatch = location.match(/(San Francisco|New York|Los Angeles|Chicago|Boston|Seattle|Austin|Denver|Portland|Miami|Atlanta|Dallas|Houston|Philadelphia|Phoenix|Detroit|Nashville|Las Vegas|Salt Lake City|Minneapolis|Cleveland|Pittsburgh|Baltimore|Washington)/i);
+  
+  if (cityMatch) {
+    return cityMatch[1];
+  }
+
+  // Extract from "City, State" format
+  const parts = location.split(',');
+  if (parts.length >= 2) {
+    return parts[0].trim();
+  }
+
+  return location;
+}
+
+/**
+ * Infer categories from title and description
+ */
+function inferCategories(title: string, description: string): string[] {
+  const text = `${title} ${description}`.toLowerCase();
+  const categories = ['Scraped'];
+
+  if (text.includes('tech') || text.includes('startup') || text.includes('engineering')) {
+    categories.push('Tech');
+  }
+  if (text.includes('network') || text.includes('meetup')) {
+    categories.push('Networking');
+  }
+  if (text.includes('conference') || text.includes('summit')) {
+    categories.push('Conference');
+  }
+  if (text.includes('workshop') || text.includes('training')) {
+    categories.push('Workshop');
+  }
+
+  return categories;
+}
+
+/**
+ * Get month number from month name
+ */
+function getMonthNumber(monthName: string): number | null {
+  const months: Record<string, number> = {
+    'jan': 1, 'january': 1,
+    'feb': 2, 'february': 2,
+    'mar': 3, 'march': 3,
+    'apr': 4, 'april': 4,
+    'may': 5,
+    'jun': 6, 'june': 6,
+    'jul': 7, 'july': 7,
+    'aug': 8, 'august': 8,
+    'sep': 9, 'september': 9, 'sept': 9,
+    'oct': 10, 'october': 10,
+    'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12
+  };
+
+  return months[monthName.toLowerCase()] || null;
+}
+
+/**
+ * Main universal event scraping function
+ */
+export async function scrapeEvent(eventUrl: string): Promise<ScrapedEventData | ScrapingError> {
+  const platform = detectEventPlatform(eventUrl);
+  
+  console.log(`🚀 Starting event scraping for ${platform} platform...`);
+
+  // Handle unsupported platforms
+  if (platform === 'unknown') {
+    return {
+      platform: 'unknown',
+      url: eventUrl,
+      error: 'Unsupported platform',
+      userMessage: 'This event platform is not currently supported. Our team is working to add support for more platforms.',
+      shouldNotifyTeam: true
+    };
+  }
+
+  try {
+    let result: ScrapedEventData | null = null;
+
+    if (platform === 'partiful') {
+      // Partiful requires browser automation
+      result = await scrapePartifulEvent(eventUrl);
+    } else {
+      // Luma and Humanitix use structured data (JSON-LD)
+      result = await fetchStructuredEventData(eventUrl, platform);
+      
+      if (!result) {
+        // Try browser fallback for Luma/Humanitix
   console.log('📄 HTTP fetch failed, trying browser fallback...');
   result = await browserFallbackApproach(eventUrl);
+      }
+    }
+
   if (result) {
     return result;
   }
 
-  console.error('💥 All scraping strategies failed');
+    // If we get here, all scraping methods failed
   throw new Error('Could not extract event data from the page');
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Scraping failed for ${platform}:`, errorMessage);
+
+    return {
+      platform,
+      url: eventUrl,
+      error: errorMessage,
+      userMessage: `Unable to extract event data from this ${platform} page. Our team has been notified and is looking into this issue.`,
+      shouldNotifyTeam: true
+    };
+  }
+}
+
+/**
+ * Legacy function name for backward compatibility
+ */
+export async function scrapeLumaEvent(eventUrl: string): Promise<ScrapedEventData | null> {
+  const result = await scrapeEvent(eventUrl);
+  
+  if ('error' in result) {
+    console.error('Scraping error:', result.userMessage);
+    return null;
+  }
+  
+  return result;
 }
 
 /**
@@ -498,7 +959,7 @@ Location:`;
 /**
  * Parse JSON-LD structured data into our event format
  */
-async function parseJsonLdData(jsonLd: any, eventUrl: string): Promise<ScrapedEventData> {
+async function parseJsonLdData(jsonLd: any, eventUrl: string, platform: string = 'luma'): Promise<ScrapedEventData> {
   const startDate = new Date(jsonLd.startDate);
   const endDate = jsonLd.endDate ? new Date(jsonLd.endDate) : null;
 
@@ -614,7 +1075,7 @@ async function parseJsonLdData(jsonLd: any, eventUrl: string): Promise<ScrapedEv
   }
 
   // Extract organizer(s)
-  let organizer = 'Luma Event';
+  let organizer = '';
   if (jsonLd.organizer) {
     if (Array.isArray(jsonLd.organizer) && jsonLd.organizer.length > 0) {
       // Join all organizer names with commas
@@ -622,10 +1083,21 @@ async function parseJsonLdData(jsonLd: any, eventUrl: string): Promise<ScrapedEv
         .map((org: any) => org.name)
         .filter((name: string) => name && name.trim())
         .join(', ');
-      organizer = organizerNames || 'Luma Event';
+      organizer = organizerNames;
     } else if (jsonLd.organizer.name) {
       organizer = jsonLd.organizer.name;
     }
+  }
+
+  // If no organizer found in structured data, try AI extraction from description
+  if (!organizer && jsonLd.description) {
+    console.log('🤖 No organizer in structured data, trying AI extraction from description...');
+    organizer = await extractOrganizerFromDescription(jsonLd.description, platform);
+  }
+
+  // Final fallback - generic organizer name
+  if (!organizer) {
+    organizer = 'Organising Team';
   }
 
   return {
@@ -639,7 +1111,7 @@ async function parseJsonLdData(jsonLd: any, eventUrl: string): Promise<ScrapedEv
     url: eventUrl,
     image_url: Array.isArray(jsonLd.image) ? jsonLd.image[0] : jsonLd.image,
     categories: ['Scraped'],
-    platform: 'luma-scraped'
+    platform: `${platform}-scraped`
   };
 }
 

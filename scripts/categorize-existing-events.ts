@@ -70,9 +70,10 @@ async function categorizeExistingEvents() {
       console.log(`${progress} Processing: "${event.title?.substring(0, 50)}..."`);
 
       try {
-        // Skip if already has AI categorization
-        if (event.ai_categorized && event.ai_event_type) {
-          console.log(`   ⏭️  Already categorized as "${event.ai_event_type}" - skipping`);
+        // Skip if already has AI categorization (check both old and new format)
+        if (event.ai_categorized && (event.ai_event_type || event.ai_event_types?.length > 0)) {
+          const typeDisplay = event.ai_event_types?.length > 0 ? event.ai_event_types.join(', ') : event.ai_event_type;
+          console.log(`   ⏭️  Already categorized as "${typeDisplay}" - skipping`);
           continue;
         }
 
@@ -86,7 +87,8 @@ async function categorizeExistingEvents() {
         const { error: updateError } = await supabase
           .from('events')
           .update({
-            ai_event_type: aiResult.event_type,
+            ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
+            ai_event_types: aiResult.event_types, // New multi-select field
             ai_interest_areas: aiResult.event_interest_areas,
             ai_categorized: true,
             ai_categorized_at: new Date().toISOString()
@@ -97,7 +99,7 @@ async function categorizeExistingEvents() {
           throw updateError;
         }
 
-        console.log(`   ✅ Categorized as "${aiResult.event_type}" with ${aiResult.event_interest_areas.length} interest areas`);
+        console.log(`   ✅ Categorized as "${aiResult.event_types.join(', ')}" with ${aiResult.event_interest_areas.length} interest areas`);
         successCount++;
 
         // Add small delay to avoid rate limiting

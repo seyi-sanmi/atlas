@@ -238,10 +238,10 @@ export async function searchEventsForAdmin(options: {
     queryBuilder = queryBuilder.lte('date', options.dateTo)
   }
 
-  // Apply category filter
+  // Apply category filter (supports multi-select AI event types)
   if (options.category) {
     queryBuilder = queryBuilder.or(
-      `ai_event_type.eq.${options.category},categories.cs.{${options.category}}`
+      `ai_event_type.eq.${options.category},ai_event_types.cs.{${options.category}},categories.cs.{${options.category}}`
     )
   }
 

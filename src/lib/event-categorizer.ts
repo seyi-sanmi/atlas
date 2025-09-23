@@ -50,7 +50,7 @@ export const EVENT_TYPES = [
 ] as const;
 
 export interface EventCategorizationResult {
-  event_type: string;
+  event_types: string[]; // Changed from single event_type to multiple event_types
   event_interest_areas: string[];
 }
 
@@ -94,8 +94,8 @@ Analyze the provided event text, which includes a title and description, and gen
 
 **RULESET:**
 
-**1. \`event_type\` Categorization:**
-- You MUST classify the event into EXACTLY ONE of the following categories:
+**1. \`event_types\` Categorization:**
+- You MUST classify the event into 1 or 2 of the following categories (maximum 2 types):
   - \`Meetup / Mixer\`
   - \`Workshop\`
   - \`Conference\`
@@ -106,8 +106,10 @@ Analyze the provided event text, which includes a title and description, and gen
   - \`Hackathon\`
   - \`Other\`
 
-- **Dominant Activity Rule:** If an event has multiple components (e.g., a talk and a hackathon), classify it based on the main activity or the one that occupies the most time. A 12-hour event with a 1-hour panel is a \`Hackathon\`.
+- **Multi-Type Rule:** If an event has multiple distinct components that are equally important, you may select up to 2 types. For example, a "Workshop + Networking Event" could be both \`Workshop\` and \`Meetup / Mixer\`.
+- **Primary Type Rule:** If selecting 2 types, the first should be the most dominant or primary activity.
 - **Title-Driven Clues:** Give strong weight to keywords in the event title. "Fireside Chat with..." is a \`Fireside Chat\`. "AI Hackathon" is a \`Hackathon\`.
+- **Single Type Preference:** Most events should have only 1 type. Only use 2 types when the event genuinely has two major, distinct components.
 
 **2. \`event_interest_areas\` Categorization:**
 - **Core Theme Rule:** You MUST select only the most essential and central interest areas from the list below. Prioritize quality over quantity.
@@ -122,6 +124,10 @@ ${INTEREST_AREAS.map(area => `- "${area}"`).join('\n')}
 
 **OUTPUT FORMAT:**
 You must provide your response ONLY as a valid JSON object, with no explanatory text before or after it.
+
+Example outputs:
+- Single type: {"event_types": ["Workshop"], "event_interest_areas": ["Artificial Intelligence", "Machine Learning"]}
+- Multiple types: {"event_types": ["Workshop", "Meetup / Mixer"], "event_interest_areas": ["Artificial Intelligence"]}
 
 **EVENT TO ANALYZE:**
 
@@ -151,10 +157,20 @@ You must provide your response ONLY as a valid JSON object, with no explanatory 
     // Parse and validate the response
     const result = JSON.parse(responseContent) as EventCategorizationResult;
     
-    // Validate event_type
-    if (!EVENT_TYPES.includes(result.event_type as any)) {
-      console.warn(`Invalid event_type returned: ${result.event_type}, defaulting to "Other"`);
-      result.event_type = "Other";
+    // Validate event_types
+    if (!Array.isArray(result.event_types)) {
+      console.warn('Invalid event_types format, defaulting to ["Other"]');
+      result.event_types = ["Other"];
+    } else {
+      // Filter out invalid event types and ensure max 2
+      result.event_types = result.event_types
+        .filter(type => EVENT_TYPES.includes(type as any))
+        .slice(0, 2);
+      
+      // Ensure at least one type
+      if (result.event_types.length === 0) {
+        result.event_types = ["Other"];
+      }
     }
 
     // Validate event_interest_areas
@@ -174,7 +190,7 @@ You must provide your response ONLY as a valid JSON object, with no explanatory 
     
     // Return default categorization on error
     return {
-      event_type: "Other",
+      event_types: ["Other"],
       event_interest_areas: []
     };
   }
@@ -318,7 +334,7 @@ export async function categorizeEventWithRetry(
   // If all retries failed, return default categorization
   console.error(`All categorization attempts failed:`, lastError);
   return {
-    event_type: "Other",
+    event_types: ["Other"],
     event_interest_areas: []
   };
 } 

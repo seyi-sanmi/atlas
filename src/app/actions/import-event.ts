@@ -1,7 +1,7 @@
 'use server'
 
 import { supabase } from '@/lib/supabase'
-import { scrapeLumaEvent } from '@/lib/luma-scraper'
+import { scrapeEvent, detectEventPlatform, ScrapingError, ScrapedEventData } from '@/lib/luma-scraper'
 import { categorizeEventWithRetry, generateEventSummaryWithRetry } from '@/lib/event-categorizer'
 
 // Helper function to add AI categorization and summarization to event data
@@ -31,7 +31,10 @@ async function addAIAnalysis(eventData: any) {
     
     return {
       ...eventData,
-      ai_event_type: aiResult.event_type,
+      ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
+      ai_event_types: Array.isArray(aiResult.event_types) && aiResult.event_types.length > 0 
+        ? aiResult.event_types 
+        : ['Other'], // New multi-select field (ensure always array)
       ai_interest_areas: aiResult.event_interest_areas,
       ai_categorized: true,
       ai_categorized_at: new Date().toISOString(),
@@ -47,7 +50,8 @@ async function addAIAnalysis(eventData: any) {
     // Return original data with default AI values on error
     return {
       ...eventData,
-      ai_event_type: 'Other',
+      ai_event_type: 'Other', // Legacy field
+      ai_event_types: ['Other'], // New multi-select field
       ai_interest_areas: [],
       ai_categorized: false,
       ai_categorized_at: new Date().toISOString(),
@@ -77,7 +81,8 @@ function createBasicEventData(scrapedData: any, eventId: string, originalUrl: st
     imported_at: new Date().toISOString(),
     platform: platform,
     // Default AI values that will be updated later
-    ai_event_type: 'Other',
+    ai_event_type: 'Other', // Legacy field
+    ai_event_types: ['Other'], // New multi-select field (always array)
     ai_interest_areas: [],
     ai_categorized: false,
     ai_summary: scrapedData.description || scrapedData.title || '',
@@ -87,8 +92,8 @@ function createBasicEventData(scrapedData: any, eventId: string, originalUrl: st
   };
 }
 
-// Platform detection and URL parsing
-function detectPlatform(url: string): 'luma' | 'eventbrite' | null {
+// Platform detection and URL parsing (updated to support more platforms)
+function detectPlatformLegacy(url: string): 'luma' | 'eventbrite' | null {
   try {
     const urlObj = new URL(url);
     
@@ -181,7 +186,7 @@ async function importFromLumaBasic(eventId: string, originalUrl: string) {
           time: lumaEventData.start_at ? formatTime(lumaEventData.start_at, lumaEventData.end_at) : 'TBD',
           location: lumaEventData.location?.name || lumaEventData.location || 'TBD',
           city: await getLumaCity(lumaEventData),
-          organizer: lumaEventData.organizer?.name || 'Luma Event'
+          organizer: lumaEventData.organizer?.name || 'Organising Team'
         }, eventId, originalUrl, 'luma');
       } else {
         console.log(`⚠️ Luma API failed with status ${response.status}, falling back to scraper`);
@@ -193,26 +198,31 @@ async function importFromLumaBasic(eventId: string, originalUrl: string) {
     console.log('🔓 No Luma API key found, using scraper');
   }
 
-  // Fallback to scraper
+  // Fallback to universal scraper
   try {
-    console.log('🕷️ Attempting to scrape Luma event:', originalUrl);
-    const scrapedData = await scrapeLumaEvent(originalUrl);
+    console.log('🕷️ Attempting to scrape event:', originalUrl);
+    const scrapedResult = await scrapeEvent(originalUrl);
     
-    if (scrapedData) {
-      console.log('✅ Successfully scraped basic Luma event data');
-      
-      return createBasicEventData({
-        title: scrapedData.title,
-        description: scrapedData.description,
-        date: scrapedData.date,
-        time: scrapedData.time,
-        location: scrapedData.location,
-        city: scrapedData.city,
-        organizer: scrapedData.organizer
-      }, eventId, originalUrl, 'luma-scraped');
-    } else {
-      console.error('❌ Scraper returned null/undefined data');
+    if ('error' in scrapedResult) {
+      console.error('❌ Scraping failed:', scrapedResult.userMessage);
+      return {
+        success: false,
+        error: scrapedResult.userMessage
+      };
     }
+    
+    const scrapedData = scrapedResult as ScrapedEventData;
+    console.log('✅ Successfully scraped basic event data');
+    
+    return createBasicEventData({
+      title: scrapedData.title,
+      description: scrapedData.description,
+      date: scrapedData.date,
+      time: scrapedData.time,
+      location: scrapedData.location,
+      city: scrapedData.city,
+      organizer: scrapedData.organizer
+    }, eventId, originalUrl, scrapedData.platform);
   } catch (scrapeError) {
     console.error('❌ Scraper error details:', scrapeError);
   }
@@ -302,7 +312,7 @@ async function importFromLuma(eventId: string, originalUrl: string) {
           location: lumaEventData.location?.name || lumaEventData.location || 'TBD',
           city: await getLumaCity(lumaEventData),
           categories: ['Imported'],
-          organizer: lumaEventData.organizer?.name || 'Luma Event',
+          organizer: lumaEventData.organizer?.name || 'Organising Team',
           url: originalUrl,
           luma_id: eventId,
           imported_at: new Date().toISOString(),
@@ -320,39 +330,44 @@ async function importFromLuma(eventId: string, originalUrl: string) {
     console.log('🔓 No Luma API key found, using scraper');
   }
 
-  // Fallback to scraper
+  // Fallback to universal scraper
   try {
-    console.log('🕷️ Attempting to scrape Luma event:', originalUrl);
-    const scrapedData = await scrapeLumaEvent(originalUrl);
+    console.log('🕷️ Attempting to scrape event:', originalUrl);
+    const scrapedResult = await scrapeEvent(originalUrl);
     
-    if (scrapedData) {
-      console.log('✅ Successfully scraped Luma event');
-      console.log('📊 Scraped data preview:', {
-        title: scrapedData.title?.substring(0, 50) + '...',
-        time: scrapedData.time,
-        city: scrapedData.city,
-        platform: scrapedData.platform
-      });
-      
-      const baseEventData = {
-        title: scrapedData.title,
-        description: scrapedData.description,
-        date: scrapedData.date,
-        time: scrapedData.time,
-        location: scrapedData.location,
-        city: scrapedData.city,
-        categories: ['Scraped'],
-        organizer: scrapedData.organizer,
-        url: originalUrl,
-        luma_id: eventId,
-        imported_at: new Date().toISOString(),
-        platform: 'luma-scraped'
+    if ('error' in scrapedResult) {
+      console.error('❌ Scraping failed:', scrapedResult.userMessage);
+      return {
+        success: false,
+        error: scrapedResult.userMessage
       };
-      
-      return await addAIAnalysis(baseEventData);
-    } else {
-      console.error('❌ Scraper returned null/undefined data');
     }
+    
+    const scrapedData = scrapedResult as ScrapedEventData;
+    console.log('✅ Successfully scraped event');
+    console.log('📊 Scraped data preview:', {
+      title: scrapedData.title?.substring(0, 50) + '...',
+      time: scrapedData.time,
+      city: scrapedData.city,
+      platform: scrapedData.platform
+    });
+    
+    const baseEventData = {
+      title: scrapedData.title,
+      description: scrapedData.description,
+      date: scrapedData.date,
+      time: scrapedData.time,
+      location: scrapedData.location,
+      city: scrapedData.city,
+      categories: ['Scraped'],
+      organizer: scrapedData.organizer,
+      url: originalUrl,
+      luma_id: eventId,
+      imported_at: new Date().toISOString(),
+      platform: scrapedData.platform
+    };
+    
+    return await addAIAnalysis(baseEventData);
   } catch (scrapeError) {
     console.error('❌ Scraper error details:', {
       message: scrapeError instanceof Error ? scrapeError.message : String(scrapeError),
@@ -902,12 +917,80 @@ function formatTime(startAt: string, endAt?: string): string {
 // Progressive import function - returns basic data first, then AI-enhanced data
 export async function importEventProgressive(eventUrl: string, forceUpdate: boolean = false) {
   try {
-    // 1. Detect platform and validate URL
-    const platform = detectPlatform(eventUrl);
+    // 1. First try the universal scraper for supported platforms
+    const universalPlatform = detectEventPlatform(eventUrl);
+    if (universalPlatform !== 'unknown') {
+      console.log(`🚀 Using universal scraper for ${universalPlatform} platform...`);
+      
+      // Check if event already exists (only if not forcing update)
+      if (!forceUpdate) {
+        const { data: existingEvent } = await supabase
+          .from('events')
+          .select('id, title')
+          .eq('url', eventUrl)
+          .single();
+
+        if (existingEvent) {
+          return {
+            success: false,
+            error: `Event "${existingEvent.title}" has already been imported.`
+          };
+        }
+      }
+
+      // Use the universal scraper for quick import
+      const scrapedResult = await scrapeEvent(eventUrl);
+      
+      if ('error' in scrapedResult) {
+        const error = scrapedResult as ScrapingError;
+        return {
+          success: false,
+          error: error.userMessage
+        };
+      }
+      
+      const scrapedData = scrapedResult as ScrapedEventData;
+      
+      // Create basic event data (without AI analysis for speed)
+      const basicEventData = {
+        title: scrapedData.title,
+        description: scrapedData.description,
+        date: scrapedData.date,
+        time: scrapedData.time,
+        location: scrapedData.location,
+        city: scrapedData.city,
+        categories: scrapedData.categories,
+        organizer: scrapedData.organizer,
+        url: eventUrl,
+        imported_at: new Date().toISOString(),
+        platform: scrapedData.platform,
+        // Platform identification - use existing fields (url and platform)
+        luma_id: universalPlatform === 'luma' ? extractLumaEventId(eventUrl) : null,
+        // Default AI values that will be updated later
+        ai_event_type: 'Other', // Legacy field
+        ai_event_types: ['Other'], // New multi-select field (always array)
+        ai_interest_areas: [],
+        ai_categorized: false,
+        ai_summary: scrapedData.description || scrapedData.title || '',
+        ai_technical_keywords: [],
+        ai_excitement_hook: 'Join us for this exciting event',
+        ai_summarized: false
+      };
+
+      return { 
+        success: true, 
+        event: basicEventData,
+        message: `Event details imported successfully from ${universalPlatform.charAt(0).toUpperCase() + universalPlatform.slice(1)}. AI analysis in progress...`,
+        aiProcessing: true
+      };
+    }
+
+    // Fallback to legacy platform detection for Eventbrite
+    const platform = detectPlatformLegacy(eventUrl);
     if (!platform) {
       return { 
         success: false, 
-        error: 'Unsupported URL. Please provide a valid Luma (lu.ma or luma.com) or Eventbrite URL.' 
+        error: 'Unsupported URL. Please provide a valid Luma, Humanitix, Partiful, or Eventbrite URL.' 
       };
     }
 
@@ -993,7 +1076,10 @@ export async function enhanceEventWithCategories(basicEventData: any) {
     
     const categorizedData = {
       ...basicEventData,
-      ai_event_type: aiResult.event_type,
+      ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
+      ai_event_types: Array.isArray(aiResult.event_types) && aiResult.event_types.length > 0 
+        ? aiResult.event_types 
+        : ['Other'], // New multi-select field (ensure always array)
       ai_interest_areas: aiResult.event_interest_areas,
       ai_categorized: true,
       ai_categorized_at: new Date().toISOString()
@@ -1076,15 +1162,129 @@ export async function enhanceEventWithAI(basicEventData: any) {
   }
 }
 
-// Main import function that handles both platforms
+// Universal import function for Luma, Humanitix, and Partiful
+export async function importEventUniversal(eventUrl: string, forceUpdate: boolean = false) {
+  try {
+    // 1. Detect platform using the universal detector
+    const platform = detectEventPlatform(eventUrl);
+    
+    if (platform === 'unknown') {
+      return { 
+        success: false, 
+        error: 'Unsupported URL. Please provide a valid Luma, Humanitix, or Partiful event URL.' 
+      };
+    }
+
+    // 2. Check if event already exists (only if not forcing update)
+    if (!forceUpdate) {
+      const { data: existingEvent } = await supabase
+        .from('events')
+        .select('id, title')
+        .eq('url', eventUrl)
+        .single();
+
+      if (existingEvent) {
+        return {
+          success: false,
+          error: `Event "${existingEvent.title}" has already been imported.`
+        };
+      }
+    }
+
+    // 3. Use the universal scraper
+    console.log(`🚀 Starting universal import for ${platform} platform...`);
+    const scrapedResult = await scrapeEvent(eventUrl);
+    
+    if ('error' in scrapedResult) {
+      const error = scrapedResult as ScrapingError;
+      console.error('❌ Universal scraping failed:', error.userMessage);
+      
+      // TODO: Send notification to team if shouldNotifyTeam is true
+      if (error.shouldNotifyTeam) {
+        console.log('📧 Team notification needed for:', error);
+      }
+      
+      return {
+        success: false,
+        error: error.userMessage
+      };
+    }
+    
+    const scrapedData = scrapedResult as ScrapedEventData;
+    console.log('✅ Successfully scraped event from', platform);
+    console.log('📊 Scraped data preview:', {
+      title: scrapedData.title?.substring(0, 50) + '...',
+      time: scrapedData.time,
+      city: scrapedData.city,
+      platform: scrapedData.platform
+    });
+    
+    // 4. Create the base event data
+    const baseEventData = {
+      title: scrapedData.title,
+      description: scrapedData.description,
+      date: scrapedData.date,
+      time: scrapedData.time,
+      location: scrapedData.location,
+      city: scrapedData.city,
+      categories: scrapedData.categories,
+      organizer: scrapedData.organizer,
+      url: eventUrl,
+      imported_at: new Date().toISOString(),
+      platform: scrapedData.platform,
+      // Platform identification - use existing fields
+      luma_id: platform === 'luma' ? extractLumaEventId(eventUrl) : null,
+      eventbrite_id: null, // Not supported in universal scraper yet
+      // Default AI values
+      ai_event_type: 'Other',
+      ai_event_types: ['Other'],
+      ai_interest_areas: [],
+      ai_categorized: false,
+      ai_summary: scrapedData.description || scrapedData.title || '',
+      ai_technical_keywords: [],
+      ai_excitement_hook: 'Join us for this exciting event',
+      ai_summarized: false
+    };
+    
+    // 5. Add AI analysis
+    const enhancedEventData = await addAIAnalysis(baseEventData);
+    
+    return { 
+      success: true, 
+      event: enhancedEventData,
+      message: `Event details imported successfully from ${platform.charAt(0).toUpperCase() + platform.slice(1)}. Please review and save.`
+    };
+
+  } catch (error) {
+    console.error('Universal import error:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to import event. Please try again.' 
+    };
+  }
+}
+
+// Note: No need for platform-specific ID extraction functions
+// We use the existing 'platform' field to identify the source platform
+// and the 'url' field contains the original event URL
+// This approach is much simpler and scales better
+
+// Main import function that handles both platforms (legacy - now uses universal)
 export async function importEvent(eventUrl: string, forceUpdate: boolean = false) {
+  // First try the universal scraper for supported platforms
+  const universalPlatform = detectEventPlatform(eventUrl);
+  if (universalPlatform !== 'unknown') {
+    return await importEventUniversal(eventUrl, forceUpdate);
+  }
+
+  // Fallback to legacy platform detection for Eventbrite
   try {
     // 1. Detect platform and validate URL
-    const platform = detectPlatform(eventUrl);
+    const platform = detectPlatformLegacy(eventUrl);
     if (!platform) {
       return { 
         success: false, 
-        error: 'Unsupported URL. Please provide a valid Luma (lu.ma or luma.com) or Eventbrite URL.' 
+        error: 'Unsupported URL. Please provide a valid Luma, Humanitix, Partiful, or Eventbrite URL.' 
       };
     }
 
@@ -1153,8 +1353,31 @@ export async function importLumaEvent(lumaUrl: string) {
 
 export async function saveImportedEvent(eventData: any) {
   try {
+    console.log('🔍 Attempting to save event data:', {
+      title: eventData.title,
+      platform: eventData.platform,
+      ai_event_types: eventData.ai_event_types,
+      fields: Object.keys(eventData)
+    });
+
     // Remove platform-specific fields that might be too large
-    const { luma_data, eventbrite_data, ...eventToSave } = eventData;
+    const { 
+      luma_data, 
+      eventbrite_data, 
+      ...eventToSave 
+    } = eventData;
+    
+    // Ensure ai_event_types is always a valid array (never null)
+    if (!eventToSave.ai_event_types || !Array.isArray(eventToSave.ai_event_types)) {
+      console.log('⚠️  ai_event_types was null/invalid, creating from ai_event_type:', eventToSave.ai_event_type);
+      eventToSave.ai_event_types = eventToSave.ai_event_type ? [eventToSave.ai_event_type] : ['Other'];
+    }
+    
+    // Log the final ai_event_types value
+    console.log('✅ Final ai_event_types value:', eventToSave.ai_event_types);
+    
+    // Log the cleaned data structure
+    console.log('💾 Data being sent to Supabase (filtered):', Object.keys(eventToSave));
     
     const { data, error } = await supabase
       .from('events')
@@ -1163,11 +1386,20 @@ export async function saveImportedEvent(eventData: any) {
       .single();
 
     if (error) {
+      console.error('❌ Supabase insert error:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
       return { success: false, error: error.message };
     }
 
+    console.log('✅ Event saved successfully:', data);
     return { success: true, event: data };
   } catch (error) {
+    console.error('❌ Unexpected save error:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to save event' 

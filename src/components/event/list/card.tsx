@@ -276,22 +276,26 @@ export function EventCard({
               </span>
             </div>
 
-            {/* Event Type Tag */}
-            {event.ai_event_type && (
-              <div className="flex justify-start">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onTagClick?.("eventType", event.ai_event_type!);
-                  }}
-                  className={`inline-block px-2 py-0.5 text-[10px] font-medium rounded-sm border transition-all duration-200 cursor-pointer ${
-                    selectedEventTypes.includes(event.ai_event_type!)
-                      ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
-                      : "bg-primary-text/5 text-primary-text/60 border-primary-text/10 hover:bg-primary-text/10 hover:border-[#AE3813]/20"
-                  }`}
-                >
-                  {event.ai_event_type}
-                </button>
+            {/* Event Type Tags */}
+            {(event.ai_event_types?.length > 0 || event.ai_event_type) && (
+              <div className="flex justify-start flex-wrap gap-1">
+                {/* Use new multi-select field if available, fallback to legacy single field */}
+                {(event.ai_event_types?.length > 0 ? event.ai_event_types : [event.ai_event_type]).filter(Boolean).map((eventType, index) => (
+                  <button
+                    key={`${eventType}-${index}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTagClick?.("eventType", eventType);
+                    }}
+                    className={`inline-block px-2 py-0.5 text-[10px] font-medium rounded-sm border transition-all duration-200 cursor-pointer ${
+                      selectedEventTypes.includes(eventType)
+                        ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                        : "bg-primary-text/5 text-primary-text/60 border-primary-text/10 hover:bg-primary-text/10 hover:border-[#AE3813]/20"
+                    }`}
+                  >
+                    {eventType}
+                  </button>
+                ))}
               </div>
             )}
           </div>

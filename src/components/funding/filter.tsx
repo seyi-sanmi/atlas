@@ -35,7 +35,7 @@ export default function FundingFilter({
   const [selectedAmountRanges, setSelectedAmountRanges] = useState<string[]>(
     []
   );
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // June 2025
+  const [currentDate, setCurrentDate] = useState(new Date()); // Current date
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(
     null
   );

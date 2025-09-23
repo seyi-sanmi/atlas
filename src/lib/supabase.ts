@@ -43,7 +43,9 @@ export type Event = {
   image_url?: string;
   imported_at: string;
   platform: string;
-  ai_event_type: string;
+  ai_event_type: string; // Legacy - will be replaced by ai_event_types
+  ai_event_types: string[]; // New multi-select event types (max 2)
+  // Note: We use existing 'platform' and 'url' fields instead of separate platform ID columns
   ai_interest_areas: string[];
   ai_categorized: boolean;
   ai_categorized_at: string;

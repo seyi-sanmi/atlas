@@ -370,12 +370,17 @@ export default function AdminEventsPage() {
                               {event.organizer}
                             </span>
                           </div>
-                          {event.ai_event_type && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <Tag className="w-3 h-3 text-blue-500" />
-                              <span className="text-xs text-blue-600 dark:text-blue-400">
-                                {event.ai_event_type}
-                              </span>
+                          {(event.ai_event_types?.length > 0 || event.ai_event_type) && (
+                            <div className="flex items-center gap-1 mt-1 flex-wrap">
+                              <Tag className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                              <div className="flex gap-1 flex-wrap">
+                                {/* Use new multi-select field if available, fallback to legacy single field */}
+                                {(event.ai_event_types?.length > 0 ? event.ai_event_types : [event.ai_event_type]).filter(Boolean).map((eventType, index) => (
+                                  <span key={`${eventType}-${index}`} className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
+                                    {eventType}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>
