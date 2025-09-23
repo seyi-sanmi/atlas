@@ -32,6 +32,7 @@ interface Event {
   description: string;
   ai_categorized?: boolean;
   ai_event_type?: string;
+  ai_event_types?: string[]; // New multi-select field
   ai_interest_areas?: string[];
 }
 
@@ -43,7 +44,7 @@ async function categorizeExistingEvents() {
     console.log('📊 Fetching events that need categorization...');
     const { data: events, error: fetchError } = await supabase
       .from('events')
-      .select('id, title, description, ai_categorized, ai_event_type, ai_interest_areas')
+      .select('id, title, description, ai_categorized, ai_event_type, ai_event_types, ai_interest_areas')
       .or('ai_categorized.is.null,ai_categorized.eq.false');
 
     if (fetchError) {
@@ -84,15 +85,24 @@ async function categorizeExistingEvents() {
         });
 
         // Update the event in database
+        // Note: ai_event_types column may not exist until migration is run
+        const updateData: any = {
+          ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
+          ai_interest_areas: aiResult.event_interest_areas,
+          ai_categorized: true,
+          ai_categorized_at: new Date().toISOString()
+        };
+
+        // Only add ai_event_types if the migration has been run
+        try {
+          updateData.ai_event_types = aiResult.event_types; // New multi-select field
+        } catch (e) {
+          console.log(`   ⚠️  Note: ai_event_types column not available yet (run migration first)`);
+        }
+
         const { error: updateError } = await supabase
           .from('events')
-          .update({
-            ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
-            ai_event_types: aiResult.event_types, // New multi-select field
-            ai_interest_areas: aiResult.event_interest_areas,
-            ai_categorized: true,
-            ai_categorized_at: new Date().toISOString()
-          })
+          .update(updateData)
           .eq('id', event.id);
 
         if (updateError) {
