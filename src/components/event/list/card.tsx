@@ -268,13 +268,6 @@ export function EventCard({
               </p>
             )}
 
-            {/* Organizer */}
-            <div className="flex items-center gap-2 text-primary-text/60">
-              <Users className="w-4 h-4" />
-              <span className="font-sans text-sm truncate">
-                {event.organizer}
-              </span>
-            </div>
 
             {/* Event Type Tags */}
             {(event.ai_event_types?.length > 0 || event.ai_event_type) && (
