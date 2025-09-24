@@ -685,10 +685,6 @@ Rules:
       let city: string = (parsed.city || '').toString().trim();
       let confidence: number = Number(parsed.confidence);
       if (!Number.isFinite(confidence)) confidence = 0;
-      // Basic whitelist (should mirror UI validation)
-      const UK_CITIES = ['London','Manchester','Birmingham','Leeds','Liverpool','Sheffield','Bristol','Glasgow','Edinburgh','Cardiff','Newcastle','Belfast','Nottingham','Southampton','Oxford','Cambridge','Brighton','Bath','York','Leicester','Coventry','Bradford','Wolverhampton','Plymouth','Derby','Reading','Newport','Preston','Sunderland','Norwich','Bournemouth','Southend','Swindon','Huddersfield','Middlesbrough','Blackpool','Bolton','Ipswich','Peterborough','Stockport','Gloucester','Exeter','Canterbury','Lancaster','Durham','Chelmsford','Chester','St Albans','Winchester','Worcester','Lincoln'];
-      const valid = city.toLowerCase() === 'online' || UK_CITIES.some(c => c.toLowerCase() === city.toLowerCase());
-      if (!valid) return { city: 'TBD', confidence: 0 };
       if (city.toLowerCase() === 'online') return { city: 'Online', confidence: Math.max(confidence, 0.95) };
       return { city, confidence };
     } catch {

@@ -1045,19 +1045,6 @@ City:`;
 }
 
 /**
- * UK cities whitelist for validation (compact subset; can be expanded over time)
- */
-const UK_CITIES_WHITELIST: string[] = [
-  'London','Manchester','Birmingham','Leeds','Liverpool','Sheffield','Bristol','Glasgow','Edinburgh','Cardiff','Newcastle','Belfast','Nottingham','Southampton','Oxford','Cambridge','Brighton','Bath','York','Leicester','Coventry','Bradford','Wolverhampton','Plymouth','Derby','Reading','Newport','Preston','Sunderland','Norwich','Bournemouth','Southend','Swindon','Huddersfield','Middlesbrough','Blackpool','Bolton','Ipswich','Peterborough','Stockport','Gloucester','Exeter','Canterbury','Lancaster','Durham','Chelmsford','Chester','St Albans','Winchester','Worcester','Lincoln'
-];
-
-function isValidUKCity(city: string): boolean {
-  if (!city) return false;
-  const normalized = city.trim().toLowerCase();
-  return UK_CITIES_WHITELIST.some(c => c.toLowerCase() === normalized);
-}
-
-/**
  * AI-first UK city inference from title + description with confidence.
  * Returns { city, confidence } where confidence ∈ [0,1].
  */
@@ -1071,7 +1058,7 @@ async function inferCityFromTitleAndDescriptionUK(title: string, description: st
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     const prompt = `You are extracting a UK city for an event. Analyze title and description together.
-Return STRICT JSON with keys city (string) and confidence (number 0..1). City must be a UK city name only (no country/region), or "TBD" if unknown. If event is clearly online/virtual, set city to "Online" and confidence 1.
+Return STRICT JSON with keys city (string) and confidence (number 0..1). City must be a UK city name only (no country/region). If unknown, return "TBD" with low confidence. If event is clearly online/virtual, set city to "Online" and confidence 1. Do not include any commentary.
 
 Title: ${title}
 Description: ${description?.slice(0, 1200) || ''}
@@ -1079,7 +1066,7 @@ Description: ${description?.slice(0, 1200) || ''}
 Rules:
 - Prefer an explicit city mention.
 - If not explicit, infer only when ≥0.90 sure based on strong cues.
-- UK focus: only UK cities are valid (except "Online").
+- UK focus: ensure the city is within the United Kingdom.
 - Output example: {"city":"Manchester","confidence":0.95}`;
 
     const completion = await openai.chat.completions.create({
@@ -1099,11 +1086,6 @@ Rules:
       // Normalize result
       if (city.toLowerCase() === 'online') {
         return { city: 'Online', confidence: Math.max(confidence, 0.95) };
-      }
-
-      // Validate against UK whitelist
-      if (!isValidUKCity(city)) {
-        return { city: 'TBD', confidence: 0 };
       }
 
       return { city, confidence };
