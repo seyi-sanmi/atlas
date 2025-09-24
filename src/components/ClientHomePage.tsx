@@ -38,6 +38,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [filtersRefreshToken, setFiltersRefreshToken] = useState(0);
 
   // Simple cache to avoid repeated queries
   const [cachedEvents, setCachedEvents] = useState<Event[]>(initialEvents);
@@ -158,6 +159,8 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
       setEvents(eventsData);
       setCachedEvents(eventsData);
       setLastCacheTime(Date.now());
+      // trigger sidebar filters to reload unique cities from DB
+      setFiltersRefreshToken((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to reload events:", error);
     } finally {
@@ -264,6 +267,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onSubmitEvent={handleOpenImportModal}
+                refreshTrigger={filtersRefreshToken}
               />
             </div>
           </div>
@@ -302,6 +306,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onSubmitEvent={handleOpenImportModal}
+                refreshTrigger={filtersRefreshToken}
               />
             </div>
           </SheetContent>

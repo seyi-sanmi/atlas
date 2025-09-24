@@ -3,6 +3,7 @@
 import { supabase } from '@/lib/supabase'
 import { scrapeEvent, detectEventPlatform, ScrapingError, ScrapedEventData } from '@/lib/luma-scraper'
 import { categorizeEventWithRetry, generateEventSummaryWithRetry } from '@/lib/event-categorizer'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 // Helper function to add AI categorization and summarization to event data
 async function addAIAnalysis(eventData: any) {
@@ -1580,6 +1581,17 @@ export async function saveImportedEvent(eventData: any) {
     }
 
     console.log('✅ Event saved successfully:', data);
+
+    // Server-side revalidation to refresh pages and any tag-based caches
+    try {
+      revalidatePath('/');
+      // If other routes read events server-side, add them here as needed
+      // revalidatePath('/events');
+      // Revalidate tag if using fetch cache tagging elsewhere
+      // revalidateTag('events');
+    } catch (e) {
+      console.warn('Revalidation failed (non-fatal):', e);
+    }
     return { success: true, event: data };
   } catch (error) {
     console.error('❌ Unexpected save error:', error);
