@@ -52,6 +52,17 @@ export function ImportEventModal({
   const [editingInterestArea, setEditingInterestArea] = useState("");
   const [forceUpdate, setForceUpdate] = useState(false);
 
+  // Lightweight UK cities list for client-side validation/autocomplete
+  const UK_CITIES: string[] = [
+    'London','Manchester','Birmingham','Leeds','Liverpool','Sheffield','Bristol','Glasgow','Edinburgh','Cardiff','Newcastle','Belfast','Nottingham','Southampton','Oxford','Cambridge','Brighton','Bath','York','Leicester','Coventry','Bradford','Wolverhampton','Plymouth','Derby','Reading','Newport','Preston','Sunderland','Norwich','Bournemouth','Southend','Swindon','Huddersfield','Middlesbrough','Blackpool','Bolton','Ipswich','Peterborough','Stockport','Gloucester','Exeter','Canterbury','Lancaster','Durham','Chelmsford','Chester','St Albans','Winchester','Worcester','Lincoln'
+  ];
+
+  const isValidUKCity = (city: string) => {
+    if (!city) return false;
+    const normalized = city.trim().toLowerCase();
+    return UK_CITIES.some(c => c.toLowerCase() === normalized) || normalized === 'online';
+  };
+
   const handleImport = async () => {
     if (!url.trim()) {
       setError("Please enter an event URL");
@@ -464,13 +475,49 @@ export function ImportEventModal({
                       </div>
                     </div>
 
+                    {/* City (required if AI uncertain) */}
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                         <MapPin className="w-4 h-4" />
-                        Location
+                        City
+                      </label>
+                      {(() => {
+                        const needsCity = !isValidUKCity(preview.city || '');
+                        if (needsCity) {
+                          return (
+                            <div className="space-y-1">
+                              <input
+                                list="uk-cities"
+                                value={preview.city || ''}
+                                onChange={(e) => updatePreview('city', e.target.value)}
+                                placeholder="Start typing a UK city (e.g., Manchester)"
+                                className="w-full bg-white/5 border border-red-500/50 rounded-lg px-4 py-3 text-primary-text placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
+                              />
+                              <datalist id="uk-cities">
+                                {UK_CITIES.map((c) => (
+                                  <option key={c} value={c} />
+                                ))}
+                              </datalist>
+                              <p className="text-xs text-red-400">City required. Please select a UK city before saving.</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text min-h-[44px] flex items-center">
+                            {preview.city}
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Venue/Location (display as-is) */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Venue / Location
                       </label>
                       <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-primary-text min-h-[44px] flex items-center">
-                        {preview.city}
+                        {preview.location || 'TBD'}
                       </div>
                     </div>
 
@@ -698,7 +745,7 @@ export function ImportEventModal({
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={saving}
+                  disabled={saving || !isValidUKCity(preview.city || '')}
                   className="bg-gradient-to-r from-[#AE3813] to-[#D45E3C] hover:from-[#D45E3C] hover:to-[#AE3813] disabled:opacity-50 text-primary-text px-8 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
                 >
                   {saving ? (

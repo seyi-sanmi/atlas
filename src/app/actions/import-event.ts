@@ -304,9 +304,11 @@ async function importFromLuma(eventId: string, originalUrl: string) {
         const lumaEventData = await response.json();
         console.log('✅ Successfully imported from Luma API');
         
+        const title = lumaEventData.name || 'Untitled Event';
+        const description = lumaEventData.description || '';
         const baseEventData = {
-          title: lumaEventData.name || 'Untitled Event',
-          description: lumaEventData.description || '',
+          title,
+          description,
           date: lumaEventData.start_at ? new Date(lumaEventData.start_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           time: lumaEventData.start_at ? formatTime(lumaEventData.start_at, lumaEventData.end_at) : 'TBD',
           location: lumaEventData.location?.name || lumaEventData.location || 'TBD',
@@ -318,6 +320,18 @@ async function importFromLuma(eventId: string, originalUrl: string) {
           imported_at: new Date().toISOString(),
           platform: 'luma'
         };
+        // If scraper-like fields are desirable, attempt AI UK inference here as well to populate flags
+        try {
+          const { city, confidence } = await inferCityFromTitleAndDescriptionUKForImport(title, description);
+          if (city && city !== 'TBD' && confidence >= 0.9) {
+            (baseEventData as any).city = city;
+            (baseEventData as any).city_confidence = confidence;
+            (baseEventData as any).needs_city_confirmation = false;
+          } else {
+            (baseEventData as any).city_confidence = confidence || 0;
+            (baseEventData as any).needs_city_confirmation = true;
+          }
+        } catch {}
         
         return await addAIAnalysis(baseEventData);
       } else {
@@ -613,9 +627,19 @@ async function getLumaCity(eventData: any): Promise<string> {
     }
   }
   
+  // If still no city found, try extracting from event title (high priority for cases like "Nucleate Manchester Info Session")
+  if (eventData.name) {
+    console.log('🎯 No valid city found in location data, trying to extract from event title...');
+    const titleCity = await extractCityFromTitle(eventData.name);
+    if (titleCity !== 'TBD') {
+      console.log('✅ Found city in event title:', titleCity);
+      return titleCity;
+    }
+  }
+  
   // If still no city found, check description (but only if it doesn't contain TBD)
   if (eventData.description) {
-    console.log('🔍 No valid city found in location data, checking description...');
+    console.log('🔍 No valid city found in title or location data, checking description...');
     
     if (!eventData.description.toLowerCase().includes('tbd') && 
         !eventData.description.toLowerCase().includes('to be determined') &&
@@ -628,6 +652,50 @@ async function getLumaCity(eventData: any): Promise<string> {
   }
   
   return 'TBD';
+}
+
+// AI-first UK city inference used in import path
+async function inferCityFromTitleAndDescriptionUKForImport(title: string, description: string): Promise<{ city: string; confidence: number }> {
+  if (!process.env.OPENAI_API_KEY) return { city: 'TBD', confidence: 0 };
+  try {
+    const { OpenAI } = await import('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const prompt = `You are extracting a UK city for an event. Analyze title and description together.
+Return STRICT JSON with keys city (string) and confidence (number 0..1). City must be a UK city name only (no country/region), or "TBD" if unknown. If event is clearly online/virtual, set city to "Online" and confidence 1.
+
+Title: ${title}
+Description: ${description?.slice(0, 1200) || ''}
+
+Rules:
+- Prefer an explicit city mention.
+- If not explicit, infer only when ≥0.90 sure based on strong cues.
+- UK focus: only UK cities are valid (except "Online").
+- Output example: {"city":"Manchester","confidence":0.95}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0,
+      max_tokens: 60,
+    });
+    const raw = completion.choices[0]?.message?.content?.trim() || '';
+    try {
+      const parsed = JSON.parse(raw);
+      let city: string = (parsed.city || '').toString().trim();
+      let confidence: number = Number(parsed.confidence);
+      if (!Number.isFinite(confidence)) confidence = 0;
+      // Basic whitelist (should mirror UI validation)
+      const UK_CITIES = ['London','Manchester','Birmingham','Leeds','Liverpool','Sheffield','Bristol','Glasgow','Edinburgh','Cardiff','Newcastle','Belfast','Nottingham','Southampton','Oxford','Cambridge','Brighton','Bath','York','Leicester','Coventry','Bradford','Wolverhampton','Plymouth','Derby','Reading','Newport','Preston','Sunderland','Norwich','Bournemouth','Southend','Swindon','Huddersfield','Middlesbrough','Blackpool','Bolton','Ipswich','Peterborough','Stockport','Gloucester','Exeter','Canterbury','Lancaster','Durham','Chelmsford','Chester','St Albans','Winchester','Worcester','Lincoln'];
+      const valid = city.toLowerCase() === 'online' || UK_CITIES.some(c => c.toLowerCase() === city.toLowerCase());
+      if (!valid) return { city: 'TBD', confidence: 0 };
+      if (city.toLowerCase() === 'online') return { city: 'Online', confidence: Math.max(confidence, 0.95) };
+      return { city, confidence };
+    } catch {
+      return { city: 'TBD', confidence: 0 };
+    }
+  } catch (e) {
+    return { city: 'TBD', confidence: 0 };
+  }
 }
 
 // Helper function to check if a location string is placeholder text
@@ -773,6 +841,121 @@ City:`;
     console.error('AI city extraction failed:', error);
     return 'TBD';
   }
+}
+
+// Extract city from event title using hybrid approach (rule-based + AI fallback)
+async function extractCityFromTitle(title: string): Promise<string> {
+  if (!title) return 'TBD';
+  
+  // First, try rule-based extraction (works without API key)
+  const ruleBasedResult = extractCityFromTitleRuleBased(title);
+  if (ruleBasedResult !== 'TBD') {
+    console.log(`📍 Rule-based title city extraction: "${title}" → "${ruleBasedResult}"`);
+    return ruleBasedResult;
+  }
+
+  // If rule-based fails and API key is available, try AI
+  if (!process.env.OPENAI_API_KEY) {
+    console.log('🔓 No OpenAI API key, using rule-based result only');
+    return ruleBasedResult;
+  }
+
+  try {
+    const { OpenAI } = await import('openai');
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const prompt = `Extract the city name from this event title if one is mentioned. Return ONLY the city name, nothing else.
+
+Event Title: "${title}"
+
+Examples:
+- "Nucleate Manchester Info Session" → "Manchester"
+- "London Tech Meetup: AI Innovation" → "London"
+- "Bristol BioTech Conference 2024" → "Bristol"
+- "Cambridge Networking Event" → "Cambridge"
+- "Future of Healthcare (Online)" → "Online"
+- "Startup Pitch Night" → "TBD"
+- "Innovation Workshop" → "TBD"
+
+Rules:
+- Only extract if the city name is clearly mentioned in the title
+- Focus on UK cities but also recognize international cities
+- If the title mentions "Online", "Virtual", or "Remote", return "Online"
+- If no clear city is mentioned, return "TBD"
+
+City:`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.1,
+      max_tokens: 20,
+    });
+
+    const result = completion.choices[0]?.message?.content?.trim();
+    console.log(`🤖 AI extracted city from title: "${title}" → "${result}"`);
+    return result || 'TBD';
+  } catch (error) {
+    console.error('AI title city extraction failed:', error);
+    return ruleBasedResult;
+  }
+}
+
+// Rule-based city extraction from event title (works without API)
+function extractCityFromTitleRuleBased(title: string): string {
+  if (!title) return 'TBD';
+  
+  const normalized = title.toLowerCase();
+  
+  // Check for online/virtual events first
+  if (normalized.includes('online') || normalized.includes('virtual') || normalized.includes('remote')) {
+    return 'Online';
+  }
+  
+  // Common UK cities to look for in titles
+  const ukCities = [
+    'London', 'Manchester', 'Birmingham', 'Leeds', 'Liverpool', 'Sheffield', 
+    'Bristol', 'Glasgow', 'Edinburgh', 'Cardiff', 'Newcastle', 'Belfast',
+    'Nottingham', 'Southampton', 'Oxford', 'Cambridge', 'Brighton', 'Bath',
+    'York', 'Leicester', 'Coventry', 'Bradford', 'Stoke-on-Trent', 'Wolverhampton',
+    'Plymouth', 'Derby', 'Reading', 'Dudley', 'Newport', 'Preston', 'Sunderland',
+    'Norwich', 'Walsall', 'Bournemouth', 'Southend', 'Swindon', 'Huddersfield',
+    'Poole', 'Middlesbrough', 'Blackpool', 'Oldham', 'Bolton',
+    'Ipswich', 'West Bromwich', 'Peterborough', 'Stockport', 'Gloucester'
+  ];
+  
+  // Look for exact city matches in the title
+  for (const city of ukCities) {
+    const cityLower = city.toLowerCase();
+    
+    // Check for whole word matches to avoid false positives
+    const regex = new RegExp(`\\b${cityLower}\\b`, 'i');
+    if (regex.test(normalized)) {
+      return city;
+    }
+  }
+  
+  // Common international cities
+  const intlCities = [
+    'New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Boston', 'Seattle',
+    'Toronto', 'Vancouver', 'Montreal', 'Paris', 'Berlin', 'Amsterdam', 'Dublin',
+    'Copenhagen', 'Stockholm', 'Oslo', 'Helsinki', 'Zurich', 'Geneva', 'Milan',
+    'Rome', 'Madrid', 'Barcelona', 'Lisbon', 'Vienna', 'Prague', 'Budapest',
+    'Warsaw', 'Brussels', 'Luxembourg', 'Singapore', 'Hong Kong', 'Tokyo',
+    'Sydney', 'Melbourne', 'Auckland'
+  ];
+  
+  for (const city of intlCities) {
+    const cityLower = city.toLowerCase();
+    const regex = new RegExp(`\\b${cityLower.replace(/\s+/g, '\\s+')}\\b`, 'i');
+    if (regex.test(normalized)) {
+      return city;
+    }
+  }
+  
+  return 'TBD';
 }
 
 // Extract city from event description using AI

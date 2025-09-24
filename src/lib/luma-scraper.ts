@@ -37,6 +37,8 @@ export interface ScrapedEventData {
   time: string;
   location: string;
   city: string;
+  city_confidence?: number;
+  needs_city_confirmation?: boolean;
   organizer: string;
   url: string;
   image_url?: string;
@@ -879,6 +881,125 @@ City:`;
 }
 
 /**
+ * Extract city from event title using hybrid approach (rule-based + AI fallback)
+ */
+async function extractCityFromTitle(title: string): Promise<string> {
+  if (!title) return 'TBD';
+  
+  // First, try rule-based extraction (works without API key)
+  const ruleBasedResult = extractCityFromTitleRuleBased(title);
+  if (ruleBasedResult !== 'TBD') {
+    console.log(`📍 Rule-based title city extraction: "${title}" → "${ruleBasedResult}"`);
+    return ruleBasedResult;
+  }
+
+  // If rule-based fails and API key is available, try AI
+  if (!process.env.OPENAI_API_KEY) {
+    console.log('🔓 No OpenAI API key, using rule-based result only');
+    return ruleBasedResult;
+  }
+
+  try {
+    const { OpenAI } = await import('openai');
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const prompt = `Extract the city name from this event title if one is mentioned. Return ONLY the city name, nothing else.
+
+Event Title: "${title}"
+
+Examples:
+- "Nucleate Manchester Info Session" → "Manchester"
+- "London Tech Meetup: AI Innovation" → "London"
+- "Bristol BioTech Conference 2024" → "Bristol"
+- "Cambridge Networking Event" → "Cambridge"
+- "Future of Healthcare (Online)" → "Online"
+- "Startup Pitch Night" → "TBD"
+- "Innovation Workshop" → "TBD"
+
+Rules:
+- Only extract if the city name is clearly mentioned in the title
+- Focus on UK cities but also recognize international cities
+- If the title mentions "Online", "Virtual", or "Remote", return "Online"
+- If no clear city is mentioned, return "TBD"
+
+City:`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.1,
+      max_tokens: 20,
+    });
+
+    const result = completion.choices[0]?.message?.content?.trim();
+    console.log(`🤖 AI extracted city from title: "${title}" → "${result}"`);
+    return result || 'TBD';
+  } catch (error) {
+    console.error('AI title city extraction failed:', error);
+    return ruleBasedResult;
+  }
+}
+
+/**
+ * Rule-based city extraction from event title (works without API)
+ */
+function extractCityFromTitleRuleBased(title: string): string {
+  if (!title) return 'TBD';
+  
+  const normalized = title.toLowerCase();
+  
+  // Check for online/virtual events first
+  if (normalized.includes('online') || normalized.includes('virtual') || normalized.includes('remote')) {
+    return 'Online';
+  }
+  
+  // Common UK cities to look for in titles
+  const ukCities = [
+    'London', 'Manchester', 'Birmingham', 'Leeds', 'Liverpool', 'Sheffield', 
+    'Bristol', 'Glasgow', 'Edinburgh', 'Cardiff', 'Newcastle', 'Belfast',
+    'Nottingham', 'Southampton', 'Oxford', 'Cambridge', 'Brighton', 'Bath',
+    'York', 'Leicester', 'Coventry', 'Bradford', 'Stoke-on-Trent', 'Wolverhampton',
+    'Plymouth', 'Derby', 'Reading', 'Dudley', 'Newport', 'Preston', 'Sunderland',
+    'Norwich', 'Walsall', 'Bournemouth', 'Southend', 'Swindon', 'Huddersfield',
+    'Poole', 'Middlesbrough', 'Blackpool', 'Oldham', 'Bolton',
+    'Ipswich', 'West Bromwich', 'Peterborough', 'Stockport', 'Gloucester'
+  ];
+  
+  // Look for exact city matches in the title
+  for (const city of ukCities) {
+    const cityLower = city.toLowerCase();
+    
+    // Check for whole word matches to avoid false positives
+    const regex = new RegExp(`\\b${cityLower}\\b`, 'i');
+    if (regex.test(normalized)) {
+      return city;
+    }
+  }
+  
+  // Common international cities
+  const intlCities = [
+    'New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Boston', 'Seattle',
+    'Toronto', 'Vancouver', 'Montreal', 'Paris', 'Berlin', 'Amsterdam', 'Dublin',
+    'Copenhagen', 'Stockholm', 'Oslo', 'Helsinki', 'Zurich', 'Geneva', 'Milan',
+    'Rome', 'Madrid', 'Barcelona', 'Lisbon', 'Vienna', 'Prague', 'Budapest',
+    'Warsaw', 'Brussels', 'Luxembourg', 'Singapore', 'Hong Kong', 'Tokyo',
+    'Sydney', 'Melbourne', 'Auckland'
+  ];
+  
+  for (const city of intlCities) {
+    const cityLower = city.toLowerCase();
+    const regex = new RegExp(`\\b${cityLower.replace(/\s+/g, '\\s+')}\\b`, 'i');
+    if (regex.test(normalized)) {
+      return city;
+    }
+  }
+  
+  return 'TBD';
+}
+
+/**
  * Extract city from event description using AI
  */
 async function extractCityFromDescription(description: string): Promise<string> {
@@ -920,6 +1041,78 @@ City:`;
   } catch (error) {
     console.error('AI description city extraction failed:', error);
     return 'TBD';
+  }
+}
+
+/**
+ * UK cities whitelist for validation (compact subset; can be expanded over time)
+ */
+const UK_CITIES_WHITELIST: string[] = [
+  'London','Manchester','Birmingham','Leeds','Liverpool','Sheffield','Bristol','Glasgow','Edinburgh','Cardiff','Newcastle','Belfast','Nottingham','Southampton','Oxford','Cambridge','Brighton','Bath','York','Leicester','Coventry','Bradford','Wolverhampton','Plymouth','Derby','Reading','Newport','Preston','Sunderland','Norwich','Bournemouth','Southend','Swindon','Huddersfield','Middlesbrough','Blackpool','Bolton','Ipswich','Peterborough','Stockport','Gloucester','Exeter','Canterbury','Lancaster','Durham','Chelmsford','Chester','St Albans','Winchester','Worcester','Lincoln'
+];
+
+function isValidUKCity(city: string): boolean {
+  if (!city) return false;
+  const normalized = city.trim().toLowerCase();
+  return UK_CITIES_WHITELIST.some(c => c.toLowerCase() === normalized);
+}
+
+/**
+ * AI-first UK city inference from title + description with confidence.
+ * Returns { city, confidence } where confidence ∈ [0,1].
+ */
+async function inferCityFromTitleAndDescriptionUK(title: string, description: string): Promise<{ city: string; confidence: number }> {
+  if (!process.env.OPENAI_API_KEY) {
+    return { city: 'TBD', confidence: 0 };
+  }
+
+  try {
+    const { OpenAI } = await import('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `You are extracting a UK city for an event. Analyze title and description together.
+Return STRICT JSON with keys city (string) and confidence (number 0..1). City must be a UK city name only (no country/region), or "TBD" if unknown. If event is clearly online/virtual, set city to "Online" and confidence 1.
+
+Title: ${title}
+Description: ${description?.slice(0, 1200) || ''}
+
+Rules:
+- Prefer an explicit city mention.
+- If not explicit, infer only when ≥0.90 sure based on strong cues.
+- UK focus: only UK cities are valid (except "Online").
+- Output example: {"city":"Manchester","confidence":0.95}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0,
+      max_tokens: 60,
+    });
+
+    const raw = completion.choices[0]?.message?.content?.trim() || '';
+    try {
+      const parsed = JSON.parse(raw);
+      let city: string = (parsed.city || '').toString().trim();
+      let confidence: number = Number(parsed.confidence);
+      if (!Number.isFinite(confidence)) confidence = 0;
+
+      // Normalize result
+      if (city.toLowerCase() === 'online') {
+        return { city: 'Online', confidence: Math.max(confidence, 0.95) };
+      }
+
+      // Validate against UK whitelist
+      if (!isValidUKCity(city)) {
+        return { city: 'TBD', confidence: 0 };
+      }
+
+      return { city, confidence };
+    } catch {
+      return { city: 'TBD', confidence: 0 };
+    }
+  } catch (error) {
+    console.error('AI combined UK city inference failed:', error);
+    return { city: 'TBD', confidence: 0 };
   }
 }
 
@@ -1083,28 +1276,22 @@ async function parseJsonLdData(jsonLd: any, eventUrl: string, platform: string =
     }
   }
   
-  // If still no city found, check if description contains "TBD" or similar
-  if (city === 'TBD' && jsonLd.description) {
-    console.log('🔍 No valid city found in JSON-LD, checking description...');
-    
-    // Check if description contains location information that's not TBD
-    if (!jsonLd.description.toLowerCase().includes('tbd') && 
-        !jsonLd.description.toLowerCase().includes('to be determined') &&
-        !jsonLd.description.toLowerCase().includes('to be announced')) {
-      console.log('📝 Description doesn\'t contain TBD, extracting city from description...');
-      city = await extractCityFromDescription(jsonLd.description);
-      
-      // If we found a city in the description, also try to extract a better location
-      if (city !== 'TBD') {
-        console.log('📍 Found city in description, extracting location info...');
-        const locationInfo = await extractLocationFromDescription(jsonLd.description);
-        if (locationInfo && locationInfo !== 'TBD') {
-          location = locationInfo;
-          console.log('✅ Updated location from description:', location);
-        }
-      }
+  // AI-first UK city inference from title + description with confidence threshold 0.90
+  if (jsonLd.name || jsonLd.description) {
+    const { city: inferredCity, confidence } = await inferCityFromTitleAndDescriptionUK(
+      jsonLd.name || '',
+      jsonLd.description || ''
+    );
+    if (inferredCity !== 'TBD' && confidence >= 0.9) {
+      city = inferredCity;
+      console.log(`✅ Accepted AI UK city inference: ${inferredCity} (conf ${confidence.toFixed(2)})`);
+      // attach confidence flags
+      var cityConfidence: number | undefined = confidence;
+      var needsConfirmation: boolean | undefined = false;
     } else {
-      console.log('⚠️ Description contains TBD, keeping city as TBD');
+      console.log('⚠️ AI UK city inference below threshold or invalid; leaving city as is (may be TBD)');
+      var cityConfidence: number | undefined = confidence || 0;
+      var needsConfirmation: boolean | undefined = true;
     }
   }
 
@@ -1141,6 +1328,8 @@ async function parseJsonLdData(jsonLd: any, eventUrl: string, platform: string =
     time: timeString,
     location: location,
     city: city,
+    city_confidence: typeof cityConfidence === 'number' ? cityConfidence : undefined,
+    needs_city_confirmation: typeof needsConfirmation === 'boolean' ? needsConfirmation : undefined,
     organizer: organizer,
     url: eventUrl,
     image_url: Array.isArray(jsonLd.image) ? jsonLd.image[0] : jsonLd.image,
