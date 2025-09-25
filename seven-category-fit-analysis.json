@@ -1,0 +1,309 @@
+{
+  "categoryFits": {
+    "Talk / Presentation": 16,
+    "Workshop / Discussion": 2,
+    "Social / Mixer": 10,
+    "Panel Discussion": 4,
+    "Research / Academic Conference": 1,
+    "Competition / Hackathon": 3,
+    "Demo / Showcase": 1
+  },
+  "uncategorized": [
+    {
+      "id": "a46d4034-ac5f-40bf-a6ca-e23b0404f5b2",
+      "title": "Dundee Lunch & Learn",
+      "currentCategories": [
+        "Workshop"
+      ],
+      "bestFits": [],
+      "talkScore": 0,
+      "technicalScore": 3,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "13d54599-3772-4b59-a112-c375452cdb88",
+      "title": "Norwich Lunch & Learn",
+      "currentCategories": [
+        "Workshop",
+        "Meetup / Mixer"
+      ],
+      "bestFits": [],
+      "talkScore": 0,
+      "technicalScore": 3,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "7c99c70c-4e18-421b-ad64-9c3042cf7d94",
+      "title": "Edinburgh Lunch & Learn",
+      "currentCategories": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "bestFits": [],
+      "talkScore": 0,
+      "technicalScore": 3,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "5261d1ae-5885-4954-8166-3af04f266a11",
+      "title": "Newcastle Lunch & Learn",
+      "currentCategories": [
+        "Workshop"
+      ],
+      "bestFits": [],
+      "talkScore": 0,
+      "technicalScore": 3,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "5b61fb1b-8496-4a31-958f-f057170512ea",
+      "title": "Bristol Lunch & Learn",
+      "currentCategories": [
+        "Workshop"
+      ],
+      "bestFits": [],
+      "talkScore": 0,
+      "technicalScore": 3,
+      "wouldBeTechnical": true
+    }
+  ],
+  "multiCategory": [
+    {
+      "id": "68ae60ad-4027-4b90-8e9a-2ef3fb19007b",
+      "title": "Thinking Big Science",
+      "currentCategories": [
+        "Meetup / Mixer"
+      ],
+      "bestFits": [
+        "Workshop / Discussion",
+        "Social / Mixer"
+      ],
+      "talkScore": 0,
+      "technicalScore": 4,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "22f7524e-e52c-4fb8-a680-9fc719c86ae6",
+      "title": "London SynBio Network 10",
+      "currentCategories": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "bestFits": [
+        "Social / Mixer",
+        "Talk / Presentation"
+      ],
+      "talkScore": 1,
+      "technicalScore": 1,
+      "wouldBeTechnical": false
+    },
+    {
+      "id": "bf9b0835-1418-4dc3-901e-693769cd9615",
+      "title": "Fail Friday",
+      "currentCategories": [
+        "Other"
+      ],
+      "bestFits": [
+        "Social / Mixer",
+        "Talk / Presentation"
+      ],
+      "talkScore": 1,
+      "technicalScore": 4,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "99e48fd6-9668-4c20-a963-ca671ede1420",
+      "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+      "currentCategories": [
+        "Panel Discussion"
+      ],
+      "bestFits": [
+        "Social / Mixer",
+        "Panel Discussion"
+      ],
+      "talkScore": 1,
+      "technicalScore": 4,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "6b48aa42-1516-4cc4-96c9-3126dde6ef6f",
+      "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+      "currentCategories": [
+        "Conference"
+      ],
+      "bestFits": [
+        "Talk / Presentation",
+        "Workshop / Discussion"
+      ],
+      "talkScore": 2,
+      "technicalScore": 6,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "77efa8ed-e476-4c7f-b49c-58c569f72f7f",
+      "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+      "currentCategories": [
+        "Panel Discussion"
+      ],
+      "bestFits": [
+        "Social / Mixer",
+        "Panel Discussion"
+      ],
+      "talkScore": 1,
+      "technicalScore": 7,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "385fd0a1-2e9a-4a93-871f-0bb798896357",
+      "title": "Imperial Neurotech Society 2025 Conference",
+      "currentCategories": [
+        "Conference"
+      ],
+      "bestFits": [
+        "Talk / Presentation",
+        "Panel Discussion"
+      ],
+      "talkScore": 2,
+      "technicalScore": 4,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "c2847306-1c39-4fe3-b001-1acbc451de6e",
+      "title": "Science Creates: Designed for Deep Tech",
+      "currentCategories": [
+        "Conference"
+      ],
+      "bestFits": [
+        "Talk / Presentation",
+        "Panel Discussion"
+      ],
+      "talkScore": 3,
+      "technicalScore": 6,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "bf045f41-3bd6-4d7b-8e9c-db6d08329ac3",
+      "title": "CompMotifs: Hack the Sciences",
+      "currentCategories": [
+        "Hackathon"
+      ],
+      "bestFits": [
+        "Competition / Hackathon",
+        "Talk / Presentation"
+      ],
+      "talkScore": 2,
+      "technicalScore": 4,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "d2bc53cf-7d0d-4729-8beb-853895e2d9f4",
+      "title": "AI for Longevity Summit and Hackathon",
+      "currentCategories": [
+        "Hackathon"
+      ],
+      "bestFits": [
+        "Social / Mixer",
+        "Competition / Hackathon"
+      ],
+      "talkScore": 1,
+      "technicalScore": 7,
+      "wouldBeTechnical": true
+    },
+    {
+      "id": "0d7c753f-12dd-4c11-8933-b4efb281ba27",
+      "title": "London AI Nexus Demo Night",
+      "currentCategories": [
+        "Meetup / Mixer"
+      ],
+      "bestFits": [
+        "Demo / Showcase",
+        "Social / Mixer"
+      ],
+      "talkScore": 1,
+      "technicalScore": 2,
+      "wouldBeTechnical": true
+    }
+  ],
+  "technicalVsGeneral": {
+    "Dundee Activator Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Norwich Activator Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Edinburgh Activator Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Cambridge Activator Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Newcastle Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Bristol Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Oxford Activator Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "Nucleate Manchester Activator Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "London Info Session": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 3
+    },
+    "London SynBio Network 10": {
+      "prefersTechnical": false,
+      "talkScore": 1,
+      "technicalScore": 1
+    },
+    "Fail Friday": {
+      "prefersTechnical": true,
+      "talkScore": 1,
+      "technicalScore": 4
+    },
+    "'The Experimental Imagination' - Encode: AI for Science's Summer Salon": {
+      "prefersTechnical": true,
+      "talkScore": 2,
+      "technicalScore": 6
+    },
+    "In Silico #001": {
+      "prefersTechnical": false,
+      "talkScore": 3,
+      "technicalScore": 2
+    },
+    "Imperial Neurotech Society 2025 Conference": {
+      "prefersTechnical": true,
+      "talkScore": 2,
+      "technicalScore": 4
+    },
+    "Science Creates: Designed for Deep Tech": {
+      "prefersTechnical": true,
+      "talkScore": 3,
+      "technicalScore": 6
+    },
+    "CompMotifs: Hack the Sciences": {
+      "prefersTechnical": true,
+      "talkScore": 2,
+      "technicalScore": 4
+    }
+  }
+}

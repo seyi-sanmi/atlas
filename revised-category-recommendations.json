@@ -1,0 +1,96 @@
+{
+  "executiveSummary": {
+    "totalEvents": 31,
+    "keyChanges": [
+      "Combine Information Session + Talk into single category",
+      "Create dedicated Social / Mixer category",
+      "Remove Innovation/Entrepreneurship as standalone category",
+      "Focus on event format/purpose rather than subject matter"
+    ]
+  },
+  "revisedCategoryStructure": {
+    "primary": [
+      "Information Session / Talk",
+      "Social / Mixer",
+      "Workshop",
+      "Research / Academic",
+      "Panel Discussion",
+      "Competition / Hackathon"
+    ],
+    "description": {
+      "Information Session / Talk": "Program info sessions, presentations, seminars, talks",
+      "Social / Mixer": "Networking events, community building, social gatherings",
+      "Workshop": "Hands-on learning experiences, skill building sessions",
+      "Research / Academic": "Research presentations, academic discussions, scientific findings",
+      "Panel Discussion": "Expert panels, moderated discussions, Q&A sessions",
+      "Competition / Hackathon": "Competitions, hackathons, demo nights, showcases"
+    }
+  },
+  "specificMappings": {
+    "Workshop": {
+      "keep": "Workshop",
+      "reasoning": "Good for hands-on learning events"
+    },
+    "Conference": {
+      "changeTo": "Information Session / Talk",
+      "reasoning": "Most are actually info sessions or talks, not full conferences"
+    },
+    "Meetup / Mixer": {
+      "changeTo": "Social / Mixer",
+      "reasoning": "Better reflects the networking/social nature"
+    },
+    "Panel Discussion": {
+      "keep": "Panel Discussion",
+      "reasoning": "Clear format that works well"
+    },
+    "Hackathon": {
+      "changeTo": "Competition / Hackathon",
+      "reasoning": "More specific and includes other competitive formats"
+    },
+    "Other": {
+      "evaluate": "Case by case basis using revised categories",
+      "reasoning": "Distribute to appropriate specific categories"
+    }
+  },
+  "exampleRecategorizations": [
+    {
+      "title": "Thinking Big Science",
+      "currentCategory": "Meetup / Mixer",
+      "newCategory": "Social / Mixer",
+      "reasoning": "Evening networking event with structured group conversations"
+    },
+    {
+      "title": "Dundee Activator Info Session",
+      "currentCategory": "Conference",
+      "newCategory": "Information Session / Talk",
+      "reasoning": "Program information session, not a full conference"
+    },
+    {
+      "title": "London AI Nexus Demo Night",
+      "currentCategory": "Meetup / Mixer",
+      "newCategory": "Competition / Hackathon + Social / Mixer",
+      "reasoning": "Technical showcase with networking component"
+    },
+    {
+      "title": "Norwich Lunch & Learn",
+      "currentCategory": "Workshop + Meetup / Mixer",
+      "newCategory": "Information Session / Talk + Social / Mixer",
+      "reasoning": "Lunchtime info session with networking over food"
+    }
+  ],
+  "distributionAnalysis": {
+    "Information Session / Talk": 19,
+    "Research / Academic": 21,
+    "Social / Mixer": 6,
+    "Panel Discussion": 5,
+    "Workshop": 3,
+    "Competition / Hackathon": 4
+  },
+  "implementationSteps": [
+    "1. Update category definitions to use new 6-category structure",
+    "2. Re-categorize existing events using revised logic",
+    "3. Update UI to show new category names",
+    "4. Test categorization accuracy with sample events",
+    "5. Update AI categorization prompts to use new categories"
+  ]
+}

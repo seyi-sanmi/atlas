@@ -1,0 +1,1214 @@
+{
+  "timestamp": "2025-09-24T15:41:09.147Z",
+  "totalEvents": 31,
+  "currentCategoryIssues": [
+    {
+      "id": "a46d4034-ac5f-40bf-a6ca-e23b0404f5b2",
+      "title": "Dundee Lunch & Learn",
+      "currentTypes": [
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ..."
+    },
+    {
+      "id": "7e392e33-e1fa-4ba4-84ce-533736b75c10",
+      "title": "Dundee Activator Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "68ae60ad-4027-4b90-8e9a-2ef3fb19007b",
+      "title": "Thinking Big Science",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Networking Event"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "description": "Some ideas don’t fit neatly into a startup or an academic paper. They’re larger, more ambitious - the kind of projects that could reshape how science and innovation get done.\nThinking Big Science is a..."
+    },
+    {
+      "id": "13d54599-3772-4b59-a112-c375452cdb88",
+      "title": "Norwich Lunch & Learn",
+      "currentTypes": [
+        "Workshop",
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ..."
+    },
+    {
+      "id": "d975f745-3f7c-4cdc-9b9c-7f0a5a820360",
+      "title": "Norwich Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "b1fe5a71-d910-4799-b3f7-7f31c3820954",
+      "title": "Edinburgh Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "7c99c70c-4e18-421b-ad64-9c3042cf7d94",
+      "title": "Edinburgh Lunch & Learn",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ..."
+    },
+    {
+      "id": "ee5d8be5-9c54-4371-af9f-94bf235d3e41",
+      "title": "Cambridge Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "5261d1ae-5885-4954-8166-3af04f266a11",
+      "title": "Newcastle Lunch & Learn",
+      "currentTypes": [
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ..."
+    },
+    {
+      "id": "faa6a376-034f-47df-b0cd-fbcc2fc8b5c3",
+      "title": "Newcastle Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "5b61fb1b-8496-4a31-958f-f057170512ea",
+      "title": "Bristol Lunch & Learn",
+      "currentTypes": [
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ..."
+    },
+    {
+      "id": "9580de0c-1fa5-48ff-9409-70b9df04ad3d",
+      "title": "Bristol Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "04e42885-44f5-41db-aa3e-4eda24e7d765",
+      "title": "Oxford Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "37e1794f-e5b7-4575-b791-f777d6dd3684",
+      "title": "Nucleate Manchester Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro..."
+    },
+    {
+      "id": "cd368085-b425-44f0-a80e-a4693d769a9d",
+      "title": "London Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "Join us for an Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its r..."
+    },
+    {
+      "id": "22f7524e-e52c-4fb8-a680-9fc719c86ae6",
+      "title": "London SynBio Network 10",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Networking Event",
+        "Conference/Talk"
+      ],
+      "themes": [
+        "Networking"
+      ],
+      "description": "London SynBio afterwork talks and networking event on Thursday 25th of September..."
+    },
+    {
+      "id": "bf9b0835-1418-4dc3-901e-693769cd9615",
+      "title": "Fail Friday",
+      "currentTypes": [
+        "Other"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Educational Workshop"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Failed an experiment? Got rejected for funding? You’re not alone.\nThe fastest path to discovery is often shaped by what didn’t work first, so we’re bringing a night inspired by SF’s f***‑up nights to ..."
+    },
+    {
+      "id": "99e48fd6-9668-4c20-a963-ca671ede1420",
+      "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+      "currentTypes": [
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Innovation/Entrepreneurship"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Health/Biotech",
+        "Career",
+        "Networking"
+      ],
+      "description": "Join us for vision 73’s third event on September 4th in Central London.\nAt our previous events vision 73 was honoured to host Jacob T. Robinson, Jamie Brannigan, Nir Grossman, and Tamara Gerbert speak..."
+    },
+    {
+      "id": "912652ba-216f-44be-87c3-d639693f6a9f",
+      "title": "[Chill] Robotics/AI Networking Meetup London",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Networking Event",
+        "Educational Workshop"
+      ],
+      "themes": [
+        "Technology",
+        "Networking"
+      ],
+      "description": "Working, building or interested in Robotics or AI for robotics? Then please be invited to a chill in-person networking event.\nThat's it, no rules. Easy and chill.\nThe plan is to get a table at The Sek..."
+    },
+    {
+      "id": "2baae872-cb66-42d3-ae14-4e3a942b6333",
+      "title": "Women in Science and Technology Policy Drinks",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Networking Event"
+      ],
+      "themes": [
+        "Technology"
+      ],
+      "description": "Come meet other women in science and technology policy!\nOpening remarks from Louise Dunsby (ex-Cabinet Office) and Lauren Gilbert (Renaissance Philanthropy).\nDrinks and snacks will be provided...."
+    },
+    {
+      "id": "6b48aa42-1516-4cc4-96c9-3126dde6ef6f",
+      "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "description": "How can AI become a partner in scientific discovery, design and dreaming?\nJoin us for a celebration of creativity, curiosity and community. Expect to:\nMeet our first cohort of Encode Fellows, recently..."
+    },
+    {
+      "id": "df2bc93b-9ea5-4e3a-8f1d-1cff565cd509",
+      "title": "In Silico #001",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Educational Workshop"
+      ],
+      "themes": [
+        "Technology",
+        "Networking"
+      ],
+      "description": "Recent advancements in computation are transforming the biomolecular sciences - from fine simulations of molecular structure and drug discovery, to coarse-grained systems analysis of complex biochemic..."
+    },
+    {
+      "id": "77efa8ed-e476-4c7f-b49c-58c569f72f7f",
+      "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+      "currentTypes": [
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Networking Event"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "description": "Asothia and Renaissance Philanthropy are co-hosting a panel discussion at St John’s College on July 8th exploring how the UK might design next-generation scientific infrastructure - built to support b..."
+    },
+    {
+      "id": "4a2beb84-dd64-48e3-a961-4fc917f8a76a",
+      "title": "Fundraising across borders: Europe vs US | Mixer – London",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Networking Event"
+      ],
+      "themes": [
+        "Business",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "description": "A mixer for scientist founders raising their first round\nWhat are the real-world mechanics of raising capital for deep tech + science-based startups? And how the fundraising journey plays out in Europ..."
+    },
+    {
+      "id": "c2847306-1c39-4fe3-b001-1acbc451de6e",
+      "title": "Science Creates: Designed for Deep Tech",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Educational Workshop",
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "description": "🎫 The event\nJoin Science Creates in Bristol for a specially crafted event as we begin an exciting, new chapter — preparing to expand by a further 30,000 sq ft with our third state-of-the-art Deep Tec..."
+    },
+    {
+      "id": "0d7c753f-12dd-4c11-8933-b4efb281ba27",
+      "title": "London AI Nexus Demo Night",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Panel Discussion",
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "description": "👋 Welcome to the inaugural London AI Nexus Demo Night!\nA technical showcase of frontier AI demos, followed by networking and food, in collaboration with Earlybird VC.\n\n🤝 In Collaboration With\nEarlyb..."
+    }
+  ],
+  "proposedCategories": {
+    "Innovation/Entrepreneurship": 9,
+    "Information Session": 15,
+    "Research Presentation": 14,
+    "Networking Event": 6,
+    "Conference/Talk": 3,
+    "Educational Workshop": 4,
+    "Hackathon/Competition": 6,
+    "Panel Discussion": 2
+  },
+  "eventAnalysis": [
+    {
+      "id": "a46d4034-ac5f-40bf-a6ca-e23b0404f5b2",
+      "title": "Dundee Lunch & Learn",
+      "currentTypes": [
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "7e392e33-e1fa-4ba4-84ce-533736b75c10",
+      "title": "Dundee Activator Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "68ae60ad-4027-4b90-8e9a-2ef3fb19007b",
+      "title": "Thinking Big Science",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Networking Event"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "13d54599-3772-4b59-a112-c375452cdb88",
+      "title": "Norwich Lunch & Learn",
+      "currentTypes": [
+        "Workshop",
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "d975f745-3f7c-4cdc-9b9c-7f0a5a820360",
+      "title": "Norwich Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "b1fe5a71-d910-4799-b3f7-7f31c3820954",
+      "title": "Edinburgh Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "7c99c70c-4e18-421b-ad64-9c3042cf7d94",
+      "title": "Edinburgh Lunch & Learn",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "ee5d8be5-9c54-4371-af9f-94bf235d3e41",
+      "title": "Cambridge Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "5261d1ae-5885-4954-8166-3af04f266a11",
+      "title": "Newcastle Lunch & Learn",
+      "currentTypes": [
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "faa6a376-034f-47df-b0cd-fbcc2fc8b5c3",
+      "title": "Newcastle Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "5b61fb1b-8496-4a31-958f-f057170512ea",
+      "title": "Bristol Lunch & Learn",
+      "currentTypes": [
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "9580de0c-1fa5-48ff-9409-70b9df04ad3d",
+      "title": "Bristol Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "04e42885-44f5-41db-aa3e-4eda24e7d765",
+      "title": "Oxford Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "37e1794f-e5b7-4575-b791-f777d6dd3684",
+      "title": "Nucleate Manchester Activator Info Session",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Workshop"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "cd368085-b425-44f0-a80e-a4693d769a9d",
+      "title": "London Info Session",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "22f7524e-e52c-4fb8-a680-9fc719c86ae6",
+      "title": "London SynBio Network 10",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Networking Event",
+        "Conference/Talk"
+      ],
+      "themes": [
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "bf9b0835-1418-4dc3-901e-693769cd9615",
+      "title": "Fail Friday",
+      "currentTypes": [
+        "Other"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Educational Workshop"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "99e48fd6-9668-4c20-a963-ca671ede1420",
+      "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+      "currentTypes": [
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Innovation/Entrepreneurship"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Health/Biotech",
+        "Career",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "912652ba-216f-44be-87c3-d639693f6a9f",
+      "title": "[Chill] Robotics/AI Networking Meetup London",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Networking Event",
+        "Educational Workshop"
+      ],
+      "themes": [
+        "Technology",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "2baae872-cb66-42d3-ae14-4e3a942b6333",
+      "title": "Women in Science and Technology Policy Drinks",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Networking Event"
+      ],
+      "themes": [
+        "Technology"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "6b48aa42-1516-4cc4-96c9-3126dde6ef6f",
+      "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "df2bc93b-9ea5-4e3a-8f1d-1cff565cd509",
+      "title": "In Silico #001",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Information Session",
+        "Educational Workshop"
+      ],
+      "themes": [
+        "Technology",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "77efa8ed-e476-4c7f-b49c-58c569f72f7f",
+      "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+      "currentTypes": [
+        "Panel Discussion"
+      ],
+      "proposedTypes": [
+        "Research Presentation",
+        "Networking Event"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "385fd0a1-2e9a-4a93-871f-0bb798896357",
+      "title": "Imperial Neurotech Society 2025 Conference",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Panel Discussion",
+        "Conference/Talk"
+      ],
+      "themes": [
+        "Business",
+        "Technology",
+        "Innovation"
+      ],
+      "alignment": true
+    },
+    {
+      "id": "e89c7c17-2473-466a-a348-2e5459d1ebe3",
+      "title": "British Society for the Philosophy of Science Annual Conference",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Conference/Talk"
+      ],
+      "themes": [
+        "Technology"
+      ],
+      "alignment": true
+    },
+    {
+      "id": "4a2beb84-dd64-48e3-a961-4fc917f8a76a",
+      "title": "Fundraising across borders: Europe vs US | Mixer – London",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Innovation/Entrepreneurship",
+        "Networking Event"
+      ],
+      "themes": [
+        "Business",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "3aedbe3e-b999-4cd3-bd8b-ad7c2cde5dfd",
+      "title": "Biohackathon.xyz '25 London",
+      "currentTypes": [
+        "Hackathon"
+      ],
+      "proposedTypes": [
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Technology"
+      ],
+      "alignment": true
+    },
+    {
+      "id": "c2847306-1c39-4fe3-b001-1acbc451de6e",
+      "title": "Science Creates: Designed for Deep Tech",
+      "currentTypes": [
+        "Conference"
+      ],
+      "proposedTypes": [
+        "Educational Workshop",
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "alignment": false
+    },
+    {
+      "id": "bf045f41-3bd6-4d7b-8e9c-db6d08329ac3",
+      "title": "CompMotifs: Hack the Sciences",
+      "currentTypes": [
+        "Hackathon"
+      ],
+      "proposedTypes": [
+        "Hackathon/Competition",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Networking"
+      ],
+      "alignment": true
+    },
+    {
+      "id": "d2bc53cf-7d0d-4729-8beb-853895e2d9f4",
+      "title": "AI for Longevity Summit and Hackathon",
+      "currentTypes": [
+        "Hackathon"
+      ],
+      "proposedTypes": [
+        "Hackathon/Competition",
+        "Innovation/Entrepreneurship"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Career",
+        "Education",
+        "Networking"
+      ],
+      "alignment": true
+    },
+    {
+      "id": "0d7c753f-12dd-4c11-8933-b4efb281ba27",
+      "title": "London AI Nexus Demo Night",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ],
+      "proposedTypes": [
+        "Panel Discussion",
+        "Hackathon/Competition"
+      ],
+      "themes": [
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "alignment": false
+    }
+  ],
+  "themeAnalysis": {
+    "Research": 22,
+    "Business": 20,
+    "Technology": 30,
+    "Health/Biotech": 18,
+    "Innovation": 13,
+    "Education": 18,
+    "Networking": 27,
+    "Career": 2
+  },
+  "recommendations": {
+    "topProposedCategories": [
+      [
+        "Information Session",
+        15
+      ],
+      [
+        "Research Presentation",
+        14
+      ],
+      [
+        "Innovation/Entrepreneurship",
+        9
+      ],
+      [
+        "Networking Event",
+        6
+      ],
+      [
+        "Hackathon/Competition",
+        6
+      ],
+      [
+        "Educational Workshop",
+        4
+      ],
+      [
+        "Conference/Talk",
+        3
+      ],
+      [
+        "Panel Discussion",
+        2
+      ]
+    ],
+    "topThemes": [
+      [
+        "Technology",
+        30
+      ],
+      [
+        "Networking",
+        27
+      ],
+      [
+        "Research",
+        22
+      ],
+      [
+        "Business",
+        20
+      ],
+      [
+        "Health/Biotech",
+        18
+      ],
+      [
+        "Education",
+        18
+      ],
+      [
+        "Innovation",
+        13
+      ],
+      [
+        "Career",
+        2
+      ]
+    ],
+    "misalignmentRate": 84,
+    "suggestedCategoryMapping": {
+      "Workshop": [
+        "Educational Workshop",
+        "Information Session"
+      ],
+      "Conference": [
+        "Conference/Talk",
+        "Panel Discussion"
+      ],
+      "Meetup / Mixer": [
+        "Networking Event",
+        "Information Session"
+      ],
+      "Panel Discussion": [
+        "Panel Discussion",
+        "Research Presentation"
+      ],
+      "Hackathon": [
+        "Hackathon/Competition",
+        "Innovation/Entrepreneurship"
+      ],
+      "Other": [
+        "Information Session",
+        "Networking Event"
+      ]
+    }
+  }
+}

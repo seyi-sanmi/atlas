@@ -1,0 +1,344 @@
+{
+  "executiveSummary": {
+    "totalEvents": 31,
+    "misalignmentRate": 84,
+    "keyFindings": [
+      "84% of events have misaligned categories",
+      "Most events are actually Information Sessions or Research Presentations",
+      "Current categories don't reflect the academic/research focus of events",
+      "Multi-theme events are common and need better categorization"
+    ]
+  },
+  "currentVsProposedCategories": {
+    "current": {
+      "Workshop": 6,
+      "Conference": 9,
+      "Meetup / Mixer": 13,
+      "Panel Discussion": 5,
+      "Other": 1,
+      "Hackathon": 3
+    },
+    "proposed": {
+      "Information Session": 15,
+      "Research Presentation": 14,
+      "Innovation/Entrepreneurship": 9,
+      "Networking Event": 6,
+      "Hackathon/Competition": 6,
+      "Educational Workshop": 4,
+      "Conference/Talk": 3,
+      "Panel Discussion": 2
+    }
+  },
+  "categoryMapping": {
+    "Workshop": {
+      "suggested": [
+        "Educational Workshop",
+        "Information Session"
+      ],
+      "reasoning": "Current \"Workshop\" events are mostly info sessions about programs/resources",
+      "examples": [
+        "Dundee Lunch & Learn",
+        "Norwich Lunch & Learn"
+      ]
+    },
+    "Conference": {
+      "suggested": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "reasoning": "Events labeled as \"Conference\" are actually program info sessions",
+      "examples": [
+        "Dundee Activator Info Session",
+        "Norwich Activator Info Session"
+      ]
+    },
+    "Meetup / Mixer": {
+      "suggested": [
+        "Networking Event",
+        "Information Session"
+      ],
+      "reasoning": "Mix of networking events and program information sessions",
+      "examples": [
+        "Thinking Big Science",
+        "Various Activator sessions"
+      ]
+    },
+    "Panel Discussion": {
+      "suggested": [
+        "Panel Discussion",
+        "Research Presentation"
+      ],
+      "reasoning": "Some are actual panels, others are research-focused presentations",
+      "examples": [
+        "Research-focused discussions"
+      ]
+    },
+    "Hackathon": {
+      "suggested": [
+        "Hackathon/Competition",
+        "Innovation/Entrepreneurship"
+      ],
+      "reasoning": "Good alignment, but could be more specific about innovation focus",
+      "examples": [
+        "Innovation challenges",
+        "Startup competitions"
+      ]
+    }
+  },
+  "newCategoryStructure": {
+    "primary": [
+      "Information Session",
+      "Research Presentation",
+      "Innovation/Entrepreneurship",
+      "Networking Event",
+      "Educational Workshop",
+      "Hackathon/Competition",
+      "Conference/Talk",
+      "Panel Discussion"
+    ],
+    "themes": [
+      "Research",
+      "Technology",
+      "Business",
+      "Health/Biotech",
+      "Innovation",
+      "Education",
+      "Networking",
+      "Career"
+    ],
+    "format": [
+      "In-Person",
+      "Online",
+      "Hybrid"
+    ]
+  },
+  "implementationPlan": {
+    "phase1": [
+      "Update category definitions to match content analysis",
+      "Create new category structure with primary categories + themes",
+      "Implement multi-category support (max 2 categories per event)"
+    ],
+    "phase2": [
+      "Re-categorize existing events based on content analysis",
+      "Update AI categorization logic to use new categories",
+      "Test and validate new categorization system"
+    ],
+    "phase3": [
+      "Monitor categorization accuracy",
+      "Gather user feedback on new categories",
+      "Fine-tune based on usage patterns"
+    ]
+  },
+  "specificRecommendations": {
+    "immediate": [
+      "Replace \"Conference\" with \"Information Session\" for program info events",
+      "Replace \"Workshop\" with \"Educational Workshop\" or \"Information Session\" based on content",
+      "Split \"Meetup / Mixer\" into \"Networking Event\" and \"Information Session\"",
+      "Keep \"Panel Discussion\" and \"Hackathon\" as they align well with content"
+    ],
+    "longTerm": [
+      "Implement theme-based tagging system (Research, Technology, Business, etc.)",
+      "Add format indicators (In-Person, Online, Hybrid)",
+      "Create category hierarchy (Primary + Secondary categories)",
+      "Develop content-based auto-categorization using the new structure"
+    ]
+  },
+  "sampleRecategorizations": [
+    {
+      "title": "Dundee Lunch & Learn",
+      "currentCategories": [
+        "Workshop"
+      ],
+      "suggestedCategories": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Innovation, Education, Networking. Current categorization (Workshop) doesn't reflect the informational/educational nature. Suggested categories (Innovation/Entrepreneurship, Information Session) better align with the event's purpose and content."
+    },
+    {
+      "title": "Dundee Activator Info Session",
+      "currentCategories": [
+        "Conference"
+      ],
+      "suggestedCategories": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Education, Networking. Current categorization (Conference) doesn't reflect the informational/educational nature. Suggested categories (Information Session, Research Presentation) better align with the event's purpose and content."
+    },
+    {
+      "title": "Thinking Big Science",
+      "currentCategories": [
+        "Meetup / Mixer"
+      ],
+      "suggestedCategories": [
+        "Research Presentation",
+        "Networking Event"
+      ],
+      "themes": [
+        "Research",
+        "Technology",
+        "Innovation",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Technology, Innovation, Networking. Current categorization (Meetup / Mixer) doesn't reflect the informational/educational nature. Suggested categories (Research Presentation, Networking Event) better align with the event's purpose and content."
+    },
+    {
+      "title": "Norwich Lunch & Learn",
+      "currentCategories": [
+        "Workshop",
+        "Meetup / Mixer"
+      ],
+      "suggestedCategories": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Innovation, Education, Networking. Current categorization (Workshop, Meetup / Mixer) doesn't reflect the informational/educational nature. Suggested categories (Innovation/Entrepreneurship, Information Session) better align with the event's purpose and content."
+    },
+    {
+      "title": "Norwich Activator Info Session",
+      "currentCategories": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "suggestedCategories": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Education, Networking. Current categorization (Meetup / Mixer, Panel Discussion) doesn't reflect the informational/educational nature. Suggested categories (Information Session, Research Presentation) better align with the event's purpose and content."
+    },
+    {
+      "title": "Edinburgh Activator Info Session",
+      "currentCategories": [
+        "Meetup / Mixer",
+        "Workshop"
+      ],
+      "suggestedCategories": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Education, Networking. Current categorization (Meetup / Mixer, Workshop) doesn't reflect the informational/educational nature. Suggested categories (Information Session, Research Presentation) better align with the event's purpose and content."
+    },
+    {
+      "title": "Edinburgh Lunch & Learn",
+      "currentCategories": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "suggestedCategories": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Innovation, Education, Networking. Current categorization (Meetup / Mixer, Panel Discussion) doesn't reflect the informational/educational nature. Suggested categories (Innovation/Entrepreneurship, Information Session) better align with the event's purpose and content."
+    },
+    {
+      "title": "Cambridge Activator Info Session",
+      "currentCategories": [
+        "Meetup / Mixer"
+      ],
+      "suggestedCategories": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Education, Networking. Current categorization (Meetup / Mixer) doesn't reflect the informational/educational nature. Suggested categories (Information Session, Research Presentation) better align with the event's purpose and content."
+    },
+    {
+      "title": "Newcastle Lunch & Learn",
+      "currentCategories": [
+        "Workshop"
+      ],
+      "suggestedCategories": [
+        "Innovation/Entrepreneurship",
+        "Information Session"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Innovation",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Innovation, Education, Networking. Current categorization (Workshop) doesn't reflect the informational/educational nature. Suggested categories (Innovation/Entrepreneurship, Information Session) better align with the event's purpose and content."
+    },
+    {
+      "title": "Newcastle Info Session",
+      "currentCategories": [
+        "Conference"
+      ],
+      "suggestedCategories": [
+        "Information Session",
+        "Research Presentation"
+      ],
+      "themes": [
+        "Research",
+        "Business",
+        "Technology",
+        "Health/Biotech",
+        "Education",
+        "Networking"
+      ],
+      "reasoning": "Content focuses on Research, Business, Technology, Health/Biotech, Education, Networking. Current categorization (Conference) doesn't reflect the informational/educational nature. Suggested categories (Information Session, Research Presentation) better align with the event's purpose and content."
+    }
+  ]
+}

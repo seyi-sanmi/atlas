@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import {
   Search,
-  Filter,
-  MoreHorizontal,
   Trash2,
   Edit,
   RefreshCw,
@@ -15,9 +13,11 @@ import {
   Clock,
   Tag,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Save,
+  X
 } from 'lucide-react'
-import { getEventsForAdmin, deleteEvent, bulkDeleteEvents, reScrapeEvent, EventWithAnalytics } from '@/lib/admin-events'
+import { getEventsForAdmin, deleteEvent, bulkDeleteEvents, reScrapeEvent, updateEvent, EventWithAnalytics } from '@/lib/admin-events'
 
 interface BulkDeleteModalProps {
   isOpen: boolean
@@ -85,6 +85,7 @@ function BulkDeleteModal({
   )
 }
 
+
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventWithAnalytics[]>([])
   const [filteredEvents, setFilteredEvents] = useState<EventWithAnalytics[]>([])
@@ -95,6 +96,8 @@ export default function AdminEventsPage() {
   const [bulkDeleteConfirmText, setBulkDeleteConfirmText] = useState('')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [editingEvent, setEditingEvent] = useState<string | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<EventWithAnalytics>>({})
 
   // Filter states
   const [platformFilter, setPlatformFilter] = useState('')
@@ -208,6 +211,58 @@ export default function AdminEventsPage() {
       await loadEvents()
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to re-scrape event' })
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleStartEdit = (event: EventWithAnalytics) => {
+    setEditingEvent(event.id)
+    setEditFormData({
+      title: event.title || '',
+      description: event.description || '',
+      date: event.date || '',
+      time: event.time || '',
+      location: event.location || '',
+      city: event.city || '',
+      organizer: event.organizer || '',
+      ai_event_type: event.ai_event_type || '',
+      ai_summary: event.ai_summary || '',
+      is_starred: event.is_starred || false,
+      is_featured: event.is_featured || false
+    })
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingEvent) return
+    
+    try {
+      setActionLoading(`update-${editingEvent}`)
+      await updateEvent(editingEvent, editFormData)
+      setMessage({ type: 'success', text: 'Event updated successfully' })
+      setEditingEvent(null)
+      setEditFormData({})
+      await loadEvents()
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update event' })
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingEvent(null)
+    setEditFormData({})
+  }
+
+  const handleToggleFeatured = async (eventId: string, currentStatus: boolean) => {
+    try {
+      setActionLoading(`feature-${eventId}`)
+      await updateEvent(eventId, { is_featured: !currentStatus })
+      setMessage({ type: 'success', text: `Event ${!currentStatus ? 'featured' : 'unfeatured'} successfully` })
+      await loadEvents()
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update featured status' })
     } finally {
       setActionLoading(null)
     }
@@ -336,7 +391,7 @@ export default function AdminEventsPage() {
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100">Date & Time</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100">Location</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100">Analytics</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100">Platform</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100">Platform & Status</th>
                   <th className="w-24 px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-gray-100">Actions</th>
                 </tr>
               </thead>
@@ -352,64 +407,133 @@ export default function AdminEventsPage() {
                       />
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-start gap-3">
-                        {event.image_url && (
-                          <img 
-                            src={event.image_url} 
-                            alt="" 
-                            className="w-12 h-12 rounded object-cover flex-shrink-0"
+                      {editingEvent === event.id ? (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={editFormData.title || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, title: e.target.value }))}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Event title"
                           />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {event.title}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <User className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                              {event.organizer}
+                          <input
+                            type="text"
+                            value={editFormData.organizer || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, organizer: e.target.value }))}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Organizer"
+                          />
+                          <select
+                            value={editFormData.ai_event_type || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, ai_event_type: e.target.value as any }))}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          >
+                            <option value="">Select type</option>
+                            <option value="Technical Talk / Presentation">Technical Talk</option>
+                            <option value="Workshop / Discussion">Workshop</option>
+                            <option value="Demo / Showcase">Demo</option>
+                            <option value="Social / Mixer">Social</option>
+                            <option value="Panel Discussion">Panel</option>
+                            <option value="Research / Academic Conference">Research</option>
+                            <option value="Competition / Hackathon">Competition</option>
+                          </select>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3">
+                          {event.image_url && (
+                            <img 
+                              src={event.image_url} 
+                              alt="" 
+                              className="w-12 h-12 rounded object-cover flex-shrink-0"
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {event.title}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <User className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                {event.organizer}
+                              </span>
+                            </div>
+                            {event.ai_event_type && (
+                              <div className="flex items-center gap-1 mt-1 flex-wrap">
+                                <Tag className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                                <div className="flex gap-1 flex-wrap">
+                                  <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
+                                    {event.ai_event_type}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      {editingEvent === event.id ? (
+                        <div className="space-y-2">
+                          <input
+                            type="date"
+                            value={editFormData.date || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          />
+                          <input
+                            type="text"
+                            value={editFormData.time || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, time: e.target.value }))}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Time"
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm text-gray-900 dark:text-white">
+                              {new Date(event.date).toLocaleDateString()}
                             </span>
                           </div>
-                          {(event.ai_event_types?.length > 0 || event.ai_event_type) && (
-                            <div className="flex items-center gap-1 mt-1 flex-wrap">
-                              <Tag className="w-3 h-3 text-blue-500 flex-shrink-0" />
-                              <div className="flex gap-1 flex-wrap">
-                                {/* Use new multi-select field if available, fallback to legacy single field */}
-                                {(event.ai_event_types?.length > 0 ? event.ai_event_types : [event.ai_event_type]).filter(Boolean).map((eventType, index) => (
-                                  <span key={`${eventType}-${index}`} className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
-                                    {eventType}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {new Date(event.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {event.time}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-gray-400" />
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          <div className="truncate">{event.city}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {event.location}
+                          <div className="flex items-center gap-1 mt-1">
+                            <Clock className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {event.time}
+                            </span>
                           </div>
                         </div>
-                      </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      {editingEvent === event.id ? (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={editFormData.city || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, city: e.target.value }))}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="City"
+                          />
+                          <input
+                            type="text"
+                            value={editFormData.location || ''}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, location: e.target.value }))}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Location"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-gray-400" />
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            <div className="truncate">{event.city}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {event.location}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-4 text-xs">
@@ -428,30 +552,74 @@ export default function AdminEventsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
-                        {event.platform || 'Manual'}
-                      </span>
+                      <div className="space-y-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+                          {event.platform || 'Manual'}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={event.is_featured || false}
+                            onChange={() => handleToggleFeatured(event.id, event.is_featured || false)}
+                            disabled={actionLoading === `feature-${event.id}`}
+                            className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 disabled:opacity-50"
+                            title={event.is_featured ? 'Unfeature this event' : 'Feature this event'}
+                          />
+                          <span className={`text-xs font-medium ${event.is_featured ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {event.is_featured ? 'Featured' : 'Not Featured'}
+                          </span>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-1">
-                        {event.url && (
-                          <button
-                            onClick={() => handleReScrapeEvent(event.id)}
-                            disabled={actionLoading === `rescrape-${event.id}`}
-                            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 disabled:opacity-50"
-                            title="Re-scrape event"
-                          >
-                            <RefreshCw className={`w-4 h-4 ${actionLoading === `rescrape-${event.id}` ? 'animate-spin' : ''}`} />
-                          </button>
+                        {editingEvent === event.id ? (
+                          <>
+                            <button
+                              onClick={handleSaveEdit}
+                              disabled={actionLoading === `update-${event.id}`}
+                              className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 disabled:opacity-50"
+                              title="Save changes"
+                            >
+                              <Save className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                              title="Cancel edit"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleStartEdit(event)}
+                              className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                              title="Edit event"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            {event.url && (
+                              <button
+                                onClick={() => handleReScrapeEvent(event.id)}
+                                disabled={actionLoading === `rescrape-${event.id}`}
+                                className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 disabled:opacity-50"
+                                title="Re-scrape event"
+                              >
+                                <RefreshCw className={`w-4 h-4 ${actionLoading === `rescrape-${event.id}` ? 'animate-spin' : ''}`} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteEvent(event.id)}
+                              disabled={actionLoading === event.id}
+                              className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 disabled:opacity-50"
+                              title="Delete event"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
                         )}
-                        <button
-                          onClick={() => handleDeleteEvent(event.id)}
-                          disabled={actionLoading === event.id}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 disabled:opacity-50"
-                          title="Delete event"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>

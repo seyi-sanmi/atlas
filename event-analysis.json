@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-09-24T15:40:31.621Z",
+  "summary": {
+    "totalEvents": 31,
+    "eventsWithDescriptions": 31,
+    "eventsWithUrls": 31,
+    "platformBreakdown": {
+      "luma-scraped": 23,
+      "humanitix-scraped": 1,
+      "eventbrite": 1
+    },
+    "currentEventTypes": {
+      "Workshop": 6,
+      "Conference": 9,
+      "Meetup / Mixer": 13,
+      "Panel Discussion": 5,
+      "Other": 1,
+      "Hackathon": 3
+    },
+    "eventsNeedingScraping": []
+  },
+  "eventsNeedingScraping": [],
+  "sampleEvents": [
+    {
+      "id": "a46d4034-ac5f-40bf-a6ca-e23b0404f5b2",
+      "title": "Dundee Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ...",
+      "url": "https://luma.com/ql4kbn0y",
+      "platform": "luma-scraped",
+      "ai_event_types": [
+        "Workshop"
+      ],
+      "categories": [
+        "Scraped"
+      ]
+    },
+    {
+      "id": "7e392e33-e1fa-4ba4-84ce-533736b75c10",
+      "title": "Dundee Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro...",
+      "url": "https://luma.com/52x1kth4",
+      "platform": "luma-scraped",
+      "ai_event_types": [
+        "Conference"
+      ],
+      "categories": [
+        "Scraped"
+      ]
+    },
+    {
+      "id": "68ae60ad-4027-4b90-8e9a-2ef3fb19007b",
+      "title": "Thinking Big Science",
+      "description": "Some ideas don’t fit neatly into a startup or an academic paper. They’re larger, more ambitious - the kind of projects that could reshape how science and innovation get done.\nThinking Big Science is a...",
+      "url": "https://luma.com/9ryaqas3",
+      "platform": "luma-scraped",
+      "ai_event_types": [
+        "Meetup / Mixer"
+      ],
+      "categories": [
+        "Scraped"
+      ]
+    },
+    {
+      "id": "13d54599-3772-4b59-a112-c375452cdb88",
+      "title": "Norwich Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ...",
+      "url": "https://luma.com/wzb2u6sp",
+      "platform": "luma-scraped",
+      "ai_event_types": [
+        "Workshop",
+        "Meetup / Mixer"
+      ],
+      "categories": [
+        "Scraped"
+      ]
+    },
+    {
+      "id": "d975f745-3f7c-4cdc-9b9c-7f0a5a820360",
+      "title": "Norwich Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro...",
+      "url": "https://luma.com/bc2sijuv",
+      "platform": "luma-scraped",
+      "ai_event_types": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ],
+      "categories": [
+        "Scraped"
+      ]
+    }
+  ]
+}

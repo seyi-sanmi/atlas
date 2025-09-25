@@ -122,7 +122,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <>
+      {/* Meta robots tag for additional SEO protection */}
+      <head>
+        <meta name="robots" content="noindex, nofollow, nosnippet, noarchive" />
+      </head>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -252,6 +257,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           {children}
         </main>
       </div>
-    </div>
+      </div>
+    </>
   )
 } 

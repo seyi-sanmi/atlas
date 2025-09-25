@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin
+Disallow: /admin/
+
+# Disallow other sensitive areas
+Disallow: /api/
+Disallow: /_next/
+Disallow: /auth/
+
+# Allow important pages
+Allow: /
+Allow: /communities
+Allow: /funding
+
+# Sitemap location (if you have one)
+# Sitemap: https://yourdomain.com/sitemap.xml

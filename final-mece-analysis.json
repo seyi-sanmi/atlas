@@ -1,0 +1,1049 @@
+{
+  "analysis": {
+    "timestamp": "2025-09-24T23:04:34.251Z",
+    "totalEvents": 31,
+    "categoryDistribution": {
+      "Technical Talk / Presentation": 27,
+      "Social / Mixer": 15,
+      "Workshop / Discussion": 2,
+      "Research / Academic Conference": 1,
+      "Competition / Hackathon": 2,
+      "Demo / Showcase": 1
+    },
+    "eventMappings": [
+      {
+        "id": "a46d4034-ac5f-40bf-a6ca-e23b0404f5b2",
+        "title": "Dundee Lunch & Learn",
+        "currentCategories": [
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "7e392e33-e1fa-4ba4-84ce-533736b75c10",
+        "title": "Dundee Activator Info Session",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "68ae60ad-4027-4b90-8e9a-2ef3fb19007b",
+        "title": "Thinking Big Science",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Workshop / Discussion",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 4,
+          "Workshop / Discussion": 7,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "13d54599-3772-4b59-a112-c375452cdb88",
+        "title": "Norwich Lunch & Learn",
+        "currentCategories": [
+          "Workshop",
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "d975f745-3f7c-4cdc-9b9c-7f0a5a820360",
+        "title": "Norwich Activator Info Session",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "b1fe5a71-d910-4799-b3f7-7f31c3820954",
+        "title": "Edinburgh Activator Info Session",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "7c99c70c-4e18-421b-ad64-9c3042cf7d94",
+        "title": "Edinburgh Lunch & Learn",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "ee5d8be5-9c54-4371-af9f-94bf235d3e41",
+        "title": "Cambridge Activator Info Session",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "5261d1ae-5885-4954-8166-3af04f266a11",
+        "title": "Newcastle Lunch & Learn",
+        "currentCategories": [
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "faa6a376-034f-47df-b0cd-fbcc2fc8b5c3",
+        "title": "Newcastle Info Session",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "5b61fb1b-8496-4a31-958f-f057170512ea",
+        "title": "Bristol Lunch & Learn",
+        "currentCategories": [
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "9580de0c-1fa5-48ff-9409-70b9df04ad3d",
+        "title": "Bristol Info Session",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "04e42885-44f5-41db-aa3e-4eda24e7d765",
+        "title": "Oxford Activator Info Session",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "37e1794f-e5b7-4575-b791-f777d6dd3684",
+        "title": "Nucleate Manchester Activator Info Session",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "cd368085-b425-44f0-a80e-a4693d769a9d",
+        "title": "London Info Session",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "22f7524e-e52c-4fb8-a680-9fc719c86ae6",
+        "title": "London SynBio Network 10",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Social / Mixer",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 1,
+          "Social / Mixer": 2
+        }
+      },
+      {
+        "id": "bf9b0835-1418-4dc3-901e-693769cd9615",
+        "title": "Fail Friday",
+        "currentCategories": [
+          "Other"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 4,
+          "Social / Mixer": 2
+        }
+      },
+      {
+        "id": "99e48fd6-9668-4c20-a963-ca671ede1420",
+        "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+        "currentCategories": [
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 5,
+          "Workshop / Discussion": 1,
+          "Social / Mixer": 2,
+          "Panel Discussion": 2
+        }
+      },
+      {
+        "id": "912652ba-216f-44be-87c3-d639693f6a9f",
+        "title": "[Chill] Robotics/AI Networking Meetup London",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Social / Mixer"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "2baae872-cb66-42d3-ae14-4e3a942b6333",
+        "title": "Women in Science and Technology Policy Drinks",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Social / Mixer",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 1,
+          "Social / Mixer": 2
+        }
+      },
+      {
+        "id": "6b48aa42-1516-4cc4-96c9-3126dde6ef6f",
+        "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Workshop / Discussion"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 6,
+          "Workshop / Discussion": 1,
+          "Social / Mixer": 1,
+          "Competition / Hackathon": 1
+        }
+      },
+      {
+        "id": "df2bc93b-9ea5-4e3a-8f1d-1cff565cd509",
+        "title": "In Silico #001",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Technical Talk / Presentation": 3
+        }
+      },
+      {
+        "id": "77efa8ed-e476-4c7f-b49c-58c569f72f7f",
+        "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+        "currentCategories": [
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 8,
+          "Workshop / Discussion": 1,
+          "Social / Mixer": 3,
+          "Panel Discussion": 2
+        }
+      },
+      {
+        "id": "385fd0a1-2e9a-4a93-871f-0bb798896357",
+        "title": "Imperial Neurotech Society 2025 Conference",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 4,
+          "Social / Mixer": 1,
+          "Panel Discussion": 1
+        }
+      },
+      {
+        "id": "e89c7c17-2473-466a-a348-2e5459d1ebe3",
+        "title": "British Society for the Philosophy of Science Annual Conference",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Research / Academic Conference"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Research / Academic Conference": 1
+        }
+      },
+      {
+        "id": "4a2beb84-dd64-48e3-a961-4fc917f8a76a",
+        "title": "Fundraising across borders: Europe vs US | Mixer – London",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Social / Mixer"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Social / Mixer": 3
+        }
+      },
+      {
+        "id": "3aedbe3e-b999-4cd3-bd8b-ad7c2cde5dfd",
+        "title": "Biohackathon.xyz '25 London",
+        "currentCategories": [
+          "Hackathon"
+        ],
+        "newCategories": [
+          "Competition / Hackathon"
+        ],
+        "isMultiCategory": false,
+        "scores": {
+          "Competition / Hackathon": 2
+        }
+      },
+      {
+        "id": "c2847306-1c39-4fe3-b001-1acbc451de6e",
+        "title": "Science Creates: Designed for Deep Tech",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 7,
+          "Workshop / Discussion": 1,
+          "Demo / Showcase": 2,
+          "Social / Mixer": 3,
+          "Panel Discussion": 3
+        }
+      },
+      {
+        "id": "bf045f41-3bd6-4d7b-8e9c-db6d08329ac3",
+        "title": "CompMotifs: Hack the Sciences",
+        "currentCategories": [
+          "Hackathon"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Competition / Hackathon"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 5,
+          "Workshop / Discussion": 2,
+          "Demo / Showcase": 1,
+          "Social / Mixer": 1,
+          "Panel Discussion": 2,
+          "Competition / Hackathon": 3
+        }
+      },
+      {
+        "id": "d2bc53cf-7d0d-4729-8beb-853895e2d9f4",
+        "title": "AI for Longevity Summit and Hackathon",
+        "currentCategories": [
+          "Hackathon"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 7,
+          "Workshop / Discussion": 1,
+          "Demo / Showcase": 1,
+          "Social / Mixer": 3,
+          "Research / Academic Conference": 1,
+          "Competition / Hackathon": 3
+        }
+      },
+      {
+        "id": "0d7c753f-12dd-4c11-8933-b4efb281ba27",
+        "title": "London AI Nexus Demo Night",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Demo / Showcase",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Workshop / Discussion": 2,
+          "Demo / Showcase": 4,
+          "Social / Mixer": 3,
+          "Panel Discussion": 1
+        }
+      }
+    ],
+    "multiCategoryEvents": [
+      {
+        "id": "a46d4034-ac5f-40bf-a6ca-e23b0404f5b2",
+        "title": "Dundee Lunch & Learn",
+        "currentCategories": [
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "68ae60ad-4027-4b90-8e9a-2ef3fb19007b",
+        "title": "Thinking Big Science",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Workshop / Discussion",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 4,
+          "Workshop / Discussion": 7,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "13d54599-3772-4b59-a112-c375452cdb88",
+        "title": "Norwich Lunch & Learn",
+        "currentCategories": [
+          "Workshop",
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "7c99c70c-4e18-421b-ad64-9c3042cf7d94",
+        "title": "Edinburgh Lunch & Learn",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "5261d1ae-5885-4954-8166-3af04f266a11",
+        "title": "Newcastle Lunch & Learn",
+        "currentCategories": [
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "5b61fb1b-8496-4a31-958f-f057170512ea",
+        "title": "Bristol Lunch & Learn",
+        "currentCategories": [
+          "Workshop"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Social / Mixer": 1
+        }
+      },
+      {
+        "id": "22f7524e-e52c-4fb8-a680-9fc719c86ae6",
+        "title": "London SynBio Network 10",
+        "currentCategories": [
+          "Meetup / Mixer",
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Social / Mixer",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 1,
+          "Social / Mixer": 2
+        }
+      },
+      {
+        "id": "bf9b0835-1418-4dc3-901e-693769cd9615",
+        "title": "Fail Friday",
+        "currentCategories": [
+          "Other"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 4,
+          "Social / Mixer": 2
+        }
+      },
+      {
+        "id": "99e48fd6-9668-4c20-a963-ca671ede1420",
+        "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+        "currentCategories": [
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 5,
+          "Workshop / Discussion": 1,
+          "Social / Mixer": 2,
+          "Panel Discussion": 2
+        }
+      },
+      {
+        "id": "2baae872-cb66-42d3-ae14-4e3a942b6333",
+        "title": "Women in Science and Technology Policy Drinks",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Social / Mixer",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 1,
+          "Social / Mixer": 2
+        }
+      },
+      {
+        "id": "6b48aa42-1516-4cc4-96c9-3126dde6ef6f",
+        "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Workshop / Discussion"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 6,
+          "Workshop / Discussion": 1,
+          "Social / Mixer": 1,
+          "Competition / Hackathon": 1
+        }
+      },
+      {
+        "id": "77efa8ed-e476-4c7f-b49c-58c569f72f7f",
+        "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+        "currentCategories": [
+          "Panel Discussion"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 8,
+          "Workshop / Discussion": 1,
+          "Social / Mixer": 3,
+          "Panel Discussion": 2
+        }
+      },
+      {
+        "id": "385fd0a1-2e9a-4a93-871f-0bb798896357",
+        "title": "Imperial Neurotech Society 2025 Conference",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 4,
+          "Social / Mixer": 1,
+          "Panel Discussion": 1
+        }
+      },
+      {
+        "id": "c2847306-1c39-4fe3-b001-1acbc451de6e",
+        "title": "Science Creates: Designed for Deep Tech",
+        "currentCategories": [
+          "Conference"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 7,
+          "Workshop / Discussion": 1,
+          "Demo / Showcase": 2,
+          "Social / Mixer": 3,
+          "Panel Discussion": 3
+        }
+      },
+      {
+        "id": "bf045f41-3bd6-4d7b-8e9c-db6d08329ac3",
+        "title": "CompMotifs: Hack the Sciences",
+        "currentCategories": [
+          "Hackathon"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Competition / Hackathon"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 5,
+          "Workshop / Discussion": 2,
+          "Demo / Showcase": 1,
+          "Social / Mixer": 1,
+          "Panel Discussion": 2,
+          "Competition / Hackathon": 3
+        }
+      },
+      {
+        "id": "d2bc53cf-7d0d-4729-8beb-853895e2d9f4",
+        "title": "AI for Longevity Summit and Hackathon",
+        "currentCategories": [
+          "Hackathon"
+        ],
+        "newCategories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 7,
+          "Workshop / Discussion": 1,
+          "Demo / Showcase": 1,
+          "Social / Mixer": 3,
+          "Research / Academic Conference": 1,
+          "Competition / Hackathon": 3
+        }
+      },
+      {
+        "id": "0d7c753f-12dd-4c11-8933-b4efb281ba27",
+        "title": "London AI Nexus Demo Night",
+        "currentCategories": [
+          "Meetup / Mixer"
+        ],
+        "newCategories": [
+          "Demo / Showcase",
+          "Technical Talk / Presentation"
+        ],
+        "isMultiCategory": true,
+        "scores": {
+          "Technical Talk / Presentation": 3,
+          "Workshop / Discussion": 2,
+          "Demo / Showcase": 4,
+          "Social / Mixer": 3,
+          "Panel Discussion": 1
+        }
+      }
+    ],
+    "currentVsNew": {
+      "Workshop": {
+        "count": 6,
+        "newMappings": [
+          [
+            "Technical Talk / Presentation",
+            6
+          ],
+          [
+            "Social / Mixer",
+            4
+          ]
+        ]
+      },
+      "Conference": {
+        "count": 9,
+        "newMappings": [
+          [
+            "Technical Talk / Presentation",
+            8
+          ],
+          [
+            "Social / Mixer",
+            2
+          ],
+          [
+            "Workshop / Discussion",
+            1
+          ],
+          [
+            "Research / Academic Conference",
+            1
+          ]
+        ]
+      },
+      "Meetup / Mixer": {
+        "count": 13,
+        "newMappings": [
+          [
+            "Technical Talk / Presentation",
+            11
+          ],
+          [
+            "Social / Mixer",
+            6
+          ],
+          [
+            "Workshop / Discussion",
+            1
+          ],
+          [
+            "Demo / Showcase",
+            1
+          ]
+        ]
+      },
+      "Panel Discussion": {
+        "count": 5,
+        "newMappings": [
+          [
+            "Technical Talk / Presentation",
+            5
+          ],
+          [
+            "Social / Mixer",
+            4
+          ]
+        ]
+      },
+      "Other": {
+        "count": 1,
+        "newMappings": [
+          [
+            "Technical Talk / Presentation",
+            1
+          ],
+          [
+            "Social / Mixer",
+            1
+          ]
+        ]
+      },
+      "Hackathon": {
+        "count": 3,
+        "newMappings": [
+          [
+            "Competition / Hackathon",
+            2
+          ],
+          [
+            "Technical Talk / Presentation",
+            2
+          ],
+          [
+            "Social / Mixer",
+            1
+          ]
+        ]
+      }
+    }
+  },
+  "finalRecommendations": {
+    "categoryStructure": {
+      "finalCategories": [
+        "Technical Talk / Presentation",
+        "Workshop / Discussion",
+        "Demo / Showcase",
+        "Social / Mixer",
+        "Panel Discussion",
+        "Research / Academic Conference",
+        "Competition / Hackathon"
+      ],
+      "supportsMultiCategory": true,
+      "maxCategories": 2
+    },
+    "distributionSummary": [
+      [
+        "Technical Talk / Presentation",
+        27
+      ],
+      [
+        "Social / Mixer",
+        15
+      ],
+      [
+        "Workshop / Discussion",
+        2
+      ],
+      [
+        "Competition / Hackathon",
+        2
+      ],
+      [
+        "Research / Academic Conference",
+        1
+      ],
+      [
+        "Demo / Showcase",
+        1
+      ]
+    ],
+    "multiCategoryExamples": [
+      {
+        "title": "Dundee Lunch & Learn",
+        "categories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "reasoning": "Combines technical learning with social networking over lunch"
+      },
+      {
+        "title": "Thinking Big Science",
+        "categories": [
+          "Workshop / Discussion",
+          "Technical Talk / Presentation"
+        ],
+        "reasoning": "Hybrid event combining workshop / discussion and technical talk / presentation elements"
+      },
+      {
+        "title": "Norwich Lunch & Learn",
+        "categories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "reasoning": "Combines technical learning with social networking over lunch"
+      },
+      {
+        "title": "Edinburgh Lunch & Learn",
+        "categories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "reasoning": "Combines technical learning with social networking over lunch"
+      },
+      {
+        "title": "Newcastle Lunch & Learn",
+        "categories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "reasoning": "Combines technical learning with social networking over lunch"
+      },
+      {
+        "title": "Bristol Lunch & Learn",
+        "categories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "reasoning": "Combines technical learning with social networking over lunch"
+      },
+      {
+        "title": "London SynBio Network 10",
+        "categories": [
+          "Social / Mixer",
+          "Technical Talk / Presentation"
+        ],
+        "reasoning": "Technical presentation with significant networking component"
+      },
+      {
+        "title": "Fail Friday",
+        "categories": [
+          "Technical Talk / Presentation",
+          "Social / Mixer"
+        ],
+        "reasoning": "Technical presentation with significant networking component"
+      }
+    ],
+    "migrationMapping": {
+      "Workshop": "Technical Talk / Presentation OR Workshop / Discussion",
+      "Conference": "Technical Talk / Presentation OR Research / Academic Conference",
+      "Meetup / Mixer": "Social / Mixer OR Technical Talk / Presentation",
+      "Panel Discussion": "Panel Discussion",
+      "Hackathon": "Competition / Hackathon",
+      "Other": "Evaluate case-by-case"
+    },
+    "implementationPlan": {
+      "database": [
+        "Update ai_event_types column to support new 7 categories",
+        "Ensure max 2 categories per event constraint exists",
+        "Migrate existing events using new categorization logic"
+      ],
+      "ui": [
+        "Update category dropdown to show 7 new categories",
+        "Allow selection of max 2 categories",
+        "Display multi-categories with \"+\" separator"
+      ],
+      "ai": [
+        "Update categorization prompts with new category definitions",
+        "Implement multi-category scoring logic",
+        "Test on sample events to validate accuracy"
+      ]
+    },
+    "meceAssessment": {
+      "mutuallyExclusive": true,
+      "collectivelyExhaustive": true,
+      "supportsHybridEvents": true,
+      "uncategorizedEvents": 0
+    }
+  }
+}

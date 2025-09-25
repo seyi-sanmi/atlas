@@ -270,10 +270,10 @@ export function EventCard({
 
 
             {/* Event Type Tags */}
-            {(event.ai_event_types?.length > 0 || event.ai_event_type) && (
+            {event.ai_event_type && (
               <div className="flex justify-start flex-wrap gap-1">
                 {/* Use new multi-select field if available, fallback to legacy single field */}
-                {(event.ai_event_types?.length > 0 ? event.ai_event_types : [event.ai_event_type]).filter(Boolean).map((eventType, index) => (
+                {[event.ai_event_type].filter(Boolean).map((eventType: string, index: number) => (
                   <button
                     key={`${eventType}-${index}`}
                     onClick={(e) => {

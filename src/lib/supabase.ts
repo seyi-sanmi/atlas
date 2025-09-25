@@ -28,6 +28,19 @@ export interface Community {
   starred_on_website?: boolean;
 }
 
+// New 7-category event type structure
+export const EVENT_TYPES = [
+  'Technical Talk / Presentation',
+  'Workshop / Discussion',
+  'Demo / Showcase',
+  'Social / Mixer',
+  'Panel Discussion',
+  'Research / Academic Conference',
+  'Competition / Hackathon'
+] as const;
+
+export type EventType = typeof EVENT_TYPES[number];
+
 // Database types based on your event structure
 export type Event = {
   id: string;
@@ -43,8 +56,7 @@ export type Event = {
   image_url?: string;
   imported_at: string;
   platform: string;
-  ai_event_type: string; // Legacy - will be replaced by ai_event_types
-  ai_event_types: string[]; // New multi-select event types (max 2)
+  ai_event_type: EventType; // Single event type using new 7-category structure
   // Note: We use existing 'platform' and 'url' fields instead of separate platform ID columns
   ai_interest_areas: string[];
   ai_categorized: boolean;

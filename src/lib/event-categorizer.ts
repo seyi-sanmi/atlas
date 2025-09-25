@@ -36,21 +36,19 @@ export const INTEREST_AREAS = [
   "Computer Vision",
 ];
 
-// Event types - exported for use across the application
+// New 7-category event type structure - exported for use across the application
 export const EVENT_TYPES = [
-  "Meetup / Mixer",
-  "Workshop", 
-  "Conference",
-  "Lecture",
+  "Technical Talk / Presentation",
+  "Workshop / Discussion",
+  "Demo / Showcase",
+  "Social / Mixer",
   "Panel Discussion",
-  "Fireside Chat",
-  "Webinar",
-  "Hackathon",
-  "Other"
+  "Research / Academic Conference",
+  "Competition / Hackathon"
 ] as const;
 
 export interface EventCategorizationResult {
-  event_types: string[]; // Changed from single event_type to multiple event_types
+  event_type: string; // Single event type using new 7-category structure
   event_interest_areas: string[];
 }
 
@@ -94,22 +92,22 @@ Analyze the provided event text, which includes a title and description, and gen
 
 **RULESET:**
 
-**1. \`event_types\` Categorization:**
-- You MUST classify the event into 1 or 2 of the following categories (maximum 2 types):
-  - \`Meetup / Mixer\`
-  - \`Workshop\`
-  - \`Conference\`
-  - \`Lecture\`
-  - \`Panel Discussion\`
-  - \`Fireside Chat\`
-  - \`Webinar\`
-  - \`Hackathon\`
-  - \`Other\`
+**1. \`event_type\` Categorization:**
+- You MUST classify the event into exactly 1 of the following categories:
+  - \`Technical Talk / Presentation\` - Information sessions, program overviews, technical presentations, talks, seminars
+  - \`Workshop / Discussion\` - Interactive workshops, structured discussions, brainstorming sessions, hands-on activities
+  - \`Demo / Showcase\` - Technical demonstrations, showcases, demo nights, exhibition of work
+  - \`Social / Mixer\` - Networking events, social gatherings, mixers, community building events
+  - \`Panel Discussion\` - Expert panels, moderated discussions, Q&A sessions with multiple speakers
+  - \`Research / Academic Conference\` - Formal academic conferences, symposiums, research presentations
+  - \`Competition / Hackathon\` - Hackathons, competitions, contests, challenges
 
-- **Multi-Type Rule:** If an event has multiple distinct components that are equally important, you may select up to 2 types. For example, a "Workshop + Networking Event" could be both \`Workshop\` and \`Meetup / Mixer\`.
-- **Primary Type Rule:** If selecting 2 types, the first should be the most dominant or primary activity.
-- **Title-Driven Clues:** Give strong weight to keywords in the event title. "Fireside Chat with..." is a \`Fireside Chat\`. "AI Hackathon" is a \`Hackathon\`.
-- **Single Type Preference:** Most events should have only 1 type. Only use 2 types when the event genuinely has two major, distinct components.
+- **Single Category Rule:** Select the PRIMARY category that best represents the event's main purpose.
+- **Hybrid Event Guidelines:** 
+  - "Lunch & Learn" = \`Social / Mixer\` (networking focus with learning component)
+  - "Demo Night with Networking" = \`Demo / Showcase\` (primary focus is demonstrations)
+  - "Interactive Workshop Discussion" = \`Workshop / Discussion\` (primary focus is interactive learning)
+  - "Info Session" = \`Technical Talk / Presentation\` (primary focus is information sharing)
 
 **2. \`event_interest_areas\` Categorization:**
 - **Core Theme Rule:** You MUST select only the most essential and central interest areas from the list below. Prioritize quality over quantity.
@@ -126,8 +124,8 @@ ${INTEREST_AREAS.map(area => `- "${area}"`).join('\n')}
 You must provide your response ONLY as a valid JSON object, with no explanatory text before or after it.
 
 Example outputs:
-- Single type: {"event_types": ["Workshop"], "event_interest_areas": ["Artificial Intelligence", "Machine Learning"]}
-- Multiple types: {"event_types": ["Workshop", "Meetup / Mixer"], "event_interest_areas": ["Artificial Intelligence"]}
+- Single type: {"event_type": "Technical Talk / Presentation", "event_interest_areas": ["Artificial Intelligence", "Machine Learning"]}
+- Another example: {"event_type": "Workshop / Discussion", "event_interest_areas": ["Artificial Intelligence"]}
 
 **EVENT TO ANALYZE:**
 
@@ -157,20 +155,10 @@ Example outputs:
     // Parse and validate the response
     const result = JSON.parse(responseContent) as EventCategorizationResult;
     
-    // Validate event_types
-    if (!Array.isArray(result.event_types)) {
-      console.warn('Invalid event_types format, defaulting to ["Other"]');
-      result.event_types = ["Other"];
-    } else {
-      // Filter out invalid event types and ensure max 2
-      result.event_types = result.event_types
-        .filter(type => EVENT_TYPES.includes(type as any))
-        .slice(0, 2);
-      
-      // Ensure at least one type
-      if (result.event_types.length === 0) {
-        result.event_types = ["Other"];
-      }
+    // Validate event_type
+    if (!result.event_type || !EVENT_TYPES.includes(result.event_type as any)) {
+      console.warn('Invalid event_type format, defaulting to "Technical Talk / Presentation"');
+      result.event_type = "Technical Talk / Presentation";
     }
 
     // Validate event_interest_areas
@@ -190,7 +178,7 @@ Example outputs:
     
     // Return default categorization on error
     return {
-      event_types: ["Other"],
+      event_type: "Technical Talk / Presentation",
       event_interest_areas: []
     };
   }
@@ -334,7 +322,7 @@ export async function categorizeEventWithRetry(
   // If all retries failed, return default categorization
   console.error(`All categorization attempts failed:`, lastError);
   return {
-    event_types: ["Other"],
+    event_type: "Technical Talk / Presentation",
     event_interest_areas: []
   };
 } 

@@ -55,12 +55,12 @@ export async function getEventsByLocation(location: string): Promise<Event[]> {
   return data || []
 }
 
-// Filter events by AI event type (modern approach with multi-select support) or fallback to legacy categories  
+// Filter events by AI event type using the new 7-category structure
 export async function getEventsByCategory(category: string): Promise<Event[]> {
   const { data, error } = await supabase
     .from('events')
     .select('*')
-    .or(`ai_event_type.eq.${category},ai_event_types.cs.{${category}},categories.cs.{${category}}`)
+    .or(`ai_event_type.eq.${category},categories.cs.{${category}}`)
     .order('date', { ascending: true })
 
   if (error) {
@@ -126,9 +126,9 @@ export async function searchAndFilterEvents(options: {
     queryBuilder = queryBuilder.eq('city', options.location)
   }
 
-  // Apply category filter (try new multi-select AI event types, legacy single type, then legacy categories)
+  // Apply category filter (AI event type or legacy categories)
   if (options.category) {
-    queryBuilder = queryBuilder.or(`ai_event_type.eq.${options.category},ai_event_types.cs.{${options.category}},categories.cs.{${options.category}}`)
+    queryBuilder = queryBuilder.or(`ai_event_type.eq.${options.category},categories.cs.{${options.category}}`)
   }
 
   // Apply interest areas filter (AI interest areas)
@@ -138,11 +138,11 @@ export async function searchAndFilterEvents(options: {
     queryBuilder = queryBuilder.or(interestAreaFilters)
   }
 
-  // Apply event types filter (AI event types - supports both multi-select and legacy single field)
+  // Apply event types filter (AI event types)
   if (options.eventTypes && options.eventTypes.length > 0) {
-    // Filter events that have any of the selected event types in either field
+    // Filter events that have any of the selected event types
     const eventTypeFilters = options.eventTypes.map(type => 
-      `ai_event_type.eq.${type},ai_event_types.cs.{${type}}`
+      `ai_event_type.eq.${type}`
     ).join(',')
     queryBuilder = queryBuilder.or(eventTypeFilters)
   }
@@ -234,34 +234,20 @@ export async function getUniqueCategories(): Promise<string[]> {
   return allCategories
 }
 
-// Get unique AI event types only (supports both new multi-select and legacy single fields)
+// Get unique AI event types from the new 7-category structure
 export async function getUniqueAIEventTypes(): Promise<string[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('ai_event_type, ai_event_types')
-    .or('ai_event_type.not.is.null,ai_event_types.not.is.null')
+    .select('ai_event_type')
+    .not('ai_event_type', 'is', null)
 
   if (error) {
     console.error('Error fetching AI event types:', error)
     throw error
   }
 
-  // Collect types from both new multi-select field and legacy single field
-  const allEventTypes: string[] = []
-  
-  data?.forEach(event => {
-    // Add types from new multi-select field
-    if (event.ai_event_types && Array.isArray(event.ai_event_types)) {
-      allEventTypes.push(...event.ai_event_types)
-    }
-    // Add type from legacy single field (if not already included)
-    if (event.ai_event_type && !allEventTypes.includes(event.ai_event_type)) {
-      allEventTypes.push(event.ai_event_type)
-    }
-  })
-
   // Get unique AI event types
-  const uniqueAITypes = [...new Set(allEventTypes)].filter(Boolean).sort()
+  const uniqueAITypes = [...new Set(data?.map(event => event.ai_event_type) || [])].filter(Boolean).sort()
   
   return uniqueAITypes
 }

@@ -1,0 +1,348 @@
+{
+  "formatAnalysis": {
+    "potentialGaps": [],
+    "ambiguousEvents": [
+      {
+        "title": "Thinking Big Science",
+        "detectedFormats": [
+          "Training/Course",
+          "Launch Event",
+          "Fundraising"
+        ],
+        "reason": "Multiple formats detected"
+      },
+      {
+        "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+        "detectedFormats": [
+          "Training/Course",
+          "Launch Event",
+          "Fundraising"
+        ],
+        "reason": "Multiple formats detected"
+      },
+      {
+        "title": "Women in Science and Technology Policy Drinks",
+        "detectedFormats": [],
+        "reason": "Unclear format"
+      },
+      {
+        "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+        "detectedFormats": [
+          "Training/Course",
+          "Launch Event",
+          "Awards/Recognition",
+          "Fundraising"
+        ],
+        "reason": "Multiple formats detected"
+      },
+      {
+        "title": "In Silico #001",
+        "detectedFormats": [],
+        "reason": "Unclear format"
+      },
+      {
+        "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+        "detectedFormats": [
+          "Training/Course",
+          "Launch Event",
+          "Fundraising"
+        ],
+        "reason": "Multiple formats detected"
+      },
+      {
+        "title": "Imperial Neurotech Society 2025 Conference",
+        "detectedFormats": [],
+        "reason": "Unclear format"
+      },
+      {
+        "title": "British Society for the Philosophy of Science Annual Conference",
+        "detectedFormats": [],
+        "reason": "Unclear format"
+      },
+      {
+        "title": "Biohackathon.xyz '25 London",
+        "detectedFormats": [],
+        "reason": "Unclear format"
+      },
+      {
+        "title": "Science Creates: Designed for Deep Tech",
+        "detectedFormats": [
+          "Demo/Showcase",
+          "Fundraising",
+          "Retreat"
+        ],
+        "reason": "Multiple formats detected"
+      },
+      {
+        "title": "AI for Longevity Summit and Hackathon",
+        "detectedFormats": [
+          "Demo/Showcase",
+          "Fundraising",
+          "Mentorship",
+          "Retreat"
+        ],
+        "reason": "Multiple formats detected"
+      }
+    ],
+    "formatPatterns": {
+      "Training/Course": 18,
+      "Launch Event": 4,
+      "Fundraising": 8,
+      "Awards/Recognition": 1,
+      "Demo/Showcase": 4,
+      "Retreat": 2,
+      "Mentorship": 1
+    },
+    "uncategorizedFormats": []
+  },
+  "potentialAdditions": [
+    {
+      "category": "Demo/Showcase",
+      "count": 4,
+      "reasoning": "Several events focus on demonstrating or showcasing work"
+    },
+    {
+      "category": "Training/Course",
+      "count": 18,
+      "reasoning": "Some events are more structured training than workshops"
+    },
+    {
+      "category": "Launch/Announcement",
+      "count": 4,
+      "reasoning": "Launch events have different purposes than info sessions"
+    }
+  ],
+  "proposedCategories": [
+    "Information Session / Talk",
+    "Workshop / Discussion",
+    "Social / Mixer",
+    "Panel Discussion",
+    "Research / Academic",
+    "Competition / Hackathon"
+  ],
+  "eventDetails": [
+    {
+      "title": "Dundee Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ",
+      "currentTypes": [
+        "Workshop"
+      ]
+    },
+    {
+      "title": "Dundee Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "Thinking Big Science",
+      "description": "Some ideas don’t fit neatly into a startup or an academic paper. They’re larger, more ambitious - the kind of projects that could reshape how science and innovation get done.\nThinking Big Science is a",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "Norwich Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ",
+      "currentTypes": [
+        "Workshop",
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "Norwich Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ]
+    },
+    {
+      "title": "Edinburgh Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Workshop"
+      ]
+    },
+    {
+      "title": "Edinburgh Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ]
+    },
+    {
+      "title": "Cambridge Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "Newcastle Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ",
+      "currentTypes": [
+        "Workshop"
+      ]
+    },
+    {
+      "title": "Newcastle Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "Bristol Lunch & Learn",
+      "description": "Join us for this lunchtime event to explore the resources to support researchers in developing breakthrough innovations and navigating their entrepreneurial journey. This lunch is tailored for individ",
+      "currentTypes": [
+        "Workshop"
+      ]
+    },
+    {
+      "title": "Bristol Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "Oxford Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "Nucleate Manchester Activator Info Session",
+      "description": "Join us for a Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its ro",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Workshop"
+      ]
+    },
+    {
+      "title": "London Info Session",
+      "description": "Join us for an Info Session, tailored for individuals considering applying to the Nucleate UK Activator Program.\nThis event offers a valuable opportunity to learn about the Activator Program and its r",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "London SynBio Network 10",
+      "description": "London SynBio afterwork talks and networking event on Thursday 25th of September",
+      "currentTypes": [
+        "Meetup / Mixer",
+        "Panel Discussion"
+      ]
+    },
+    {
+      "title": "Fail Friday",
+      "description": "Failed an experiment? Got rejected for funding? You’re not alone.\nThe fastest path to discovery is often shaped by what didn’t work first, so we’re bringing a night inspired by SF’s f***‑up nights to ",
+      "currentTypes": [
+        "Other"
+      ]
+    },
+    {
+      "title": "Vision 73: Investing in frontier Brain Computer Interfaces with Samantha Tabone and Matt McCann",
+      "description": "Join us for vision 73’s third event on September 4th in Central London.\nAt our previous events vision 73 was honoured to host Jacob T. Robinson, Jamie Brannigan, Nir Grossman, and Tamara Gerbert speak",
+      "currentTypes": [
+        "Panel Discussion"
+      ]
+    },
+    {
+      "title": "[Chill] Robotics/AI Networking Meetup London",
+      "description": "Working, building or interested in Robotics or AI for robotics? Then please be invited to a chill in-person networking event.\nThat's it, no rules. Easy and chill.\nThe plan is to get a table at The Sek",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "Women in Science and Technology Policy Drinks",
+      "description": "Come meet other women in science and technology policy!\nOpening remarks from Louise Dunsby (ex-Cabinet Office) and Lauren Gilbert (Renaissance Philanthropy).\nDrinks and snacks will be provided.",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "'The Experimental Imagination' - Encode: AI for Science's Summer Salon",
+      "description": "How can AI become a partner in scientific discovery, design and dreaming?\nJoin us for a celebration of creativity, curiosity and community. Expect to:\nMeet our first cohort of Encode Fellows, recently",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "In Silico #001",
+      "description": "Recent advancements in computation are transforming the biomolecular sciences - from fine simulations of molecular structure and drug discovery, to coarse-grained systems analysis of complex biochemic",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "Mindsets, Mechanisms & Metascience: The UK’s Translational Opportunity",
+      "description": "Asothia and Renaissance Philanthropy are co-hosting a panel discussion at St John’s College on July 8th exploring how the UK might design next-generation scientific infrastructure - built to support b",
+      "currentTypes": [
+        "Panel Discussion"
+      ]
+    },
+    {
+      "title": "Imperial Neurotech Society 2025 Conference",
+      "description": "The UK's largest society for neurotech, student-run at Imperial College, are running their 2025 conference!\nWe're bringing leaders, founders, and pioneers from across the neurotech space, through acad",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "British Society for the Philosophy of Science Annual Conference",
+      "description": "The British Society for the Philosophy of Science Annual Conference aims to further the pursuit of philosophy of science in the UK.",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "Fundraising across borders: Europe vs US | Mixer – London",
+      "description": "A mixer for scientist founders raising their first round\nWhat are the real-world mechanics of raising capital for deep tech + science-based startups? And how the fundraising journey plays out in Europ",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    },
+    {
+      "title": "Biohackathon.xyz '25 London",
+      "description": "The exact date, location and details are to be announced. Sign up for the waitlist to be informed.",
+      "currentTypes": [
+        "Hackathon"
+      ]
+    },
+    {
+      "title": "Science Creates: Designed for Deep Tech",
+      "description": "🎫 The event\nJoin Science Creates in Bristol for a specially crafted event as we begin an exciting, new chapter — preparing to expand by a further 30,000 sq ft with our third state-of-the-art Deep Tec",
+      "currentTypes": [
+        "Conference"
+      ]
+    },
+    {
+      "title": "CompMotifs: Hack the Sciences",
+      "description": "We have now reached capacity, but please join our waiting list.\nThe Computational Motifs Initiative is running a hackathon — and it’s designed for scientists who code.\nFollowing our successful San Fra",
+      "currentTypes": [
+        "Hackathon"
+      ]
+    },
+    {
+      "title": "AI for Longevity Summit and Hackathon",
+      "description": "What if we could decode ageing itself? Targeting ageing is now a sci-fact. Today, AI algorithms are predicting biological age, identifying novel longevity pathways, and revolutionising how we approach",
+      "currentTypes": [
+        "Hackathon"
+      ]
+    },
+    {
+      "title": "London AI Nexus Demo Night",
+      "description": "👋 Welcome to the inaugural London AI Nexus Demo Night!\nA technical showcase of frontier AI demos, followed by networking and food, in collaboration with Earlybird VC.\n\n🤝 In Collaboration With\nEarlyb",
+      "currentTypes": [
+        "Meetup / Mixer"
+      ]
+    }
+  ]
+}

@@ -32,9 +32,9 @@ async function addAIAnalysis(eventData: any) {
     
     return {
       ...eventData,
-      ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
-      ai_event_types: Array.isArray(aiResult.event_types) && aiResult.event_types.length > 0 
-        ? aiResult.event_types 
+      ai_event_type: aiResult.event_type || 'Other', // Legacy field (first type)
+      ai_event_types: aiResult.event_type 
+        ? aiResult.event_type 
         : ['Other'], // New multi-select field (ensure always array)
       ai_interest_areas: aiResult.event_interest_areas,
       ai_categorized: true,
@@ -1256,9 +1256,9 @@ export async function enhanceEventWithCategories(basicEventData: any) {
     
     const categorizedData = {
       ...basicEventData,
-      ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
-      ai_event_types: Array.isArray(aiResult.event_types) && aiResult.event_types.length > 0 
-        ? aiResult.event_types 
+      ai_event_type: aiResult.event_type || 'Other', // Legacy field (first type)
+      ai_event_types: aiResult.event_type 
+        ? aiResult.event_type 
         : ['Other'], // New multi-select field (ensure always array)
       ai_interest_areas: aiResult.event_interest_areas,
       ai_categorized: true,

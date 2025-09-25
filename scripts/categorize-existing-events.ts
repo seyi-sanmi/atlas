@@ -87,7 +87,7 @@ async function categorizeExistingEvents() {
         // Update the event in database
         // Note: ai_event_types column may not exist until migration is run
         const updateData: any = {
-          ai_event_type: aiResult.event_types[0] || 'Other', // Legacy field (first type)
+          ai_event_type: aiResult.event_type || 'Other', // Primary event type
           ai_interest_areas: aiResult.event_interest_areas,
           ai_categorized: true,
           ai_categorized_at: new Date().toISOString()
@@ -95,7 +95,7 @@ async function categorizeExistingEvents() {
 
         // Only add ai_event_types if the migration has been run
         try {
-          updateData.ai_event_types = aiResult.event_types; // New multi-select field
+          updateData.ai_event_types = [aiResult.event_type]; // New multi-select field
         } catch (e) {
           console.log(`   ⚠️  Note: ai_event_types column not available yet (run migration first)`);
         }
@@ -109,7 +109,7 @@ async function categorizeExistingEvents() {
           throw updateError;
         }
 
-        console.log(`   ✅ Categorized as "${aiResult.event_types.join(', ')}" with ${aiResult.event_interest_areas.length} interest areas`);
+        console.log(`   ✅ Categorized as "${aiResult.event_type}" with ${aiResult.event_interest_areas.length} interest areas`);
         successCount++;
 
         // Add small delay to avoid rate limiting
