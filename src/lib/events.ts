@@ -1,5 +1,13 @@
 import { supabase, Event } from './supabase'
 
+// Utility function to format date for filtering (handles timezone correctly)
+function formatDateForFilter(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Fetch all events
 export async function getAllEvents(): Promise<Event[]> {
   const { data, error } = await supabase
@@ -160,7 +168,7 @@ export async function searchAndFilterEvents(options: {
   // Apply date filter
   if (options.date) {
     // Filter by specific date (format: YYYY-MM-DD)
-    const dateString = options.date.toISOString().split('T')[0]
+    const dateString = formatDateForFilter(options.date)
     queryBuilder = queryBuilder.eq('date', dateString)
   }
 
