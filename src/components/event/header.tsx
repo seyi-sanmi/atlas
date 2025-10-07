@@ -75,10 +75,11 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
           <nav className="hidden sm:flex items-center gap-2 pl-4">
             <Link
               href={"/"}
-              className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 rounded-full ${
+              prefetch={true}
+              className={`font-sans flex sm:space-x-2 transition-all duration-150 text-sm px-2 sm:px-3 py-2 rounded-full ${
                 pathname === "/"
                   ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full"
-                  : "text-primary-text/60 "
+                  : "text-primary-text/60 hover:text-primary-text"
               }`}
             >
               <Calendar className="w-5 h-5" />
@@ -87,10 +88,11 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
 
             <Link
               href={"/communities"}
-              className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
+              prefetch={true}
+              className={`font-sans flex sm:space-x-2 transition-all duration-150 text-sm px-2 sm:px-3 py-2 ${
                 pathname.startsWith("/communities")
                   ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full"
-                  : "text-primary-text/60"
+                  : "text-primary-text/60 hover:text-primary-text"
               }`}
             >
               <Users
@@ -112,10 +114,11 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
             </Link>
             <Link
               href={"/funding"}
-              className={`font-sans flex sm:space-x-2 transition-colors text-sm px-2 sm:px-3 py-2 ${
+              prefetch={true}
+              className={`font-sans flex sm:space-x-2 transition-all duration-150 text-sm px-2 sm:px-3 py-2 ${
                 pathname.startsWith("/funding")
                   ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md rounded-full"
-                  : "text-primary-text/60"
+                  : "text-primary-text/60 hover:text-primary-text"
               }`}
             >
               <Briefcase
@@ -177,8 +180,9 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
             <nav className="flex flex-col gap-2">
               <Link
                 href={"/"}
+                prefetch={true}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`font-sans flex items-center space-x-3 transition-colors text-sm px-3 py-3 rounded-lg ${
+                className={`font-sans flex items-center space-x-3 transition-all duration-150 text-sm px-3 py-3 rounded-lg ${
                   pathname === "/"
                     ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md"
                     : "text-primary-text/60 hover:text-primary-text hover:bg-white/5"
@@ -190,8 +194,9 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
 
               <Link
                 href={"/communities"}
+                prefetch={true}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`font-sans flex items-center space-x-3 transition-colors text-sm px-3 py-3 rounded-lg ${
+                className={`font-sans flex items-center space-x-3 transition-all duration-150 text-sm px-3 py-3 rounded-lg ${
                   pathname.startsWith("/communities")
                     ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md"
                     : "text-primary-text/60 hover:text-primary-text hover:bg-white/5"
@@ -217,8 +222,9 @@ export function Header({ onEventImported, onOpenImportModal }: HeaderProps) {
 
               <Link
                 href={"/funding"}
+                prefetch={true}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`font-sans flex items-center space-x-3 transition-colors text-sm px-3 py-3 rounded-lg ${
+                className={`font-sans flex items-center space-x-3 transition-all duration-150 text-sm px-3 py-3 rounded-lg ${
                   pathname.startsWith("/funding")
                     ? "text-primary-text dark:bg-white/10 bg-black/5 backdrop-blur-md"
                     : "text-primary-text/60 hover:text-primary-text hover:bg-white/5"

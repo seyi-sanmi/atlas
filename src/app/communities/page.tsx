@@ -5,10 +5,11 @@ import { ClientHomePage } from "@/components/ClientHomePage";
 import ClientCommunitiesPage from "@/components/communities";
 import { CommunitiesFooter } from "@/components/communities/footer";
 
-// Add city data: name and Unsplash image
+// Revalidate this page every 5 minutes
+export const revalidate = 300;
 
 export default async function Communities() {
-  // Server-side data fetching for initial load
+  // Server-side data fetching for initial load with caching
   try {
     const initialCommunities = await getAllCommunities();
 

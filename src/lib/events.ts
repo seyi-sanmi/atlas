@@ -8,12 +8,17 @@ function formatDateForFilter(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-// Fetch all events
-export async function getAllEvents(): Promise<Event[]> {
+// Fetch events (optimized - upcoming events + starred/featured events)
+export async function getAllEvents(limit: number = 100): Promise<Event[]> {
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Fetch upcoming events OR starred/featured events (even if past)
   const { data, error } = await supabase
     .from('events')
     .select('*')
+    .or(`date.gte.${today},is_starred.eq.true,is_featured.eq.true`)
     .order('date', { ascending: true })
+    .limit(limit)
 
   if (error) {
     console.error('Error fetching events:', error)

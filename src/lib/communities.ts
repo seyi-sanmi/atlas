@@ -2,12 +2,13 @@ import { supabase, Community } from './supabase'
 
 const VIEW_NAME = 'atlas_public_view_in_public';
 
-// Fetch all communities from the public view
-export async function getAllCommunities(): Promise<Community[]> {
+// Fetch all communities from the public view (optimized - with limit)
+export async function getAllCommunities(limit: number = 100): Promise<Community[]> {
   const { data, error } = await supabase
     .from(VIEW_NAME)
     .select('*')
-    .order('name');
+    .order('name')
+    .limit(limit);
 
   if (error) {
     console.error(`Error fetching communities from ${VIEW_NAME}:`, error);
@@ -83,32 +84,31 @@ export async function searchAndFilterCommunities(options: {
 
     // Community type filter
     if (options.communityType && options.communityType !== 'All Types') {
-      // Use 'cs' (contains) operator with a correctly formatted JSONB array literal
+      // Use 'cs' (contains) operator with PostgreSQL TEXT[] array format
       queryBuilder = queryBuilder.filter(
         'community_type',
         'cs',
-        JSON.stringify([options.communityType])
+        `{${options.communityType}}`
       );
     }
 
     // Location filter  
     if (options.location && options.location !== 'All Locations') {
-      // Use 'cs' (contains) operator with a correctly formatted JSONB array literal
+      // Use 'cs' (contains) operator with PostgreSQL TEXT[] array format
       queryBuilder = queryBuilder.filter(
         'location_names',
         'cs',
-        JSON.stringify([options.location])
+        `{${options.location}}`
       );
     }
 
     // Research areas filter
     if (options.researchAreas && options.researchAreas.length > 0) {
-      // Use 'cs' (contains) for a single area or 'cd' (contained by) if we want to match all.
-      // Since we want to match ANY of the selected areas, we should use 'ov' (overlaps).
+      // Use 'cs' (contains) for PostgreSQL TEXT[] array format
       queryBuilder = queryBuilder.filter(
         'research_area_names',
         'cs',
-        JSON.stringify(options.researchAreas)
+        `{${options.researchAreas.join(',')}}`
       );
     }
 

@@ -4,10 +4,11 @@ import { Footer } from "@/components/event/footer";
 import { Header } from "@/components/event/header";
 import { ClientHomePage } from "@/components/ClientHomePage";
 
-// Add city data: name and Unsplash image
+// Revalidate this page every 5 minutes
+export const revalidate = 300;
 
 export default async function Home() {
-  // Server-side data fetching for initial load
+  // Server-side data fetching for initial load with caching
   const initialEvents = await getAllEvents();
 
   return (

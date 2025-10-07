@@ -170,7 +170,7 @@ function ClientCommunitiesPage({
       />
 
       {/* Main Content */}
-      <main className="relative -mt-48 z-10">
+      <main className="relative -mt-48 z-20">
         <div className="container mx-auto px-2 sm:px-4 max-w-6xl ">
           {/* Filter Bar - Only sticky on desktop */}
           <div className="md:sticky md:top-[var(--header-height)] z-20 bg-primary-bg/95 backdrop-blur-sm py-4 mt-20 border-b border-primary-border/30">
@@ -366,7 +366,7 @@ function ClientCommunitiesPage({
 
             {/* Mobile Detail Overlay */}
             {selectedCommunity && (
-              <div className="fixed inset-0 z-[100] bg-primary-bg">
+              <div className="fixed inset-0 z-40 bg-primary-bg">
                 <div className="h-full flex flex-col pt-[var(--header-height)]">
                   {/* Mobile Header */}
                   <div className="flex items-center justify-between p-4 border-b border-primary-border bg-secondary-bg flex-shrink-0">
