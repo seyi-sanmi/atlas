@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllEvents } from '@/lib/events';
 
+// Mark as dynamic since we use searchParams
+export const dynamic = 'force-dynamic';
+
 // Cache for 5 minutes
 export const revalidate = 300;
 

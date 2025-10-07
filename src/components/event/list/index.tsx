@@ -10,9 +10,9 @@ import { trackEventView } from "@/lib/event-tracking";
 
 interface EventsListProps {
   events: Event[];
-  onEventSelect: (event: Event) => void;
+  onEventSelect?: (event: Event) => void;
   onEventClick?: (event: Event) => void; // New prop for tracking event clicks
-  selectedEvent: Event | null;
+  selectedEvent?: Event | null;
   loading?: boolean;
   onTagClick?: (tagType: "interest" | "eventType", value: string) => void;
   selectedInterestAreas?: string[];
@@ -197,7 +197,7 @@ export function EventsList({
             <FeaturedEventCard
               date={currentFeaturedEvent.date}
               event={currentFeaturedEvent}
-              onClick={() => onEventSelect(currentFeaturedEvent)}
+              onClick={() => onEventSelect?.(currentFeaturedEvent)}
               onEventClick={() => onEventClick?.(currentFeaturedEvent)}
               isSelected={selectedEvent?.id === currentFeaturedEvent.id}
               eventIndex={featuredEventIndex}
@@ -362,7 +362,7 @@ export function EventsList({
                     <EventCard
                       date={event.date}
                       event={event}
-                      onClick={() => onEventSelect(event)}
+                      onClick={() => onEventSelect?.(event)}
                       onEventClick={() => onEventClick?.(event)}
                       isSelected={selectedEvent?.id === event.id}
                       showTime={

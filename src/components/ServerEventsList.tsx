@@ -8,13 +8,7 @@ export async function ServerEventsList() {
   return (
     <EventsList
       events={events}
-      onEventSelect={() => {}}
-      onEventClick={() => {}}
-      selectedEvent={null}
       loading={false}
-      onTagClick={() => {}}
-      selectedInterestAreas={[]}
-      selectedEventTypes={[]}
     />
   );
 }
