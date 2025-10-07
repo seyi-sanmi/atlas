@@ -5,13 +5,19 @@ import { ClientHomePage } from "@/components/ClientHomePage";
 import ClientCommunitiesPage from "@/components/communities";
 import { CommunitiesFooter } from "@/components/communities/footer";
 
+// Edge runtime for faster responses (optional - comment out if issues)
+// export const runtime = 'edge';
+
 // Revalidate this page every 5 minutes
 export const revalidate = 300;
 
 export default async function Communities() {
-  // Server-side data fetching for initial load with caching
+  // Parallel data fetching for maximum speed
   try {
-    const initialCommunities = await getAllCommunities();
+    const [initialCommunities] = await Promise.all([
+      getAllCommunities(),
+      // Add more parallel fetches here if needed
+    ]);
 
     return (
       <div className="min-h-screen w-full bg-primary-bg text-gray-100 font-sans">
