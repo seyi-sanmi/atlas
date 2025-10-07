@@ -77,3 +77,4 @@ FROM information_schema.columns
 WHERE table_schema = 'airtable' 
   AND table_name = 'atlas_public_view';
 
+

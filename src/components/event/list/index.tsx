@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { EventCard } from "./card";
 import { FeaturedEventCard } from "./featured-card";

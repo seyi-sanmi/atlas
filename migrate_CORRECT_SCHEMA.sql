@@ -239,3 +239,4 @@ WHERE starred_on_website = true;
 4. Decide on sync strategy for future Airtable updates
 */
 
+
