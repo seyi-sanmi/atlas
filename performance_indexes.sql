@@ -9,7 +9,8 @@ CREATE INDEX IF NOT EXISTS idx_events_is_starred ON events(is_starred);
 CREATE INDEX IF NOT EXISTS idx_events_is_featured ON events(is_featured);
 
 -- Composite index for common query pattern (upcoming events)
-CREATE INDEX IF NOT EXISTS idx_events_date_starred ON events(date, is_starred) WHERE date >= CURRENT_DATE;
+-- TODO: Fix this index - currently has issues
+-- CREATE INDEX IF NOT EXISTS idx_events_date_starred ON events(date, is_starred) WHERE date >= CURRENT_DATE;
 
 -- GIN indexes for array columns (faster contains operations)
 CREATE INDEX IF NOT EXISTS idx_events_ai_interest_areas ON events USING GIN(ai_interest_areas);
