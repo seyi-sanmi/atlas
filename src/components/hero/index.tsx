@@ -180,7 +180,7 @@ function Hero() {
 
       {/* Hero Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 py-8 sm:mt-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-primary-text drop-shadow-2xl">
+        <h1 className="alee_class text-3xl sm:text-4xl md:text-5xl tracking-normal font-medium font-display mb-6 text-primary-text drop-shadow-2xl">
           What's Happening
           <br />
           {/* Typewriter effect for city */}
