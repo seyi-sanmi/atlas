@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Event } from "@/lib/supabase";
 import {
   MapPin,
@@ -163,8 +163,8 @@ export function EventCard({
           <div className="p-3 pb-3 pt-3 sm:pr-0 h-40 bg-secondary-bg w-full sm:w-1/3 sm:h-auto relative">
             {/* Starred indicator */}
             {event.is_starred && (
-              <div className="absolute top-[5px] -right-2 z-10">
-                <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
+              <div className="card-featured-icon absolute top-[5px] -right-2 z-10">
+                <div className="card-featured-icon-star bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 p-1.5 rounded-full shadow-xl border-2 border-yellow-200/80 backdrop-blur-sm">
                   <Star className="w-[0.9rem] h-[0.9rem] text-yellow-800 fill-current drop-shadow-sm" />
                 </div>
               </div>
@@ -238,28 +238,68 @@ export function EventCard({
 
             {/* Research Area Tags */}
             {event.ai_interest_areas && event.ai_interest_areas.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {event.ai_interest_areas.map((area) => {
-                  const isSelected = selectedInterestAreas.includes(area);
+              <div className="relative area_research_tag">
+                {/* Track if scroll is needed */}
+                {(() => {
+                  const [isScrollable, setIsScrollable] = useState(false);
+                  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+                  useEffect(() => {
+                    const el = scrollRef.current;
+                    if (el) {
+                      const checkScroll = () => setIsScrollable(el.scrollWidth > el.clientWidth);
+                      checkScroll();
+                      window.addEventListener("resize", checkScroll);
+                      return () => window.removeEventListener("resize", checkScroll);
+                    }
+                  }, [event.ai_interest_areas]);
+
                   return (
-                    <button
-                      key={area}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTagClick?.("interest", area);
-                      }}
-                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
-                        isSelected
-                          ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
-                          : "bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30"
-                      }`}
-                    >
-                      {area}
-                    </button>
+                    <>
+                      <div
+                        ref={scrollRef}
+                        className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide pr-6"
+                        style={{ scrollBehavior: "smooth" }}
+                      >
+                        {event.ai_interest_areas.map((area) => {
+                          const isSelected = selectedInterestAreas.includes(area);
+                          return (
+                            <button
+                              key={area}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onTagClick?.("interest", area);
+                              }}
+                              className={`inline-block px-2 py-1 text-xs font-medium rounded-full border transition-all duration-200 cursor-pointer ${
+                                isSelected
+                                  ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                                  : "bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30"
+                              }`}
+                            >
+                              {area}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Show fade only if scrollable */}
+                      {isScrollable && (
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute right-0 top-0 bottom-0 w-10"
+                          style={{
+                            background:
+                              "linear-gradient(90deg, rgba(53,53,59,0) 0%, rgba(53,53,59,1) 90%)",
+                          }}
+                        ></div>
+                      )}
+
+                    </>
                   );
-                })}
+                })()}
               </div>
             )}
+
 
             {/* Description Preview */}
             {(event.ai_summary || event.description) && (

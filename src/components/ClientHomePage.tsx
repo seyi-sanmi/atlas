@@ -248,7 +248,7 @@ export function ClientHomePage({ initialEvents }: ClientHomePageProps) {
             </div>
           </div>
 
-          <div className="hidden lg:block lg:w-1/3 mt-20">
+          <div className="hidden lg:block lg:w-1/3 mt-20 custom-scrollbar">
             <div className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto">
               <EventFilter
                 searchQuery={searchQuery}

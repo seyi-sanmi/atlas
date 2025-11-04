@@ -128,7 +128,7 @@ export function FeaturedEventCard({
       <SheetTrigger asChild>
         <div
           onClick={handleClick}
-          className={`group relative bg-secondary-bg rounded-lg border-1 border-primary-border transition-all duration-300 cursor-pointer overflow-hidden flex flex-col sm:flex-row min-h-[200px] hover:border-[#AE3813] hover:shadow-[0_12px_24px_rgba(0,0,0,0.3)] ${
+          className={`group relative bg-secondary-bg rounded-lg border-1 border-primary-border transition-all duration-300 cursor-pointer flex flex-col sm:flex-row min-h-[200px] hover:border-[#AE3813] hover:shadow-[0_12px_24px_rgba(0,0,0,0.3)] ${
             isSelected
               ? "border-[#AE3813] shadow-[0_12px_24px_rgba(0,0,0,0.3)]"
               : ""
@@ -164,9 +164,9 @@ export function FeaturedEventCard({
           )}
 
           {/* Hero Image Side - Using same logic as normal event card */}
-          <div className="p-3 pt-3 sm:pr-0 pb-3 h-46 bg-secondary-bg w-full sm:w-1/3 relative">
+          <div className="top-feature-box p-3 pt-3 sm:pr-0 pb-3 bg-secondary-bg w-full sm:w-1/3 relative">
             {/* Featured Badge - Positioned on the image */}
-            <div className="absolute top-2 left-2 z-20">
+            <div className="featured-badge absolute top-2 left-2 z-20">
               <div className="bg-white/95 dark:bg-secondary-bg/95 px-2 py-1 rounded-full border border-[#F3B83F]/60 backdrop-blur-sm flex items-center gap-1 shadow-sm">
                 <Sparkles className="w-3 h-3 text-[#F3B83F]" />
                 <span className="text-[#F3B83F] font-medium text-xs">
@@ -241,33 +241,49 @@ export function FeaturedEventCard({
 
             {/* Research Area Tags - Force single line for featured cards */}
             {event.ai_interest_areas && event.ai_interest_areas.length > 0 && (
-              <div className="flex gap-1.5 overflow-hidden py-2">
-                {event.ai_interest_areas.slice(0, 4).map((area, index) => {
-                  const isSelected = selectedInterestAreas.includes(area);
-                  return (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTagClick?.("interest", area);
-                      }}
-                      className={`text-xs px-2 py-1 rounded-full border flex-shrink-0 whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                        isSelected
-                          ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
-                          : "bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30"
-                      }`}
-                    >
-                      {area}
-                    </button>
-                  );
-                })}
-                {event.ai_interest_areas.length > 4 && (
-                  <span className="text-xs text-primary-text/50 px-2 py-1 flex-shrink-0">
-                    +{event.ai_interest_areas.length - 4}
-                  </span>
-                )}
+              <div className="relative max-w-[454px]">
+                {/* Scrollable container */}
+                <div className="featured_sec_sidebar flex gap-1.5 overflow-x-auto py-2 scrollbar-hide whitespace-nowrap pr-6">
+                  {event.ai_interest_areas.slice(0, 4).map((area, index) => {
+                    const isSelected = selectedInterestAreas.includes(area);
+                    return (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onTagClick?.("interest", area);
+                        }}
+                        className={`text-xs px-2 py-1 rounded-full border flex-shrink-0 whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                          isSelected
+                            ? "bg-[#AE3813]/20 text-[#AE3813] border-[#AE3813]/40 hover:bg-[#AE3813]/30"
+                            : "bg-primary-text/10 text-primary-text/70 border-primary-text/20 hover:bg-primary-text/20 hover:border-[#AE3813]/30"
+                        }`}
+                      >
+                        {area}
+                      </button>
+                    );
+                  })}
+
+                  {event.ai_interest_areas.length > 4 && (
+                    <span className="text-xs text-primary-text/50 px-2 py-1 flex-shrink-0">
+                      +{event.ai_interest_areas.length - 4}
+                    </span>
+                  )}
+                </div>
+
+                {/* Static right-side shadow */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-0 top-0 bottom-0 w-8"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, rgba(53,53,59,0) 0%, rgba(53,53,59,0.9) 100%)",
+                  }}
+                ></div>
               </div>
             )}
+
+
 
             {/* Description */}
             <div className="space-y-2 py-2">

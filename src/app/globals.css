@@ -388,3 +388,89 @@
 .featured-event-rotate {
   animation: fade-in-out 30s ease-in-out infinite;
 }
+.featured-event-rotate .featured.event{
+  overflow-y: unset;
+}
+.featured-event-rotate button.-right-2{
+  right: 0px;
+}
+.featured-event-rotate button.-left-2{
+  left: 0px;
+}
+.featured-event-rotate button.-right-2, .featured-event-rotate button.-left-2 {
+  bottom: -58px;
+  transform: translateY(0%);
+  top: unset;
+  z-index: 999;
+  background-color: #2b2b30;
+  border-radius: 100%;
+}
+.featured-event-rotate button.-right-2 svg{
+  padding-left: 1px;
+}
+.featured-event-rotate button.-left-2 svg{
+  padding-right: 1px;
+}
+.featured-event-rotate button.-right-2 svg, .featured-event-rotate button.-left-2 svg{
+  width: 20px;
+  height: 20px;
+}
+.atlas-overlay-notch, .atlas-right-overlay-notch{
+  border-top-left-radius: 10px;
+  padding-left: 9px;
+}
+.top-feature-box{
+  border-radius: 10px;
+}
+.card-featured-icon{
+  left: 2px;
+  width: fit-content;
+}
+.card-featured-icon-star{
+  padding: 2px;
+}
+/* Hide scrollbar for a clean look */
+.area_research_tag .scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.area_research_tag .scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+/* Custom thin transparent scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;              /* 👈 scrollbar width */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;  /* 👈 transparent track */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(80, 86, 97, 0.6); /* 👈 subtle gray thumb (optional) */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(80, 86, 97, 0.8);
+}
+
+/* Firefox support */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(80, 86, 97, 0.6) transparent;
+}
+.featured_sec_sidebar.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.featured_sec_sidebar.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+@media(max-width: 600px){
+    .featured-event-rotate button.-right-2, .featured-event-rotate button.-left-2{
+      bottom: -17%;
+      transform: translateY(-1%);
+    }
+}
