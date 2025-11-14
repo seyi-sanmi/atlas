@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { addUtmParameters } from "@/lib/utils";
 import { trackEventView, trackEventClick, trackEventDetailView } from "@/lib/event-tracking";
+import { useTheme } from "next-themes";
 
 interface EventCardProps {
   event: Event;
@@ -139,6 +140,12 @@ export function EventCard({
     }
   };
 
+  function truncateWords(text: string, maxWords: number) {
+    const words = text.split(" ");
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(" ") + "...";
+  }
+  
   const getImageRoundingClasses = () => {
     if (isFirstInGroup && isLastInGroup) {
       return "rounded-l-lg";
@@ -153,6 +160,8 @@ export function EventCard({
 
   // toggle logic
 
+  const { theme } = useTheme();
+  const isDarkTheme = theme === "dark";
 
 
   return (
@@ -242,7 +251,8 @@ export function EventCard({
   <>
       {/* Title */}
       <h3 className="font-display font-medium text-md  min-h-[4rem] sm:min-h-[3rem] sm:text-xl text-secondary-text tracking-tight leading-tight line-clamp-2 group-hover:text-[#AE3813] transition-colors duration-200 cursor-pointer">
-              {event.title}
+      {truncateWords(event.title, 5)}
+
             </h3>
  {/* Meta Row */}
  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4   min-h-[.5rem] sm:min-h-[1.5rem]  text-[10px] text-primary-text/60">
@@ -309,8 +319,9 @@ export function EventCard({
                           aria-hidden="true"
                           className="pointer-events-none absolute right-0 top-0 bottom-0 w-10"
                           style={{
-                            background:
-                              "linear-gradient(90deg, rgba(53,53,59,0) 0%, rgba(53,53,59,1) 90%)",
+                            background: isDarkTheme
+                              ? "linear-gradient(90deg, rgba(53, 53, 59, 0) 0%, rgb(30 30 37) 90%)"
+                              : "linear-gradient(90deg, rgba(53, 53, 59, 0) 0%, rgb(235 235 235) 90%)",
                           }}
                         ></div>
                       )}
@@ -397,8 +408,9 @@ export function EventCard({
                           aria-hidden="true"
                           className="pointer-events-none absolute right-0 top-0 bottom-0 w-10"
                           style={{
-                            background:
-                              "linear-gradient(90deg, rgba(53,53,59,0) 0%, rgba(53,53,59,1) 90%)",
+                            background: isDarkTheme
+                              ? "linear-gradient(90deg, rgba(53, 53, 59, 0) 0%, rgb(30 30 37) 90%)"
+                              : "linear-gradient(90deg, rgba(53, 53, 59, 0) 0%, rgb(235 235 235) 90%)",
                           }}
                         ></div>
                       )}

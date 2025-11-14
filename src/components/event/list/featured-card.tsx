@@ -110,7 +110,7 @@ export function FeaturedEventCard({
             <>
             <button
   onClick={(e) => { e.stopPropagation(); onPrevious?.(); }}
-  className="absolute bottom-[-50px] left-4 z-20 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:text-[#AE3813] dark:hover:text-[#AE3813] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#AE3813]/50"
+  className="absolute bottom-[-50px] left-4 z-20 p-2 bg-white dark:bg-[#35353B] rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:text-[#AE3813] dark:hover:text-[#AE3813] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#AE3813]/50"
   aria-label="Previous featured event"
 >
   <ChevronLeft className="w-6 h-6" />
@@ -118,7 +118,7 @@ export function FeaturedEventCard({
 
 <button
   onClick={(e) => { e.stopPropagation(); onNext?.(); }}
-  className="absolute bottom-[-50px] right-4 z-20 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:text-[#AE3813] dark:hover:text-[#AE3813] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#AE3813]/50"
+  className="absolute bottom-[-50px] right-4 z-20 p-2 bg-white dark:bg-[#35353B] rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:text-[#AE3813] dark:hover:text-[#AE3813] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#AE3813]/50"
   aria-label="Next featured event"
 >
   <ChevronRight className="w-6 h-6" />
