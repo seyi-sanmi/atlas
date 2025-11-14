@@ -1,0 +1,376 @@
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import { EventCard } from "./card";
+import { FeaturedEventCard } from "./featured-card";
+import { Event } from "@/lib/supabase";
+import { ChevronDown, ChevronUp, Pause, Play } from "lucide-react";
+import { useTheme } from "next-themes";
+import { trackEventView } from "@/lib/event-tracking";
+import { List, Grid } from "lucide-react";
+
+interface EventsListProps {
+  events: Event[];
+  onEventSelect: (event: Event) => void;
+  onEventClick?: (event: Event) => void; // New prop for tracking event clicks
+  selectedEvent: Event | null;
+  loading?: boolean;
+  onTagClick?: (tagType: "interest" | "eventType", value: string) => void;
+  selectedInterestAreas?: string[];
+  selectedEventTypes?: string[];
+}
+
+export function EventsList({
+  events,
+  onEventSelect,
+  onEventClick,
+  selectedEvent,
+  loading = false,
+  onTagClick,
+  selectedInterestAreas = [],
+  selectedEventTypes = [],
+}: EventsListProps) {
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+    new Set()
+  );
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Track events that have been viewed
+  const [viewedEvents, setViewedEvents] = useState<Set<string>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // toggle logic
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Set up intersection observer for view tracking
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const eventId = entry.target.getAttribute("data-event-id");
+            if (eventId && !viewedEvents.has(eventId)) {
+              const event = events.find((e) => e.id === eventId);
+              if (event) {
+                // Track the view
+                trackEventView(event).catch(console.error);
+
+                // Mark as viewed to prevent duplicate tracking
+                setViewedEvents((prev) => new Set([...prev, eventId]));
+              }
+            }
+          }
+        });
+      },
+      {
+        rootMargin: "0px 0px -20% 0px", // Trigger when 80% visible
+        threshold: 0.8,
+      }
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [events, viewedEvents]);
+
+  // Default colors for SSR to prevent hydration mismatch (using dark theme as default)
+  const fillColor = !mounted
+    ? "#1E1E25"
+    : theme === "dark"
+    ? "#1E1E25"
+    : "#ebebeb";
+  const strokeColor = !mounted
+    ? "#565558"
+    : theme === "dark"
+    ? "#565558"
+    : "#C6C6C6";
+
+  // Group events by date and calculate global indices for color diversity
+  const groupedEvents = useMemo(() => {
+    const groups: { [date: string]: Event[] } = {};
+
+    events.forEach((event) => {
+      const [year, month, day] = event.date.split("-").map(Number);
+      const date = new Date(year, month - 1, day); // month is 0-indexed
+      const dateKey = date.toDateString();
+
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(event);
+    });
+
+    // Sort groups by date and sort events within each group by time
+    const sortedGroups = Object.entries(groups)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .map(([date, eventsInDate]) => ({
+        date,
+        events: eventsInDate.sort((a, b) => {
+          const timeA = a.time.split(" - ")[0];
+          const timeB = b.time.split(" - ")[0];
+          return timeA.localeCompare(timeB);
+        }),
+      }));
+
+    // Calculate global indices for each event to ensure color diversity
+    let globalEventIndex = 0;
+    return sortedGroups.map(({ date, events: dateEvents }) => ({
+      date,
+      events: dateEvents.map((event) => ({
+        ...event,
+        globalIndex: globalEventIndex++,
+      })),
+    }));
+  }, [events]);
+
+  // Flatten all events for grid view
+  const flatEvents = useMemo(() => {
+    if (viewMode === "grid") {
+      return groupedEvents.flatMap((group) => group.events);
+    }
+    return [];
+  }, [groupedEvents, viewMode]);
+
+  const formatDayDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "2-digit",
+    });
+  };
+
+  const toggleSection = (dateKey: string) => {
+    const newCollapsed = new Set(collapsedSections);
+    if (newCollapsed.has(dateKey)) {
+      newCollapsed.delete(dateKey);
+    } else {
+      newCollapsed.add(dateKey);
+    }
+    setCollapsedSections(newCollapsed);
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#AE3813] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <span className="text-primary-text/60 font-medium">
+            Loading events...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full space-y-12">
+      {/* Toggle Buttons */}
+      <div className="flex justify-start mb-2">
+        <div className="flex gap-2  border border-primary-border rounded-lg p-1">
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-2 rounded-md transition ${
+              viewMode === "list"
+                ? "bg-[#AE3813]/10 text-[#AE3813]"
+                : "text-primary-text/60 hover:text-primary-text"
+            }`}
+            title="List View"
+          >
+            <List className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-2 rounded-md transition ${
+              viewMode === "grid"
+                ? "bg-[#AE3813]/10 text-[#AE3813]"
+                : "text-primary-text/60 hover:text-primary-text"
+            }`}
+            title="Grid View"
+          >
+            <Grid className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Grid View */}
+      {viewMode === "grid" && (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4 ">
+          {flatEvents.map((event) => (
+            <div
+              key={event.id}
+              data-event-id={event.id}
+              ref={(el) => {
+                if (el && observerRef.current) observerRef.current.observe(el);
+              }}
+            >
+              <EventCard
+                date={event.date}
+                event={event}
+                onClick={() => onEventSelect(event)}
+                onEventClick={() => onEventClick?.(event)}
+                isSelected={selectedEvent?.id === event.id}
+                showTime={true} // always show time in grid
+                isFirstInGroup={false}
+                isLastInGroup={false}
+                eventIndex={(event as any).globalIndex}
+                onTagClick={onTagClick}
+                selectedInterestAreas={selectedInterestAreas}
+                selectedEventTypes={selectedEventTypes}
+                viewMode={viewMode}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* List View */}
+      {viewMode === "list" &&
+        groupedEvents.map(({ date, events: dateEvents }) => {
+          const formattedDate = formatDayDate(date);
+          const isCollapsed = collapsedSections.has(date);
+
+          return (
+            <section key={date} className="">
+              <div className="data-right-atlas-overlay-nav">
+                <div className="atlas-right-overlay-notch bg-secondary-bg border-t border-b border-primary-border border-l">
+                  <h2 className="flex items-center gap-3 text-[12px] text-balance sm:text-base font-normal text-primary-text tracking-wide pl-1">
+                    {formattedDate}
+                    <div className="w-1 h-1 dark:bg-white/60 bg-black/60 rounded-full" />
+                    <span className="text-[12px] sm:text-base shrink-0 font-light text-primary-text/60">
+                      {dateEvents.length} event
+                      {dateEvents.length !== 1 ? "s" : ""}
+                    </span>
+                  </h2>
+
+                  {/* SVG code remains the same */}
+                  <svg
+                    width="60"
+                    height="42"
+                    viewBox="0 0 60 42"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="atlas-right-overlay-notch-tail"
+                    preserveAspectRatio="none"
+                  >
+                    {/* SVG masks and paths unchanged */}
+                    <mask
+                      id="error_overlay_nav_mask0_2667_14687"
+                      maskUnits="userSpaceOnUse"
+                      x="0"
+                      y="-1"
+                      width="60"
+                      height="43"
+                      style={{ maskType: "alpha" }}
+                    >
+                      <mask
+                        id="error_overlay_nav_path_1_outside_1_2667_14687"
+                        maskUnits="userSpaceOnUse"
+                        x="0"
+                        y="-1"
+                        width="60"
+                        height="43"
+                        fill="black"
+                      >
+                        <rect fill="white" y="-1" width="60" height="43"></rect>
+                        <path d="M1 0L8.0783 0C15.772 0 22.7836 4.41324 26.111 11.3501L34.8889 29.6498C38.2164 36.5868 45.228 41 52.9217 41H60H1L1 0Z"></path>
+                      </mask>
+                      <path
+                        d="M1 0L8.0783 0C15.772 0 22.7836 4.41324 26.111 11.3501L34.8889 29.6498C38.2164 36.5868 45.228 41 52.9217 41H60H1L1 0Z"
+                        fill="white"
+                      ></path>
+                      <path
+                        d="M1 0V-1H0V0L1 0ZM1 41H0V42H1V41ZM34.8889 29.6498L33.9873 30.0823L34.8889 29.6498ZM26.111 11.3501L27.0127 10.9177L26.111 11.3501ZM1 1H8.0783V-1H1V1ZM60 40H1V42H60V40ZM2 41V0L0 0L0 41H2ZM25.2094 11.7826L33.9873 30.0823L35.7906 29.2174L27.0127 10.9177L25.2094 11.7826ZM52.9217 42H60V40H52.9217V42ZM33.9873 30.0823C37.4811 37.3661 44.8433 42 52.9217 42V40C45.6127 40 38.9517 35.8074 35.7906 29.2174L33.9873 30.0823ZM8.0783 1C15.3873 1 22.0483 5.19257 25.2094 11.7826L27.0127 10.9177C23.5188 3.6339 16.1567 -1 8.0783 -1V1Z"
+                        fill="black"
+                        mask="url(#error_overlay_nav_path_1_outside_1_2667_14687)"
+                      ></path>
+                    </mask>
+                    <g mask="url(#error_overlay_nav_mask0_2667_14687)">
+                      <mask
+                        id="error_overlay_nav_path_3_outside_2_2667_14687"
+                        maskUnits="userSpaceOnUse"
+                        x="-1"
+                        y="0.0244141"
+                        width="60"
+                        height="43"
+                        fill="black"
+                      >
+                        <rect
+                          fill="white"
+                          x="-1"
+                          y="0.0244141"
+                          width="60"
+                          height="43"
+                        ></rect>
+                        <path d="M0 1.02441H7.0783C14.772 1.02441 21.7836 5.43765 25.111 12.3746L33.8889 30.6743C37.2164 37.6112 44.228 42.0244 51.9217 42.0244H59H0L0 1.02441Z"></path>
+                      </mask>
+                      <path
+                        d="M0 1.02441H7.0783C14.772 1.02441 21.7836 5.43765 25.111 12.3746L33.8889 30.6743C37.2164 37.6112 44.228 42.0244 51.9217 42.0244H59H0L0 1.02441Z"
+                        fill={fillColor}
+                      ></path>
+                      <path
+                        d="M0 1.02441L0 0.0244141H-1V1.02441H0ZM0 42.0244H-1V43.0244H0L0 42.0244ZM33.8889 30.6743L32.9873 31.1068L33.8889 30.6743ZM25.111 12.3746L26.0127 11.9421L25.111 12.3746ZM0 2.02441H7.0783V0.0244141H0L0 2.02441ZM59 41.0244H0L0 43.0244H59V41.0244ZM1 42.0244L1 1.02441H-1L-1 42.0244H1ZM24.2094 12.8071L32.9873 31.1068L34.7906 30.2418L26.0127 11.9421L24.2094 12.8071ZM51.9217 43.0244H59V41.0244H51.9217V43.0244ZM32.9873 31.1068C36.4811 38.3905 43.8433 43.0244 51.9217 43.0244V41.0244C44.6127 41.0244 37.9517 36.8318 34.7906 30.2418L32.9873 31.1068ZM7.0783 2.02441C14.3873 2.02441 21.0483 6.21699 24.2094 12.8071L26.0127 11.9421C22.5188 4.65831 15.1567 0.0244141 7.0783 0.0244141V2.02441Z"
+                        fill={strokeColor}
+                        mask="url(#error_overlay_nav_path_3_outside_2_2667_14687)"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+
+              {!isCollapsed && (
+                <div className="flex flex-col divide-y divide-primary-border">
+                  {dateEvents.map((event, eventIndex) => (
+                    <div
+                      key={event.id}
+                      data-event-id={event.id}
+                      ref={(el) => {
+                        if (el && observerRef.current) {
+                          observerRef.current.observe(el);
+                        }
+                      }}
+                    >
+                      <EventCard
+                        date={event.date}
+                        event={event}
+                        onClick={() => onEventSelect(event)}
+                        onEventClick={() => onEventClick?.(event)}
+                        isSelected={selectedEvent?.id === event.id}
+                        showTime={
+                          eventIndex === 0 ||
+                          event.time !== dateEvents[eventIndex - 1]?.time
+                        }
+                        isFirstInGroup={eventIndex === 0}
+                        isLastInGroup={eventIndex === dateEvents.length - 1}
+                        eventIndex={(event as any).globalIndex}
+                        onTagClick={onTagClick}
+                        selectedInterestAreas={selectedInterestAreas}
+                        selectedEventTypes={selectedEventTypes}
+                        viewMode={viewMode}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
+
+      {groupedEvents.length === 0 && !loading && (
+        <div className="text-center py-16">
+          <div className="text-primary-text/60 text-lg font-medium mb-2">
+            No events found
+          </div>
+          <div className="text-primary-text/40 text-sm">
+            Check back later for new events
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
