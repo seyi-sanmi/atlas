@@ -108,6 +108,8 @@ async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | 
           location: 'Register to see address',
           city: city,
           organizer: '',
+          url: eventUrl,
+          categories: ['Scraped'],
           platform: 'luma'
         };
       }
@@ -230,6 +232,8 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
         location: domData.location || 'Register to see address',
         city: domData.city || 'TBD',
         organizer: '',
+        url: eventUrl,
+        categories: ['Scraped'],
         platform: 'luma'
       };
     }
@@ -339,6 +343,8 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
         location: domData.location || 'Register to see address',
         city: domData.city || 'TBD',
         organizer: '',
+        url: eventUrl,
+        categories: ['Scraped'],
         platform: 'luma'
       };
     }
