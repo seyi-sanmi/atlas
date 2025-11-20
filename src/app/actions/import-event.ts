@@ -1160,8 +1160,6 @@ export async function importLumaEvent(lumaUrl: string) {
 export async function saveImportedEvent(eventData: any) {
   try {
     // Remove platform-specific fields that might be too large
-<<<<<<< HEAD
-    const { luma_data, eventbrite_data, ...eventToSave } = eventData;
     const { 
       luma_data, 
       eventbrite_data, 
