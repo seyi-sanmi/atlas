@@ -155,6 +155,39 @@ function extractEventbriteEventId(url: string): string | null {
   }
 }
 
+/**
+ * Check if an event is marked as private by examining the HTML
+ */
+async function isPrivateEvent(eventUrl: string): Promise<boolean> {
+  try {
+    const response = await fetch(eventUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      }
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const html = await response.text();
+    
+    // Check for private event indicators
+    const privateIndicators = [
+      /Private Event/i,
+      /Approval Required/i,
+      /register\s+to\s+see\s+(?:the\s+)?(?:exact\s+)?(?:location|address)/i,
+      /your registration is subject to approval/i
+    ];
+
+    return privateIndicators.some(pattern => pattern.test(html));
+  } catch (error) {
+    console.log('⚠️ Could not check if event is private:', error);
+    return false;
+  }
+}
+
 // Import basic Luma event data without AI analysis (fast)
 async function importFromLumaBasic(eventId: string, originalUrl: string) {
   console.log('🔍 Starting basic Luma import with:', { eventId, originalUrl });
@@ -220,8 +253,17 @@ async function importFromLumaBasic(eventId: string, originalUrl: string) {
     console.error('❌ Scraper error details:', scrapeError);
   }
 
-  // If both API and scraper fail
+  // If both API and scraper fail, check if it's a private event
   console.error('💥 Both API and scraper methods failed for event:', eventId);
+  
+  const isPrivate = await isPrivateEvent(originalUrl);
+  if (isPrivate) {
+    return {
+      success: false,
+      error: 'Unable to import event. This event is marked as private and requires registration to view details.'
+    };
+  }
+  
   return {
     success: false,
     error: 'Unable to import event. Both API and scraper methods failed.'
@@ -364,8 +406,17 @@ async function importFromLuma(eventId: string, originalUrl: string) {
     });
   }
 
-  // If both API and scraper fail
+  // If both API and scraper fail, check if it's a private event
   console.error('💥 Both API and scraper methods failed for event:', eventId);
+  
+  const isPrivate = await isPrivateEvent(originalUrl);
+  if (isPrivate) {
+    return {
+      success: false,
+      error: 'Unable to import event. This event is marked as private and requires registration to view details.'
+    };
+  }
+  
   return {
     success: false,
     error: 'Unable to import event. Both API and scraper methods failed. This may be because: 1) The event is private or restricted, 2) The event URL is incorrect, or 3) The event page structure has changed. Please verify the URL and try again.'

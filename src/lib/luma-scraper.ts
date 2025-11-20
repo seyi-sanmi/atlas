@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import * as cheerio from 'cheerio';
 
 
 
@@ -89,32 +90,128 @@ async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | 
 
     console.log('❌ No Event schema found in JSON-LD data');
     
-    // Fallback: Try to extract basic info from HTML for private events
+    // Fallback: Try to extract info from HTML for private events using Cheerio
     try {
-      const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/i) || html.match(/<title[^>]*>(.*?)<\/title>/i);
-      const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : '';
+      console.log('⚠️ Attempting Cheerio-based HTML extraction for private event...');
+      const $ = cheerio.load(html);
       
-      if (title && title.length > 0) {
-        console.log('⚠️ Extracting basic info from HTML for private event');
-        // Extract city from HTML
-        const cityMatch = html.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
-        const city = cityMatch ? cityMatch[1] : 'TBD';
+      // Extract title - try multiple selectors
+      let title = $('h1').first().text().trim() || 
+                  $('[class*="title"], [class*="Title"]').first().text().trim() ||
+                  $('title').text().replace(/\s*\|\s*Luma.*$/i, '').trim();
+      
+      // Extract description - look for "About Event" section
+      let description = '';
+      const descSelectors = [
+        'section:contains("About") p',
+        'section:contains("about") p',
+        '[class*="About"] p',
+        '[class*="about"] p',
+        '[class*="Description"]',
+        '[class*="description"]',
+        'section p',
+        'main p'
+      ];
+      
+      for (const selector of descSelectors) {
+        const elements = $(selector);
+        for (let i = 0; i < elements.length; i++) {
+          const text = $(elements[i]).text().trim();
+          if (text.length > 20 && 
+              !text.toLowerCase().includes('register') && 
+              !text.toLowerCase().includes('sign in') &&
+              !text.toLowerCase().includes('approval required')) {
+            description = text;
+            break;
+          }
+        }
+        if (description) break;
+      }
+      
+      // If no description found, try to get all text from about section
+      if (!description) {
+        const aboutSection = $('section:contains("About"), [class*="about"]').first();
+        if (aboutSection.length) {
+          const aboutText = aboutSection.find('p').map((_, el) => $(el).text().trim()).get().join(' ');
+          if (aboutText.length > 20) {
+            description = aboutText;
+          }
+        }
+      }
+      
+      // Extract organizer
+      let organizer = '';
+      const organizerSelectors = [
+        '[class*="organizer"]',
+        '[class*="Organizer"]',
+        '[class*="host"]',
+        '[class*="Host"]',
+        'address'
+      ];
+      for (const selector of organizerSelectors) {
+        const orgText = $(selector).first().text().trim();
+        if (orgText && orgText.length > 0 && !orgText.toLowerCase().includes('register')) {
+          organizer = orgText;
+          break;
+        }
+      }
+      
+      // Extract location
+      let location = 'Register to see address';
+      const locationSelectors = [
+        '[class*="location"]',
+        '[class*="Location"]',
+        '[class*="address"]',
+        '[class*="Address"]',
+        'address'
+      ];
+      for (const selector of locationSelectors) {
+        const locText = $(selector).first().text().trim();
+        if (locText && 
+            locText.length > 0 && 
+            !locText.toLowerCase().includes('register to see')) {
+          location = locText;
+          break;
+        }
+      }
+      
+      // Extract city from HTML content
+      const cityPattern = /(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester|England|Scotland|Wales|Northern Ireland)/i;
+      const cityMatch = html.match(cityPattern);
+      let city = 'TBD';
+      if (cityMatch) {
+        city = cityMatch[1];
+        // Normalize "England" to try to find actual city
+        if (city.toLowerCase() === 'england') {
+          const cityMatch2 = html.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Liverpool|Leeds|Sheffield|Newcastle|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
+          if (cityMatch2) city = cityMatch2[1];
+        }
+      }
+      
+      // Return data even if incomplete - at least need title OR description
+      if (title || description) {
+        console.log('✅ Extracted data from HTML using Cheerio:', { 
+          hasTitle: !!title, 
+          hasDescription: !!description,
+          hasOrganizer: !!organizer,
+          city 
+        });
         
         return {
-          title: title,
-          description: '',
+          title: title || description?.substring(0, 50) + '...' || 'Untitled Event',
+          description: description || '',
           date: new Date().toISOString().split('T')[0],
           time: 'TBD',
-          location: 'Register to see address',
+          location: location,
           city: city,
-          organizer: '',
+          organizer: organizer || '',
           url: eventUrl,
           categories: ['Scraped'],
           platform: 'luma'
         };
       }
     } catch (htmlError) {
-      console.log('⚠️ HTML extraction fallback also failed');
+      console.log('⚠️ Cheerio HTML extraction failed:', htmlError instanceof Error ? htmlError.message : String(htmlError));
     }
     
     return null;
@@ -215,30 +312,64 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
         }
       }
 
-      // Extract description - look for common description containers
-      const descSelectors = [
-        '[data-testid*="description"]',
-        '[class*="Description"]',
-        '[class*="description"]',
-        '[class*="About"]',
-        '[class*="about"]',
-        'section[class*="about"] p',
-        'main section p',
-        'section p',
-        'main p',
-        'article p'
-      ];
+      // Extract description - look for "About Event" section and other description containers
       let description = '';
-      for (const selector of descSelectors) {
-        const els = document.querySelectorAll(selector);
-        for (const el of Array.from(els)) {
-          const text = el.textContent?.trim() || '';
-          if (text.length > 50 && !text.toLowerCase().includes('register') && !text.toLowerCase().includes('sign in')) {
-            description = text;
+      
+      // First, try to find "About Event" section specifically
+      const aboutHeadings = document.querySelectorAll('h2, h3, h4, [class*="heading"]');
+      for (const heading of Array.from(aboutHeadings)) {
+        const headingText = heading.textContent?.toLowerCase() || '';
+        if (headingText.includes('about') || headingText.includes('event')) {
+          // Get all paragraphs after this heading
+          let current = heading.nextElementSibling;
+          const paragraphs: string[] = [];
+          while (current && paragraphs.length < 5) {
+            if (current.tagName === 'P' || current.tagName === 'DIV') {
+              const text = current.textContent?.trim() || '';
+              if (text.length > 10 && 
+                  !text.toLowerCase().includes('register') && 
+                  !text.toLowerCase().includes('sign in') &&
+                  !text.toLowerCase().includes('approval required')) {
+                paragraphs.push(text);
+              }
+            }
+            current = current.nextElementSibling;
+          }
+          if (paragraphs.length > 0) {
+            description = paragraphs.join(' ');
             break;
           }
         }
-        if (description) break;
+      }
+      
+      // If no description found, try common description containers
+      if (!description) {
+        const descSelectors = [
+          '[data-testid*="description"]',
+          '[class*="Description"]',
+          '[class*="description"]',
+          '[class*="About"]',
+          '[class*="about"]',
+          'section[class*="about"] p',
+          'main section p',
+          'section p',
+          'main p',
+          'article p'
+        ];
+        for (const selector of descSelectors) {
+          const els = document.querySelectorAll(selector);
+          for (const el of Array.from(els)) {
+            const text = el.textContent?.trim() || '';
+            if (text.length > 20 && 
+                !text.toLowerCase().includes('register') && 
+                !text.toLowerCase().includes('sign in') && 
+                !text.toLowerCase().includes('approval required')) {
+              description = text;
+              break;
+            }
+          }
+          if (description) break;
+        }
       }
 
       // Extract location hint - try multiple selectors
@@ -287,10 +418,21 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
       return { title, description, location, city };
     });
 
-    if (domData && domData.title) {
-      console.log('✅ Extracted data from DOM for private event');
+    // Return partial data if we have at least title OR description OR city
+    if (domData && (domData.title || domData.description || domData.city)) {
+      console.log('✅ Extracted data from DOM for private event:', {
+        hasTitle: !!domData.title,
+        hasDescription: !!domData.description,
+        hasCity: !!domData.city
+      });
+      
+      // Use description snippet as title fallback if title not found
+      const title = domData.title || 
+                   (domData.description ? domData.description.substring(0, 50) + '...' : '') ||
+                   'Untitled Event';
+      
       return {
-        title: domData.title,
+        title: title,
         description: domData.description || '',
         date: new Date().toISOString().split('T')[0], // Default to today if not found
         time: 'TBD',
@@ -391,30 +533,64 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
         }
       }
 
-      // Extract description - look for common description containers
-      const descSelectors = [
-        '[data-testid*="description"]',
-        '[class*="Description"]',
-        '[class*="description"]',
-        '[class*="About"]',
-        '[class*="about"]',
-        'section[class*="about"] p',
-        'main section p',
-        'section p',
-        'main p',
-        'article p'
-      ];
+      // Extract description - look for "About Event" section and other description containers
       let description = '';
-      for (const selector of descSelectors) {
-        const els = document.querySelectorAll(selector);
-        for (const el of Array.from(els)) {
-          const text = el.textContent?.trim() || '';
-          if (text.length > 50 && !text.toLowerCase().includes('register') && !text.toLowerCase().includes('sign in')) {
-            description = text;
+      
+      // First, try to find "About Event" section specifically
+      const aboutHeadings = document.querySelectorAll('h2, h3, h4, [class*="heading"]');
+      for (const heading of Array.from(aboutHeadings)) {
+        const headingText = heading.textContent?.toLowerCase() || '';
+        if (headingText.includes('about') || headingText.includes('event')) {
+          // Get all paragraphs after this heading
+          let current = heading.nextElementSibling;
+          const paragraphs: string[] = [];
+          while (current && paragraphs.length < 5) {
+            if (current.tagName === 'P' || current.tagName === 'DIV') {
+              const text = current.textContent?.trim() || '';
+              if (text.length > 10 && 
+                  !text.toLowerCase().includes('register') && 
+                  !text.toLowerCase().includes('sign in') &&
+                  !text.toLowerCase().includes('approval required')) {
+                paragraphs.push(text);
+              }
+            }
+            current = current.nextElementSibling;
+          }
+          if (paragraphs.length > 0) {
+            description = paragraphs.join(' ');
             break;
           }
         }
-        if (description) break;
+      }
+      
+      // If no description found, try common description containers
+      if (!description) {
+        const descSelectors = [
+          '[data-testid*="description"]',
+          '[class*="Description"]',
+          '[class*="description"]',
+          '[class*="About"]',
+          '[class*="about"]',
+          'section[class*="about"] p',
+          'main section p',
+          'section p',
+          'main p',
+          'article p'
+        ];
+        for (const selector of descSelectors) {
+          const els = document.querySelectorAll(selector);
+          for (const el of Array.from(els)) {
+            const text = el.textContent?.trim() || '';
+            if (text.length > 20 && 
+                !text.toLowerCase().includes('register') && 
+                !text.toLowerCase().includes('sign in') && 
+                !text.toLowerCase().includes('approval required')) {
+              description = text;
+              break;
+            }
+          }
+          if (description) break;
+        }
       }
 
       // Extract location hint - try multiple selectors
@@ -463,10 +639,21 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
       return { title, description, location, city };
     });
 
-    if (domData && domData.title) {
-      console.log('✅ Extracted data from DOM for private event');
+    // Return partial data if we have at least title OR description OR city
+    if (domData && (domData.title || domData.description || domData.city)) {
+      console.log('✅ Extracted data from DOM for private event:', {
+        hasTitle: !!domData.title,
+        hasDescription: !!domData.description,
+        hasCity: !!domData.city
+      });
+      
+      // Use description snippet as title fallback if title not found
+      const title = domData.title || 
+                   (domData.description ? domData.description.substring(0, 50) + '...' : '') ||
+                   'Untitled Event';
+      
       return {
-        title: domData.title,
+        title: title,
         description: domData.description || '',
         date: new Date().toISOString().split('T')[0], // Default to today if not found
         time: 'TBD',
