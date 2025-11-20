@@ -165,7 +165,7 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
     console.log(`🎭 Navigating to: ${eventUrl}`);
     await page.goto(eventUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
     // Wait for potential dynamic content
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Extract JSON-LD data
     const jsonLdData = await page.evaluate(() => {
@@ -192,7 +192,7 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
     console.log('⚠️ No JSON-LD found, attempting DOM extraction for private event...');
     
     // Wait a bit for page to fully render
-    await page.waitForTimeout(2000);
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     const domData = await page.evaluate(() => {
       // Extract title - try multiple selectors for Luma's structure
@@ -341,7 +341,7 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
     console.log(`🕷️ Navigating to: ${eventUrl}`);
     await page.goto(eventUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
     // Wait for potential dynamic content
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Extract JSON-LD data
     const jsonLdData = await page.evaluate(() => {
@@ -368,7 +368,7 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
     console.log('⚠️ No JSON-LD found, attempting DOM extraction for private event...');
     
     // Wait a bit for page to fully render
-    await page.waitForTimeout(2000);
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     const domData = await page.evaluate(() => {
       // Extract title - try multiple selectors for Luma's structure
