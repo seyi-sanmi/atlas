@@ -88,6 +88,33 @@ async function fetchLumaEventData(eventUrl: string): Promise<ScrapedEventData | 
     }
 
     console.log('❌ No Event schema found in JSON-LD data');
+    
+    // Fallback: Try to extract basic info from HTML for private events
+    try {
+      const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/i) || html.match(/<title[^>]*>(.*?)<\/title>/i);
+      const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : '';
+      
+      if (title && title.length > 0) {
+        console.log('⚠️ Extracting basic info from HTML for private event');
+        // Extract city from HTML
+        const cityMatch = html.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
+        const city = cityMatch ? cityMatch[1] : 'TBD';
+        
+        return {
+          title: title,
+          description: '',
+          date: new Date().toISOString().split('T')[0],
+          time: 'TBD',
+          location: 'Register to see address',
+          city: city,
+          organizer: '',
+          platform: 'luma'
+        };
+      }
+    } catch (htmlError) {
+      console.log('⚠️ HTML extraction fallback also failed');
+    }
+    
     return null;
 
   } catch (error) {
@@ -157,7 +184,57 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
       return await parseJsonLdData(jsonLdData, eventUrl);
     }
 
-    throw new Error('No Event JSON-LD data found');
+    // Fallback: Try to extract data from DOM for private events
+    console.log('⚠️ No JSON-LD found, attempting DOM extraction for private event...');
+    const domData = await page.evaluate(() => {
+      // Extract title
+      const titleEl = document.querySelector('h1') || document.querySelector('[class*="title"]') || document.querySelector('title');
+      const title = titleEl?.textContent?.trim() || '';
+
+      // Extract description - look for common description containers
+      const descSelectors = [
+        '[class*="description"]',
+        '[class*="about"]',
+        'section p',
+        'main p'
+      ];
+      let description = '';
+      for (const selector of descSelectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent && el.textContent.length > 50) {
+          description = el.textContent.trim();
+          break;
+        }
+      }
+
+      // Extract location hint
+      const locationEl = document.querySelector('[class*="location"]') || 
+                        document.querySelector('[class*="address"]') ||
+                        document.querySelector('address');
+      const location = locationEl?.textContent?.trim() || '';
+
+      // Extract city from location or page
+      const cityMatch = document.body.textContent?.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester|York|Ipswich|Cambridge|Oxford|Bath|Brighton|Hastings|Eastbourne|Maidstone|Guildford|Woking|Reigate|Dorking|Sevenoaks|Tunbridge Wells|Tonbridge|Ashford|Dartford|Gravesend|Rochester|Chatham|Gillingham|Sittingbourne|Faversham|Whitstable|Herne Bay|Margate|Ramsgate|Broadstairs|Deal|Dover|Folkestone|Hythe|New Romney|Lydd|Rye|Hastings|Bexhill|Eastbourne|Seaford|Newhaven|Peacehaven|Saltdean|Rottingdean|Ovingdean|Brighton|Hove|Portslade|Shoreham|Lancing|Worthing|Littlehampton|Bognor Regis|Selsey|Chichester|Midhurst|Petersfield|Alton|Farnham|Godalming|Haslemere|Cranleigh|Dorking|Reigate|Redhill|Horley|Crawley|Horsham|Haywards Heath|Burgess Hill|Hassocks|Hurstpierpoint|Steyning|Shoreham|Lancing|Worthing|Littlehampton|Bognor Regis|Selsey|Chichester|Midhurst|Petersfield|Alton|Farnham|Godalming|Haslemere|Cranleigh|Dorking|Reigate|Redhill|Horley|Crawley|Horsham|Haywards Heath|Burgess Hill|Hassocks|Hurstpierpoint|Steyning)/i);
+      const city = cityMatch ? cityMatch[1] : '';
+
+      return { title, description, location, city };
+    });
+
+    if (domData && domData.title) {
+      console.log('✅ Extracted data from DOM for private event');
+      return {
+        title: domData.title,
+        description: domData.description || '',
+        date: new Date().toISOString().split('T')[0], // Default to today if not found
+        time: 'TBD',
+        location: domData.location || 'Register to see address',
+        city: domData.city || 'TBD',
+        organizer: '',
+        platform: 'luma'
+      };
+    }
+
+    throw new Error('No Event JSON-LD data found and DOM extraction failed');
 
   } catch (error) {
     console.error('❌ Playwright fallback failed:', error instanceof Error ? error.message : String(error));
@@ -216,7 +293,57 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
       return await parseJsonLdData(jsonLdData, eventUrl);
     }
 
-    throw new Error('No Event JSON-LD data found');
+    // Fallback: Try to extract data from DOM for private events
+    console.log('⚠️ No JSON-LD found, attempting DOM extraction for private event...');
+    const domData = await page.evaluate(() => {
+      // Extract title
+      const titleEl = document.querySelector('h1') || document.querySelector('[class*="title"]') || document.querySelector('title');
+      const title = titleEl?.textContent?.trim() || '';
+
+      // Extract description - look for common description containers
+      const descSelectors = [
+        '[class*="description"]',
+        '[class*="about"]',
+        'section p',
+        'main p'
+      ];
+      let description = '';
+      for (const selector of descSelectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent && el.textContent.length > 50) {
+          description = el.textContent.trim();
+          break;
+        }
+      }
+
+      // Extract location hint
+      const locationEl = document.querySelector('[class*="location"]') || 
+                        document.querySelector('[class*="address"]') ||
+                        document.querySelector('address');
+      const location = locationEl?.textContent?.trim() || '';
+
+      // Extract city from location or page
+      const cityMatch = document.body.textContent?.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
+      const city = cityMatch ? cityMatch[1] : '';
+
+      return { title, description, location, city };
+    });
+
+    if (domData && domData.title) {
+      console.log('✅ Extracted data from DOM for private event');
+      return {
+        title: domData.title,
+        description: domData.description || '',
+        date: new Date().toISOString().split('T')[0], // Default to today if not found
+        time: 'TBD',
+        location: domData.location || 'Register to see address',
+        city: domData.city || 'TBD',
+        organizer: '',
+        platform: 'luma'
+      };
+    }
+
+    throw new Error('No Event JSON-LD data found and DOM extraction failed');
 
   } catch (error) {
     console.error('❌ Puppeteer fallback failed:', error instanceof Error ? error.message : String(error));
