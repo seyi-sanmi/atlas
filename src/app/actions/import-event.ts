@@ -31,7 +31,10 @@ async function addAIAnalysis(eventData: any) {
     
     return {
       ...eventData,
-      ai_event_type: aiResult.event_type,
+      ai_event_type: aiResult.event_type || 'Other', // Legacy field (first type)
+      ai_event_types: aiResult.event_type 
+        ? [aiResult.event_type] 
+        : ['Other'], // New multi-select field (ensure always array)
       ai_interest_areas: aiResult.event_interest_areas,
       ai_categorized: true,
       ai_categorized_at: new Date().toISOString(),
@@ -993,7 +996,10 @@ export async function enhanceEventWithCategories(basicEventData: any) {
     
     const categorizedData = {
       ...basicEventData,
-      ai_event_type: aiResult.event_type,
+      ai_event_type: aiResult.event_type || 'Other', // Legacy field (first type)
+      ai_event_types: aiResult.event_type 
+        ? [aiResult.event_type] 
+        : ['Other'], // New multi-select field (ensure always array)
       ai_interest_areas: aiResult.event_interest_areas,
       ai_categorized: true,
       ai_categorized_at: new Date().toISOString()
@@ -1154,7 +1160,35 @@ export async function importLumaEvent(lumaUrl: string) {
 export async function saveImportedEvent(eventData: any) {
   try {
     // Remove platform-specific fields that might be too large
+<<<<<<< HEAD
     const { luma_data, eventbrite_data, ...eventToSave } = eventData;
+    const { 
+      luma_data, 
+      eventbrite_data, 
+      ...eventToSave 
+    } = eventData;
+    
+    // Ensure ai_event_types is always a valid array (never null)
+    if (!eventToSave.ai_event_types || !Array.isArray(eventToSave.ai_event_types)) {
+      console.log('⚠️  ai_event_types was null/invalid, creating from ai_event_type:', eventToSave.ai_event_type);
+      // Handle case where it might be a string instead of array
+      if (typeof eventToSave.ai_event_types === 'string') {
+        eventToSave.ai_event_types = [eventToSave.ai_event_types];
+      } else {
+        eventToSave.ai_event_types = eventToSave.ai_event_type ? [eventToSave.ai_event_type] : ['Other'];
+      }
+    }
+    
+    // Double-check: ensure it's never null or undefined
+    if (!eventToSave.ai_event_types || eventToSave.ai_event_types.length === 0) {
+      eventToSave.ai_event_types = ['Other'];
+    }
+    
+    // Log the final ai_event_types value
+    console.log('✅ Final ai_event_types value:', eventToSave.ai_event_types);
+    
+    // Log the cleaned data structure
+    console.log('💾 Data being sent to Supabase (filtered):', Object.keys(eventToSave));
     
     const { data, error } = await supabase
       .from('events')
