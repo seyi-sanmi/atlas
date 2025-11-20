@@ -163,7 +163,9 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
     });
 
     console.log(`🎭 Navigating to: ${eventUrl}`);
-    await page.goto(eventUrl, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto(eventUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // Wait for potential dynamic content
+    await page.waitForTimeout(3000);
 
     // Extract JSON-LD data
     const jsonLdData = await page.evaluate(() => {
@@ -188,36 +190,99 @@ async function browserFallbackApproach(eventUrl: string): Promise<ScrapedEventDa
 
     // Fallback: Try to extract data from DOM for private events
     console.log('⚠️ No JSON-LD found, attempting DOM extraction for private event...');
+    
+    // Wait a bit for page to fully render
+    await page.waitForTimeout(2000);
+    
     const domData = await page.evaluate(() => {
-      // Extract title
-      const titleEl = document.querySelector('h1') || document.querySelector('[class*="title"]') || document.querySelector('title');
-      const title = titleEl?.textContent?.trim() || '';
-
-      // Extract description - look for common description containers
-      const descSelectors = [
-        '[class*="description"]',
-        '[class*="about"]',
-        'section p',
-        'main p'
+      // Extract title - try multiple selectors for Luma's structure
+      const titleSelectors = [
+        'h1',
+        '[data-testid*="title"]',
+        '[class*="EventTitle"]',
+        '[class*="event-title"]',
+        '[class*="Title"]',
+        'title'
       ];
-      let description = '';
-      for (const selector of descSelectors) {
+      let title = '';
+      for (const selector of titleSelectors) {
         const el = document.querySelector(selector);
-        if (el && el.textContent && el.textContent.length > 50) {
-          description = el.textContent.trim();
-          break;
+        if (el && el.textContent && el.textContent.trim().length > 0) {
+          title = el.textContent.trim();
+          // Remove "| Luma" or similar suffixes
+          title = title.replace(/\s*\|\s*Luma.*$/i, '').trim();
+          if (title.length > 0) break;
         }
       }
 
-      // Extract location hint
-      const locationEl = document.querySelector('[class*="location"]') || 
-                        document.querySelector('[class*="address"]') ||
-                        document.querySelector('address');
-      const location = locationEl?.textContent?.trim() || '';
+      // Extract description - look for common description containers
+      const descSelectors = [
+        '[data-testid*="description"]',
+        '[class*="Description"]',
+        '[class*="description"]',
+        '[class*="About"]',
+        '[class*="about"]',
+        'section[class*="about"] p',
+        'main section p',
+        'section p',
+        'main p',
+        'article p'
+      ];
+      let description = '';
+      for (const selector of descSelectors) {
+        const els = document.querySelectorAll(selector);
+        for (const el of Array.from(els)) {
+          const text = el.textContent?.trim() || '';
+          if (text.length > 50 && !text.toLowerCase().includes('register') && !text.toLowerCase().includes('sign in')) {
+            description = text;
+            break;
+          }
+        }
+        if (description) break;
+      }
 
-      // Extract city from location or page
-      const cityMatch = document.body.textContent?.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester|York|Ipswich|Cambridge|Oxford|Bath|Brighton|Hastings|Eastbourne|Maidstone|Guildford|Woking|Reigate|Dorking|Sevenoaks|Tunbridge Wells|Tonbridge|Ashford|Dartford|Gravesend|Rochester|Chatham|Gillingham|Sittingbourne|Faversham|Whitstable|Herne Bay|Margate|Ramsgate|Broadstairs|Deal|Dover|Folkestone|Hythe|New Romney|Lydd|Rye|Hastings|Bexhill|Eastbourne|Seaford|Newhaven|Peacehaven|Saltdean|Rottingdean|Ovingdean|Brighton|Hove|Portslade|Shoreham|Lancing|Worthing|Littlehampton|Bognor Regis|Selsey|Chichester|Midhurst|Petersfield|Alton|Farnham|Godalming|Haslemere|Cranleigh|Dorking|Reigate|Redhill|Horley|Crawley|Horsham|Haywards Heath|Burgess Hill|Hassocks|Hurstpierpoint|Steyning|Shoreham|Lancing|Worthing|Littlehampton|Bognor Regis|Selsey|Chichester|Midhurst|Petersfield|Alton|Farnham|Godalming|Haslemere|Cranleigh|Dorking|Reigate|Redhill|Horley|Crawley|Horsham|Haywards Heath|Burgess Hill|Hassocks|Hurstpierpoint|Steyning)/i);
-      const city = cityMatch ? cityMatch[1] : '';
+      // Extract location hint - try multiple selectors
+      const locationSelectors = [
+        '[data-testid*="location"]',
+        '[class*="Location"]',
+        '[class*="location"]',
+        '[class*="Address"]',
+        '[class*="address"]',
+        'address',
+        '[class*="venue"]'
+      ];
+      let location = '';
+      for (const selector of locationSelectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent) {
+          const text = el.textContent.trim();
+          if (text.length > 0 && !text.toLowerCase().includes('register to see')) {
+            location = text;
+            break;
+          }
+        }
+      }
+      
+      // If no location found, check for "Register to see address" pattern
+      if (!location) {
+        const registerText = document.body.textContent?.match(/register\s+to\s+see\s+(?:the\s+)?(?:exact\s+)?(?:location|address)/i);
+        if (registerText) {
+          location = 'Register to see address';
+        }
+      }
+
+      // Extract city from page content - comprehensive UK cities list
+      const cityPattern = /(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester|England|Scotland|Wales|Northern Ireland)/i;
+      const cityMatch = document.body.textContent?.match(cityPattern);
+      let city = '';
+      if (cityMatch) {
+        city = cityMatch[1];
+        // Normalize "England" to try to find actual city
+        if (city.toLowerCase() === 'england') {
+          const cityMatch2 = document.body.textContent?.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Liverpool|Leeds|Sheffield|Newcastle|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
+          if (cityMatch2) city = cityMatch2[1];
+        }
+      }
 
       return { title, description, location, city };
     });
@@ -274,7 +339,9 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
     
     console.log(`🕷️ Navigating to: ${eventUrl}`);
-    await page.goto(eventUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(eventUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // Wait for potential dynamic content
+    await page.waitForTimeout(3000);
 
     // Extract JSON-LD data
     const jsonLdData = await page.evaluate(() => {
@@ -299,36 +366,99 @@ async function puppeteerFallback(eventUrl: string): Promise<ScrapedEventData | n
 
     // Fallback: Try to extract data from DOM for private events
     console.log('⚠️ No JSON-LD found, attempting DOM extraction for private event...');
+    
+    // Wait a bit for page to fully render
+    await page.waitForTimeout(2000);
+    
     const domData = await page.evaluate(() => {
-      // Extract title
-      const titleEl = document.querySelector('h1') || document.querySelector('[class*="title"]') || document.querySelector('title');
-      const title = titleEl?.textContent?.trim() || '';
-
-      // Extract description - look for common description containers
-      const descSelectors = [
-        '[class*="description"]',
-        '[class*="about"]',
-        'section p',
-        'main p'
+      // Extract title - try multiple selectors for Luma's structure
+      const titleSelectors = [
+        'h1',
+        '[data-testid*="title"]',
+        '[class*="EventTitle"]',
+        '[class*="event-title"]',
+        '[class*="Title"]',
+        'title'
       ];
-      let description = '';
-      for (const selector of descSelectors) {
+      let title = '';
+      for (const selector of titleSelectors) {
         const el = document.querySelector(selector);
-        if (el && el.textContent && el.textContent.length > 50) {
-          description = el.textContent.trim();
-          break;
+        if (el && el.textContent && el.textContent.trim().length > 0) {
+          title = el.textContent.trim();
+          // Remove "| Luma" or similar suffixes
+          title = title.replace(/\s*\|\s*Luma.*$/i, '').trim();
+          if (title.length > 0) break;
         }
       }
 
-      // Extract location hint
-      const locationEl = document.querySelector('[class*="location"]') || 
-                        document.querySelector('[class*="address"]') ||
-                        document.querySelector('address');
-      const location = locationEl?.textContent?.trim() || '';
+      // Extract description - look for common description containers
+      const descSelectors = [
+        '[data-testid*="description"]',
+        '[class*="Description"]',
+        '[class*="description"]',
+        '[class*="About"]',
+        '[class*="about"]',
+        'section[class*="about"] p',
+        'main section p',
+        'section p',
+        'main p',
+        'article p'
+      ];
+      let description = '';
+      for (const selector of descSelectors) {
+        const els = document.querySelectorAll(selector);
+        for (const el of Array.from(els)) {
+          const text = el.textContent?.trim() || '';
+          if (text.length > 50 && !text.toLowerCase().includes('register') && !text.toLowerCase().includes('sign in')) {
+            description = text;
+            break;
+          }
+        }
+        if (description) break;
+      }
 
-      // Extract city from location or page
-      const cityMatch = document.body.textContent?.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
-      const city = cityMatch ? cityMatch[1] : '';
+      // Extract location hint - try multiple selectors
+      const locationSelectors = [
+        '[data-testid*="location"]',
+        '[class*="Location"]',
+        '[class*="location"]',
+        '[class*="Address"]',
+        '[class*="address"]',
+        'address',
+        '[class*="venue"]'
+      ];
+      let location = '';
+      for (const selector of locationSelectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent) {
+          const text = el.textContent.trim();
+          if (text.length > 0 && !text.toLowerCase().includes('register to see')) {
+            location = text;
+            break;
+          }
+        }
+      }
+      
+      // If no location found, check for "Register to see address" pattern
+      if (!location) {
+        const registerText = document.body.textContent?.match(/register\s+to\s+see\s+(?:the\s+)?(?:exact\s+)?(?:location|address)/i);
+        if (registerText) {
+          location = 'Register to see address';
+        }
+      }
+
+      // Extract city from page content - comprehensive UK cities list
+      const cityPattern = /(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Edinburgh|Glasgow|Liverpool|Leeds|Sheffield|Newcastle|Cardiff|Belfast|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester|England|Scotland|Wales|Northern Ireland)/i;
+      const cityMatch = document.body.textContent?.match(cityPattern);
+      let city = '';
+      if (cityMatch) {
+        city = cityMatch[1];
+        // Normalize "England" to try to find actual city
+        if (city.toLowerCase() === 'england') {
+          const cityMatch2 = document.body.textContent?.match(/(London|Manchester|Birmingham|Bristol|Cambridge|Oxford|Liverpool|Leeds|Sheffield|Newcastle|Brighton|Bath|York|Nottingham|Leicester|Coventry|Reading|Southampton|Portsmouth|Plymouth|Norwich|Bournemouth|Swindon|Milton Keynes|Peterborough|Ipswich|Blackpool|Northampton|Luton|Exeter|Slough|Colchester|Gloucester|Watford|Canterbury|Stoke|Worcester)/i);
+          if (cityMatch2) city = cityMatch2[1];
+        }
+      }
 
       return { title, description, location, city };
     });
